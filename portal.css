@@ -1,0 +1,33 @@
+body { 
+    font-family: 'Inter', sans-serif; 
+    background-color: #F4F6F9; 
+    color: #0F172A; 
+}
+.hero-overlay {
+    background: linear-gradient(135deg, rgba(10, 37, 64, 0.92) 0%, rgba(0, 51, 102, 0.82) 100%), 
+                url('https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+}
+.custom-scrollbar::-webkit-scrollbar { 
+    width: 6px; 
+}
+.custom-scrollbar::-webkit-scrollbar-track { 
+    background: #0A2540; 
+}
+.custom-scrollbar::-webkit-scrollbar-thumb { 
+    background: #1E3A8A; 
+    border-radius: 3px; 
+}
+.tab-btn.active { 
+    background-color: white; 
+    color: #0A2540; 
+    font-weight: 600; 
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Changed from shadow to box-shadow */
+}
+.nav-item.active {
+    background-color: white; 
+    color: #0A2540; 
+    font-weight: 600; 
+}
+.nav-item.active i { 
+    color: #0066CC; 
+}

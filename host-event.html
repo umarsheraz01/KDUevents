@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Host an Event - KDU Events</title>
+   <link rel="icon" type="Image" href="main log.svg">
+    <link rel="stylesheet" href="event-host.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="navbar-header">
+    <div class="nav-container">
+      <a href="index.html" class="brand-logo">
+        <img src="main log.svg" alt="KDU Logo" class="logo-img">
+        <span class="logo-text">KDU <span class="logo-highlight">EVENTS</span></span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html#discover">Discover</a>
+        <a href="index.html#upcoming">Upcoming</a>
+        <a href="index.html#past">Past events</a>
+        <a href="index.html#about">About us</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="host-event.html" class="btn-register-header">Host Event &rarr;</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Banner Header -->
+  <section class="host-hero">
+    <span class="badge-tag">Campus Initiatives</span>
+    <h1 class="hero-title">Bring Your <span class="text-red">Vision</span> To Campus</h1>
+    <p class="hero-subtitle">Organize student events, workshops, cultural summits, or society meetups across Kyungdong University.</p>
+  </section>
+
+  <!-- Form Container -->
+  <main class="host-container">
+    <form class="host-card-form" action="#" method="POST">
+      
+      <div class="form-header">
+        <h2>Event Proposal Application</h2>
+        <p>Fill out event details for administration review and room allocation.</p>
+      </div>
+
+      <!-- Section 1 -->
+      <div class="form-section">
+        <h3 class="section-title"><span class="num-badge">1</span> Basic Information</h3>
+        
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="eventTitle">Event Title *</label>
+            <input type="text" id="eventTitle" placeholder="e.g. Future Forward: Tech & Innovation Summit" required>
+          </div>
+
+          <div class="form-group">
+            <label for="eventCategory">Category *</label>
+            <select id="eventCategory" required>
+              <option value="" disabled selected>Select Category</option>
+              <option value="technology">Technology & AI</option>
+              <option value="arts">Arts & Culture</option>
+              <option value="entrepreneurship">Entrepreneurship</option>
+              <option value="social">Social & Student Life</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="targetAudience">Target Audience</label>
+            <select id="targetAudience">
+              <option value="all">All Students & Faculty</option>
+              <option value="undergrad">Undergraduates Only</option>
+              <option value="international">International Students</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="eventDescription">Event Description *</label>
+            <textarea id="eventDescription" rows="4" placeholder="Provide a detailed overview of schedule, speakers, and goals..." required></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2 -->
+      <div class="form-section">
+        <h3 class="section-title"><span class="num-badge">2</span> Date, Venue & Capacity</h3>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="eventDate">Event Date *</label>
+            <input type="date" id="eventDate" required>
+          </div>
+
+          <div class="form-group">
+            <label for="eventTime">Start Time *</label>
+            <input type="time" id="eventTime" required>
+          </div>
+
+          <div class="form-group">
+            <label for="venueSelect">Venue Request *</label>
+            <select id="venueSelect" required>
+              <option value="" disabled selected>Select Preferred Venue</option>
+              <option value="innovation-hall">Innovation Hall (Main Campus)</option>
+              <option value="atrium">The Atrium Auditorium</option>
+              <option value="student-commons">Student Commons Center</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="expectedAttendees">Expected Attendees</label>
+            <input type="number" id="expectedAttendees" min="10" placeholder="e.g. 150">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3 -->
+      <div class="form-section">
+        <h3 class="section-title"><span class="num-badge">3</span> Equipment & Logistics</h3>
+
+        <div class="logistics-grid">
+          <label class="toggle-card">
+            <input type="checkbox">
+            <div>
+              <span class="toggle-title">Catering & Refreshments</span>
+              <span class="toggle-desc">Food, drinks, or coffee setup required</span>
+            </div>
+          </label>
+
+          <label class="toggle-card">
+            <input type="checkbox">
+            <div>
+              <span class="toggle-title">AV & Microphone System</span>
+              <span class="toggle-desc">Projectors, microphones, and speakers</span>
+            </div>
+          </label>
+
+          <label class="toggle-card">
+            <input type="checkbox">
+            <div>
+              <span class="toggle-title">Stage Setup & Lighting</span>
+              <span class="toggle-desc">Podium, stage lighting, and banners</span>
+            </div>
+          </label>
+
+          <label class="toggle-card">
+            <input type="checkbox">
+            <div>
+              <span class="toggle-title">Live Stream / Recording</span>
+              <span class="toggle-desc">Camera setup and university broadcast</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Submit Action -->
+      <div class="form-actions">
+        <button type="submit" class="btn-submit-proposal">Submit Event Proposal &rarr;</button>
+      </div>
+
+    </form>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="brand-logo">
+          <img src="main log.svg" alt="KDU Logo" class="logo-img">
+          <span class="logo-text">KDU <span class="logo-highlight">EVENTS</span></span>
+        </div>
+        <p class="footer-desc">Your central hub for campus life, workshops, socials, and showcases at KDU.</p>
+      </div>
+
+      <div class="footer-column">
+        <h3>Navigation</h3>
+        <ul>
+          <li><a href="index.html#discover">Discover</a></li>
+          <li><a href="index.html#upcoming">Upcoming Events</a></li>
+          <li><a href="index.html#past">Past Events</a></li>
+          <li><a href="index.html#about">About Us</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h3>Services</h3>
+        <ul>
+          <li><a href="host-event.html">Host an Event</a></li>
+          <li><a href="#">Book a Venue</a></li>
+          <li><a href="#">Campus Societies</a></li>
+          <li><a href="#">Event Guidelines</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h3>Contact Us</h3>
+        <ul>
+          <li>📍 Innovation Hall, Main Campus</li>
+          <li>✉️ events@kdu.ac.kr</li>
+          <li>📞 +82 (033) 631-8000</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 KDU Events. All rights reserved.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

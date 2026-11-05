@@ -1,0 +1,385 @@
+/* Reset & Theme Variables matching KDU Events Main Page */
+    :root {
+      --bg-dark: #0b192c;
+      --bg-card: rgba(19, 34, 56, 0.85);
+      --bg-input: rgba(255, 255, 255, 0.05);
+      --primary-red: #ff3b30;
+      --primary-red-hover: #e03126;
+      --text-white: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.65);
+      --border-subtle: rgba(255, 255, 255, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #07101e;
+      color: var(--text-white);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+    }
+
+    /* Navigation Header */
+    .navbar-header {
+      background: rgba(11, 25, 44, 0.95);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 16px 0;
+    }
+
+    .nav-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-img {
+      height: 38px;
+      width: auto;
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-highlight {
+      color: var(--primary-red);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--text-white);
+    }
+
+    .btn-register-header {
+      background: var(--primary-red);
+      color: #ffffff;
+      padding: 10px 22px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: background 0.2s ease;
+    }
+
+    .btn-register-header:hover {
+      background: var(--primary-red-hover);
+    }
+
+    /* Hero Banner Header */
+    .host-hero {
+      position: relative;
+      background: linear-gradient(180deg, #0b192c 0%, #07101e 100%);
+      padding: 70px 20px 90px;
+      text-align: center;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .badge-tag {
+      color: var(--primary-red);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+
+    .hero-title {
+      font-size: 2.8rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .text-red {
+      color: var(--primary-red);
+    }
+
+    .hero-subtitle {
+      color: var(--text-muted);
+      max-width: 620px;
+      margin: 0 auto;
+      font-size: 1.05rem;
+    }
+
+    /* Main Card Form */
+    .host-container {
+      max-width: 860px;
+      margin: -40px auto 80px auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .host-card-form {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 44px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+    }
+
+    .form-header {
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 20px;
+    }
+
+    .form-header h2 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .form-header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .form-section {
+      margin-bottom: 36px;
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .num-badge {
+      background: var(--primary-red);
+      color: #ffffff;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .full-width {
+      grid-column: span 2;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 13px 16px;
+      color: #ffffff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--primary-red);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .form-group select option {
+      background-color: #0b192c;
+      color: #ffffff;
+    }
+
+    /* Logistics Toggle Cards */
+    .logistics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .toggle-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      padding: 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .toggle-card:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .toggle-card input[type="checkbox"] {
+      accent-color: var(--primary-red);
+      width: 18px;
+      height: 18px;
+      margin-top: 3px;
+    }
+
+    .toggle-title {
+      display: block;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+
+    .toggle-desc {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Submit Button */
+    .form-actions {
+      text-align: right;
+      margin-top: 30px;
+    }
+
+    .btn-submit-proposal {
+      background: var(--primary-red);
+      color: #ffffff;
+      padding: 15px 36px;
+      border: none;
+      border-radius: 30px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .btn-submit-proposal:hover {
+      background: var(--primary-red-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Footer Styling */
+    .site-footer {
+      background: var(--bg-dark);
+      border-top: 1px solid var(--border-subtle);
+      padding: 60px 0 20px 0;
+    }
+
+    .footer-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 30px 40px 30px;
+      display: grid;
+      grid-template-columns: 2fr repeat(3, 1fr);
+      gap: 40px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .footer-brand .footer-desc {
+      color: var(--text-muted);
+      margin-top: 16px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      max-width: 300px;
+    }
+
+    .footer-column h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .footer-column ul {
+      list-style: none;
+    }
+
+    .footer-column ul li {
+      margin-bottom: 12px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .footer-column ul li a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-column ul li a:hover {
+      color: var(--primary-red);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 20px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+      .form-grid, .logistics-grid {
+        grid-template-columns: 1fr;
+      }
+      .full-width {
+        grid-column: span 1;
+      }
+      .footer-container {
+        grid-template-columns: 1fr;
+      }
+      .host-card-form {
+        padding: 24px;
+      }
+    }

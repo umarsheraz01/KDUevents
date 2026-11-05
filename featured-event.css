@@ -1,0 +1,69 @@
+/* ==========================================
+   KDU Events - Global Styling Sheet
+   ========================================== */
+
+/* Base Setup */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0b1329;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff3b30;
+}
+
+/* Toast Animation */
+.toast-notification {
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease-in-out;
+}
+
+.toast-notification.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Accordion Schedule Dropdowns */
+.schedule-item div[id^="item-"] {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease-in-out, padding 0.35s ease-in-out;
+}
+
+.schedule-item.active div[id^="item-"] {
+  max-height: 200px;
+}
+
+/* Card Hover Enhancements */
+.group:hover .group-hover\:scale-105 {
+  transform: scale(1.05);
+}
+
+/* Focus Rings for Accessibility */
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid #f43f5e;
+  outline-offset: 2px;
+}
