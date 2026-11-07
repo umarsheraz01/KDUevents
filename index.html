@@ -370,39 +370,46 @@
 
     <!-- JavaScript Controllers (Hero Slider & Filtering only) -->
     <script>
+
+      /*HERO SLIDER */
       document.addEventListener('DOMContentLoaded', () => {
-        /* ==========================================
-           1. HERO BACKGROUND SLIDER
-           ========================================== */
-        const slides = document.querySelectorAll('.slide');
-        const nextBtn = document.getElementById('nextSlide');
-        const prevBtn = document.getElementById('prevSlide');
-        let currentSlide = 0;
+  const slides = document.querySelectorAll('.slide');
+  const nextBtn = document.getElementById('nextSlide');
+  const prevBtn = document.getElementById('prevSlide');
+  let currentSlide = 0;
 
-        function showSlide(index) {
-          if (slides.length === 0) return;
-          slides.forEach(slide => slide.classList.remove('active'));
-          
-          if (index >= slides.length) currentSlide = 0;
-          else if (index < 0) currentSlide = slides.length - 1;
-          else currentSlide = index;
-          
-          slides[currentSlide].classList.add('active');
-        }
+  function showSlide(index) {
+    if (slides.length === 0) return;
+    slides.forEach(slide => slide.classList.remove('active'));
+    
+    if (index >= slides.length) currentSlide = 0;
+    else if (index < 0) currentSlide = slides.length - 1;
+    else currentSlide = index;
+    
+    // Activate the new slide
+    const activeSlide = slides[currentSlide];
+    activeSlide.classList.add('active');
 
-        if (nextBtn) {
-          nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
-        }
-        if (prevBtn) {
-          prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
-        }
+    // Instantly play the video inside the active slide
+    const video = activeSlide.querySelector('video');
+    if (video) {
+      video.currentTime = 0;
+      video.play().catch(err => console.log("Video play delayed:", err));
+    }
+  }
 
-        // Auto-slide every 6 seconds
-        setInterval(() => {
-          showSlide(currentSlide + 1);
-        }, 6000);
-      });
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
+  }
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+  }
 
+  // Auto-slide every 6 seconds
+  setInterval(() => {
+    showSlide(currentSlide + 1);
+  }, 6000);
+});
       /* ==========================================
          2. EVENT FILTERING CONTROLLER
          ========================================== */
