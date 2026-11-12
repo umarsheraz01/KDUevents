@@ -2,11 +2,18 @@ const express = require('express');
 const router = express.Router();
 const Subscriber = require('../models/subscriber');
 const nodemailer = require('nodemailer');
+const mongoose = require('mongoose');
 
 router.post('/subscribe', async (req, res) => {
   try {
-    const { email } = req.body;
-    
+    const email = (req.body.email || '').toLowerCase().trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ message: 'Please enter a valid email address.' });
+    }
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Subscriptions are temporarily unavailable. Please try again later.' });
+    }
+
     // Check if already subscribed
     const existing = await Subscriber.findOne({ email });
     if (existing) {

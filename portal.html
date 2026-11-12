@@ -1,594 +1,300 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KDU Events - University Event Management System</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Font (Inter) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="portal.css">
-    <link rel="stylesheet" href="portal.js">
-    <!-- QR Code Generator Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KDU EVENTS - Student Portal</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="stylesheet" href="portal.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="h-screen overflow-hidden bg-slate-50">
+<body>
 
-    <!-- APP CONTAINER -->
-    <div id="app" class="h-full w-full flex flex-col">
-        <!-- Toast Notification Container -->
-        <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-        <!-- ========================================== -->
-        <!-- SCREEN 1: LOGIN / AUTHENTICATION (Figma Split) -->
-        <!-- ========================================== -->
-        <div id="auth-screen" class="h-full w-full flex flex-col md:flex-row">
-            <!-- Left Hero Panel -->
-            <div class="md:w-1/2 lg:w-7/12 hero-overlay p-8 lg:p-14 flex flex-col justify-between text-white relative">
-                <!-- KDU Brand -->
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center font-bold text-kdu-navy shadow-md text-sm tracking-tighter">
-                        KDU
-                    </div>
-                    <span class="text-xl font-extrabold tracking-wide">KDU <span class="text-kdu-red">EVENTS</span></span>
-                </div>
-
-                <!-- Hero Copy -->
-                <div class="my-auto max-w-xl py-12">
-                    <span class="inline-block px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-wider mb-4 border border-white/20">
-                        Your Campus, Connected
-                    </span>
-                    <h1 class="text-4xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-4">
-                        Every event.<br>One campus.<br><span class="text-kdu-red italic">Your moment.</span>
-                    </h1>
-                    <p class="text-slate-200 text-base lg:text-lg font-normal leading-relaxed mb-8">
-                        Discover events, manage registrations, access digital passes, and keep campus operations running smoothly.
-                    </p>
-                </div>
-
-                <!-- Footer Stats -->
-                <div class="grid grid-cols-3 gap-6 border-t border-white/20 pt-6">
-                    <div>
-                        <div class="text-2xl lg:text-3xl font-extrabold text-white" id="hero-stat-events">120+</div>
-                        <div class="text-xs text-slate-300 uppercase tracking-wider mt-1">Events yearly</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl lg:text-3xl font-extrabold text-white">8.4k</div>
-                        <div class="text-xs text-slate-300 uppercase tracking-wider mt-1">Students</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl lg:text-3xl font-extrabold text-white">42</div>
-                        <div class="text-xs text-slate-300 uppercase tracking-wider mt-1">Active clubs</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Login Form Panel -->
-            <div class="md:w-1/2 lg:w-5/12 bg-white p-8 lg:p-16 flex flex-col justify-center relative overflow-y-auto">
-                <div class="max-w-md w-full mx-auto">
-                    <div class="mb-8">
-                        <div class="flex items-center gap-2 mb-2">
-                            <div class="w-5 h-0.5 bg-kdu-red"></div>
-                            <span class="text-xs font-bold text-kdu-navy uppercase tracking-widest">KDU Community Portal</span>
-                        </div>
-                        <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Welcome back.</h2>
-                        <p class="text-slate-500 text-sm mt-1">Choose your portal and sign in with your credentials.</p>
-                    </div>
-
-                    <!-- Role Switcher Tabs (Figma Styled) -->
-                    <div class="bg-slate-100 p-1.5 rounded-xl flex gap-1 mb-6 border border-slate-200/80">
-                        <button id="tab-student" onclick="setAuthRole('student')" class="tab-btn active flex-1 py-2.5 px-4 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2">
-                            <i class="fa-regular fa-user"></i> Student Portal
-                        </button>
-                        <button id="tab-admin" onclick="setAuthRole('admin')" class="tab-btn flex-1 py-2.5 px-4 rounded-lg text-xs font-semibold text-slate-600 transition-all flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-user-gear"></i> Admin Portal
-                        </button>
-                    </div>
-
-                    <!-- Auth Form -->
-                    <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">University Email</label>
-                            <div class="relative">
-                                <i class="fa-regular fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                <input type="email" id="auth-email" required value="student@kdu.ac.lk" 
-                                    class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-kdu-blue focus:bg-white transition-all">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Password</label>
-                            <div class="relative">
-                                <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                <input type="password" id="auth-password" required value="password123" 
-                                    class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-kdu-blue focus:bg-white transition-all">
-                            </div>
-                        </div>
-
-                        <button type="submit" id="auth-submit-btn" class="w-full py-3.5 px-6 bg-kdu-navy hover:bg-slate-800 text-white font-semibold rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 mt-2">
-                            <span>Continue to student portal</span>
-                            <i class="fa-solid fa-arrow-right text-xs"></i>
-                        </button>
-                    </form>
-
-                    <!-- Quick Demo Credentials Hint Box -->
-                    <div class="mt-8 p-4 bg-slate-50 border border-slate-200 rounded-xl">
-                        <div class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Demo Quick Select</div>
-                        <div class="flex gap-2">
-                            <button type="button" onclick="fillDemo('student')" class="flex-1 py-1.5 px-3 bg-white border border-slate-200 hover:border-kdu-blue rounded-lg text-xs font-medium text-slate-700 transition-all text-left">
-                                🔑 <strong>Student:</strong> student@kdu.ac.lk
-                            </button>
-                            <button type="button" onclick="fillDemo('admin')" class="flex-1 py-1.5 px-3 bg-white border border-slate-200 hover:border-kdu-blue rounded-lg text-xs font-medium text-slate-700 transition-all text-left">
-                                🛡️ <strong>Admin:</strong> admin@kdu.ac.lk
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- SCREEN 2: MAIN PORTAL (Student & Admin UI) -->
-        <!-- ========================================== -->
-        <div id="portal-screen" class="h-full w-full flex hidden">
-            <!-- Sidebar Navigation (Figma Dark Navy Sidebar) -->
-            <aside class="w-72 bg-kdu-navy text-white flex flex-col justify-between flex-shrink-0">
-                <!-- Top Brand Header -->
-                <div class="p-6">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-9 h-9 bg-white rounded-lg flex items-center justify-center font-bold text-kdu-navy shadow-sm text-xs tracking-tighter">
-                            KDU
-                        </div>
-                        <span class="text-lg font-extrabold tracking-wide">KDU <span class="text-kdu-red">EVENTS</span></span>
-                    </div>
-
-                    <!-- Portal Indicator Pill -->
-                    <div id="sidebar-role-badge" class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-semibold text-slate-300">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                        <span id="role-badge-text">Student Portal</span>
-                    </div>
-                </div>
-
-                <!-- Navigation Links -->
-                <nav class="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar" id="sidebar-nav">
-                    <!-- Nav items populated dynamically based on role -->
-                </nav>
-
-                <!-- Bottom Profile Bar (Figma Design) -->
-                <div class="p-4 border-t border-white/10 bg-slate-900/40">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div id="user-avatar" class="w-9 h-9 rounded-full bg-kdu-red text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
-                                MU
-                            </div>
-                            <div class="min-w-0">
-                                <h4 id="user-display-name" class="text-xs font-bold text-white truncate">Muhammad Umar Sheraz</h4>
-                                <p id="user-display-role" class="text-[10px] text-slate-400 truncate">Student Account</p>
-                            </div>
-                        </div>
-                    </div>
-                    <button onclick="handleSignOut()" class="mt-3 w-full py-2 px-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-medium text-slate-300 hover:text-white transition-all text-center">
-                        Sign out
-                    </button>
-                </div>
-            </aside>
-
-            <!-- Main Workspace Area -->
-            <main class="flex-1 flex flex-col bg-slate-50 min-w-0 overflow-hidden">
-                <!-- Top Header Bar -->
-                <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between flex-shrink-0">
-                    <div>
-                        <h2 id="header-page-title" class="text-xs font-bold text-slate-400 uppercase tracking-wider">Overview</h2>
-                        <p class="text-xs text-slate-500">KDU Event Management System</p>
-                    </div>
-
-                    <div class="flex items-center gap-4">
-                        <!-- Notification Bell Icon -->
-                        <button onclick="switchView('notifications')" class="relative p-2 text-slate-500 hover:text-kdu-navy hover:bg-slate-100 rounded-full transition-all">
-                            <i class="fa-regular fa-bell text-lg"></i>
-                            <span id="notif-badge" class="absolute top-1 right-1 w-4 h-4 bg-kdu-red text-white text-[10px] font-bold rounded-full flex items-center justify-center">1</span>
-                        </button>
-                    </div>
-                </header>
-
-                <!-- Dynamic Content Views Container -->
-                <div class="flex-1 overflow-y-auto p-8" id="main-content-view">
-                    
-                    <!-- STUDENT VIEW 1: OVERVIEW -->
-                    <div id="view-overview" class="view-panel space-y-6">
-                        <!-- Welcome Banner Card -->
-                        <div class="bg-kdu-navy rounded-2xl p-8 text-white relative overflow-hidden shadow-lg">
-                            <div class="relative z-10 max-w-2xl">
-                                <span class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-1 block">Computer Science</span>
-                                <h2 id="overview-welcome-heading" class="text-3xl font-extrabold tracking-tight mb-2">Welcome back, Muhammad.</h2>
-                                <p id="overview-welcome-sub" class="text-slate-300 text-sm mb-6">You have 0 upcoming events and 1 campus updates.</p>
-                                <button onclick="switchView('discover')" class="px-5 py-2.5 bg-kdu-red hover:bg-kdu-redHover text-white font-semibold text-xs rounded-xl transition-all inline-flex items-center gap-2 shadow-md">
-                                    <span>Discover events</span>
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Stats Metrics Tiles -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm text-center">
-                                <div class="text-3xl font-extrabold text-kdu-navy" id="stat-registered-count">0</div>
-                                <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mt-1">Registered</div>
-                            </div>
-                            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm text-center">
-                                <div class="text-3xl font-extrabold text-kdu-navy" id="stat-attended-count">0</div>
-                                <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mt-1">Attended</div>
-                            </div>
-                            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm text-center">
-                                <div class="text-3xl font-extrabold text-kdu-navy" id="stat-saved-count">0</div>
-                                <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mt-1">Saved events</div>
-                            </div>
-                        </div>
-
-                        <!-- Coming Up Section -->
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-bold text-slate-900">Coming up for you</h3>
-                                <button onclick="switchView('discover')" class="text-xs font-bold text-kdu-blue hover:underline">View all</button>
-                            </div>
-
-                            <div id="overview-upcoming-container" class="bg-white rounded-2xl border border-slate-200/80 border-dashed p-12 text-center">
-                                <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
-                                    <i class="fa-regular fa-calendar"></i>
-                                </div>
-                                <h4 class="text-sm font-bold text-slate-800 mb-1">No upcoming events yet</h4>
-                                <p class="text-xs text-slate-500 mb-4">Explore campus activities and reserve your place.</p>
-                                <button onclick="switchView('discover')" class="px-4 py-2 bg-kdu-navy text-white text-xs font-semibold rounded-lg hover:bg-slate-800 transition-all">
-                                    Browse events
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- STUDENT VIEW 2: DISCOVER EVENTS -->
-                    <div id="view-discover" class="view-panel space-y-6 hidden">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <div class="w-4 h-0.5 bg-kdu-red"></div>
-                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Find your community</span>
-                            </div>
-                            <h2 class="text-2xl font-extrabold text-slate-900">Discover events</h2>
-                            <p class="text-xs text-slate-500">Search workshops, club activities, sports, festivals, and academic sessions.</p>
-                        </div>
-
-                        <!-- Search & Filter Controls -->
-                        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-4">
-                            <div class="relative flex-1">
-                                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                <input type="text" id="event-search-input" oninput="renderDiscoverEvents()" placeholder="Search events or venues..." 
-                                    class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-kdu-blue">
-                            </div>
-                            <div class="w-full md:w-48">
-                                <select id="event-category-filter" onchange="renderDiscoverEvents()" class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-kdu-blue">
-                                    <option value="ALL">All Categories</option>
-                                    <option value="Tech">Technology & AI</option>
-                                    <option value="Career">Career & Jobs</option>
-                                    <option value="Cultural">Cultural & Music</option>
-                                    <option value="Sports">Sports & Athletics</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Events Grid -->
-                        <div id="discover-events-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <!-- Populated dynamically -->
-                        </div>
-                    </div>
-
-                    <!-- STUDENT VIEW 3: MY EVENTS -->
-                    <div id="view-myevents" class="view-panel space-y-6 hidden">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <div class="w-4 h-0.5 bg-kdu-red"></div>
-                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Your Schedule</span>
-                            </div>
-                            <h2 class="text-2xl font-extrabold text-slate-900">My events</h2>
-                            <p class="text-xs text-slate-500">Manage upcoming registrations and review your attendance history.</p>
-                        </div>
-
-                        <!-- Sub-tab Selector -->
-                        <div class="border-b border-slate-200 flex gap-6">
-                            <button onclick="setMyEventsTab('upcoming')" id="myevents-tab-upcoming" class="pb-3 text-xs font-bold border-b-2 border-kdu-navy text-kdu-navy">
-                                Upcoming registrations (<span id="myevents-upcoming-count">0</span>)
-                            </button>
-                            <button onclick="setMyEventsTab('history')" id="myevents-tab-history" class="pb-3 text-xs font-semibold text-slate-500 hover:text-slate-800">
-                                Attendance history (<span id="myevents-history-count">0</span>)
-                            </button>
-                        </div>
-
-                        <div id="myevents-list-container" class="space-y-4">
-                            <!-- Populated dynamically -->
-                        </div>
-                    </div>
-
-                    <!-- STUDENT VIEW 4: DIGITAL PASSES -->
-                    <div id="view-passes" class="view-panel space-y-6 hidden">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <div class="w-4 h-0.5 bg-kdu-red"></div>
-                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Fast Entry</span>
-                            </div>
-                            <h2 class="text-2xl font-extrabold text-slate-900">Digital event passes</h2>
-                            <p class="text-xs text-slate-500">Present your unique pass code at the venue entrance scanner.</p>
-                        </div>
-
-                        <div id="digital-passes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <!-- Dynamic Digital Passes -->
-                        </div>
-                    </div>
-
-                    <!-- STUDENT VIEW 5: SAVED EVENTS -->
-                    <div id="view-saved" class="view-panel space-y-6 hidden">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <div class="w-4 h-0.5 bg-kdu-red"></div>
-                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Your Shortlist</span>
-                            </div>
-                            <h2 class="text-2xl font-extrabold text-slate-900">Saved events</h2>
-                            <p class="text-xs text-slate-500">Keep interesting activities close until you are ready to register.</p>
-                        </div>
-
-                        <div id="saved-events-container">
-                            <!-- Dynamic content -->
-                        </div>
-                    </div>
-
-                    <!-- STUDENT VIEW 6: NOTIFICATIONS -->
-                    <div id="view-notifications" class="view-panel space-y-6 hidden">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <div class="w-4 h-0.5 bg-kdu-red"></div>
-                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Stay Informed</span>
-                            </div>
-                            <h2 class="text-2xl font-extrabold text-slate-900">Notifications</h2>
-                            <p class="text-xs text-slate-500">Important updates from event organizers appear here.</p>
-                        </div>
-
-                        <div id="notifications-list" class="space-y-3">
-                            <!-- Dynamic Notifications -->
-                        </div>
-                    </div>
-
-                    <!-- ========================================== -->
-                    <!-- ADMIN VIEWS (Authority Management Console) -->
-                    <!-- ========================================== -->
-
-                    <!-- ADMIN VIEW 1: OVERVIEW -->
-                    <div id="view-admin-overview" class="view-panel space-y-6 hidden">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h2 class="text-2xl font-extrabold text-slate-900">Admin Control Center</h2>
-                                <p class="text-xs text-slate-500">Real-time overview of university event logistics & check-ins.</p>
-                            </div>
-                            <button onclick="switchView('admin-manage')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-2">
-                                <i class="fa-solid fa-plus"></i> Create New Event
-                            </button>
-                        </div>
-
-                        <!-- KPI Dashboard Cards -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-                                <div class="flex items-center justify-between text-slate-500 text-xs font-medium uppercase">
-                                    <span>Total Events</span>
-                                    <i class="fa-regular fa-calendar-check text-base text-kdu-blue"></i>
-                                </div>
-                                <div class="text-3xl font-extrabold text-slate-900 mt-2" id="admin-kpi-events">0</div>
-                            </div>
-                            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-                                <div class="flex items-center justify-between text-slate-500 text-xs font-medium uppercase">
-                                    <span>Total Registrations</span>
-                                    <i class="fa-solid fa-users text-base text-indigo-500"></i>
-                                </div>
-                                <div class="text-3xl font-extrabold text-slate-900 mt-2" id="admin-kpi-rsvps">0</div>
-                            </div>
-                            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-                                <div class="flex items-center justify-between text-slate-500 text-xs font-medium uppercase">
-                                    <span>Verified Check-ins</span>
-                                    <i class="fa-solid fa-qrcode text-base text-emerald-500"></i>
-                                </div>
-                                <div class="text-3xl font-extrabold text-slate-900 mt-2" id="admin-kpi-checkins">0</div>
-                            </div>
-                            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-                                <div class="flex items-center justify-between text-slate-500 text-xs font-medium uppercase">
-                                    <span>Active Clubs</span>
-                                    <i class="fa-solid fa-building-columns text-base text-amber-500"></i>
-                                </div>
-                                <div class="text-3xl font-extrabold text-slate-900 mt-2">42</div>
-                            </div>
-                        </div>
-
-                        <!-- Recent Registrations Activity Table -->
-                        <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
-                            <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Live System Activity</h3>
-                                <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full font-semibold">Synced with DB</span>
-                            </div>
-                            <div id="admin-recent-activity-list" class="divide-y divide-slate-100 text-xs">
-                                <!-- Populated dynamically -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ADMIN VIEW 2: MANAGE EVENTS -->
-                    <div id="view-admin-manage" class="view-panel space-y-6 hidden">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h2 class="text-2xl font-extrabold text-slate-900">Manage Campus Events</h2>
-                                <p class="text-xs text-slate-500">Publish new events or edit active capacity limits.</p>
-                            </div>
-                        </div>
-
-                        <!-- Create Event Collapsible Form -->
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-                            <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                <i class="fa-solid fa-pen-to-square text-kdu-blue"></i> Publish New Event
-                            </h3>
-                            <form onsubmit="handleCreateEvent(event)" class="space-y-4">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Event Title</label>
-                                        <input type="text" id="new-event-title" required placeholder="e.g. Robotics & Automation Expo" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-kdu-blue">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Category</label>
-                                        <select id="new-event-category" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">
-                                            <option value="Tech">Technology & AI</option>
-                                            <option value="Career">Career & Jobs</option>
-                                            <option value="Cultural">Cultural & Music</option>
-                                            <option value="Sports">Sports & Athletics</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Date & Time String</label>
-                                        <input type="text" id="new-event-date" required placeholder="Nov 24, 2026 • 10:00 AM" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Venue Location</label>
-                                        <input type="text" id="new-event-venue" required placeholder="Main Auditorium / Student Union" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Max Capacity (Seats)</label>
-                                        <input type="number" id="new-event-capacity" required value="100" min="1" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Image Banner URL</label>
-                                        <input type="url" id="new-event-image" required placeholder="https://images.unsplash.com/..." value="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Description</label>
-                                    <textarea id="new-event-desc" rows="2" required placeholder="Write event details and highlights..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs"></textarea>
-                                </div>
-                                <div class="flex justify-end gap-2">
-                                    <button type="submit" class="px-5 py-2.5 bg-kdu-navy hover:bg-slate-800 text-white font-semibold text-xs rounded-xl transition-all">
-                                        Publish Event Now
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-
-                        <!-- Active Events Data Table -->
-                        <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
-                            <table class="w-full text-left text-xs">
-                                <thead class="bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
-                                    <tr>
-                                        <th class="p-4">Event Title</th>
-                                        <th class="p-4">Category</th>
-                                        <th class="p-4">Capacity</th>
-                                        <th class="p-4">RSVPs</th>
-                                        <th class="p-4">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="admin-events-table-body" class="divide-y divide-slate-100">
-                                    <!-- Populated dynamically -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- ADMIN VIEW 3: ATTENDANCE SCANNER -->
-                    <div id="view-admin-scanner" class="view-panel space-y-6 hidden">
-                        <div>
-                            <h2 class="text-2xl font-extrabold text-slate-900">Attendance QR Scanner</h2>
-                            <p class="text-xs text-slate-500">Scan or manually enter student Pass ID to check in attendees.</p>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Entry Scanner Controls -->
-                            <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-lg flex flex-col justify-between">
-                                <div>
-                                    <div class="flex items-center justify-between mb-4">
-                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Door Gate Scanner</span>
-                                        <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-bold rounded-full">Camera Active</span>
-                                    </div>
-                                    <div class="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center bg-slate-800/50 mb-6">
-                                        <i class="fa-solid fa-qrcode text-5xl text-kdu-blue mb-3"></i>
-                                        <p class="text-xs text-slate-300">Ready to verify student digital passes</p>
-                                    </div>
-                                </div>
-
-                                <form onsubmit="handleManualCheckin(event)" class="space-y-3">
-                                    <label class="block text-[10px] font-bold uppercase text-slate-400">Manual Pass Code Entry</label>
-                                    <div class="flex gap-2">
-                                        <input type="text" id="scanner-input-code" placeholder="e.g. KDU-PASS-8849" required 
-                                            class="flex-1 px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-kdu-blue">
-                                        <button type="submit" class="px-4 py-2.5 bg-kdu-blue hover:bg-blue-600 text-white font-semibold text-xs rounded-xl">
-                                            Verify & Entry
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-
-                            <!-- Live Scan Status Result Box -->
-                            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
-                                <h3 class="text-sm font-bold text-slate-800 mb-4">Latest Scan Result</h3>
-                                <div id="scanner-result-box" class="flex-1 flex flex-col items-center justify-center border border-dashed border-slate-200 rounded-xl p-6 text-center">
-                                    <i class="fa-regular fa-id-card text-4xl text-slate-300 mb-2"></i>
-                                    <p class="text-xs text-slate-400">No pass scanned yet in this session.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ADMIN VIEW 4: BROADCAST ANNOUNCEMENTS -->
-                    <div id="view-admin-broadcast" class="view-panel space-y-6 hidden">
-                        <div>
-                            <h2 class="text-2xl font-extrabold text-slate-900">Campus Announcements</h2>
-                            <p class="text-xs text-slate-500">Post notifications directly to student portal dashboards.</p>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm max-w-2xl">
-                            <form onsubmit="handlePostAnnouncement(event)" class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Announcement Title</label>
-                                    <input type="text" id="announcement-title" required placeholder="e.g. Venue Change for Jazz Night" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Message Body</label>
-                                    <textarea id="announcement-body" rows="3" required placeholder="Enter full update message..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs"></textarea>
-                                </div>
-                                <button type="submit" class="px-5 py-2.5 bg-kdu-navy hover:bg-slate-800 text-white font-semibold text-xs rounded-xl transition-all">
-                                    Broadcast to All Students
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
-                </div>
-            </main>
-        </div>
+  <!-- ================= AUTH SCREEN ================= -->
+  <div id="authScreen" class="auth-wrapper">
+    <div class="auth-hero">
+      <div class="brand">
+        <img src="logo.svg" alt="KDU Logo" class="brand-logo">
+        <span class="brand-title">KDU<span class="red-text">EVENTS</span></span>
+      </div>
+      <div class="hero-content">
+        <span class="eyebrow-pill">Your Campus, Connected</span>
+        <h1>Every event.<br>One campus.<br><span class="red-text italic">Your moment.</span></h1>
+        <p>Discover events, manage registrations, access digital passes, and keep campus operations running smoothly.</p>
+      </div>
+      <div class="hero-stats">
+        <div><strong>100+</strong><span>Events yearly</span></div>
+        <div><strong>2.2K</strong><span>Students</span></div>
+        <div><strong>20</strong><span>Active clubs</span></div>
+      </div>
     </div>
 
-    <!-- QR PASS MODAL PREVIEW -->
-    <div id="qr-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl relative text-center">
-            <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <div class="text-xs font-bold text-kdu-blue uppercase tracking-widest mb-1">Official Event Pass</div>
-            <h3 id="modal-event-title" class="text-base font-bold text-slate-900 mb-1">Annual AI Hackathon</h3>
-            <p id="modal-event-date" class="text-xs text-slate-500 mb-4">Nov 12 • Student Union</p>
+    <div class="auth-form-panel">
+      <div class="mobile-brand">
+        <img src="logo.svg" alt="KDU Logo" class="brand-logo">
+        <span class="brand-title">KDU<span class="red-text">EVENTS</span></span>
+      </div>
+      <div class="form-header">
+        <span class="sub-line"><span class="line"></span>KDU Community Portal</span>
+        <h2 id="authHeaderTitle">Welcome back.</h2>
+        <p id="authHeaderSubtitle">Choose your portal and sign in with your credentials.</p>
+      </div>
 
-            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 inline-block mb-4">
-                <div id="qrcode-canvas" class="flex justify-center"></div>
+      <!-- Role Tabs with type="button" -->
+      <div class="role-tabs" id="roleToggleContainer">
+        <button type="button" id="authStudentTab" onclick="selectAuthRole('student')" class="active"><i data-lucide="user"></i> Student Portal</button>
+        <button type="button" id="authAdminTab" onclick="selectAuthRole('admin')"><i data-lucide="shield-check"></i> Admin Portal</button>
+      </div>
+
+      <form id="authForm" onsubmit="handleAuthAction(event)">
+        <div id="signupFieldsGroup" class="hidden">
+          <div class="form-group">
+            <label>Full name</label>
+            <input type="text" id="regFullName" placeholder="Alex Morgan">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Student ID</label>
+              <input type="text" id="regStudentId" placeholder="KDU/2026/001">
             </div>
-
-            <div class="text-xs text-slate-600 mb-2">Pass ID: <strong id="modal-pass-id" class="text-slate-900 font-mono">KDU-PASS-001</strong></div>
-            <p class="text-[10px] text-slate-400">Present this QR code to the entrance scanner for instant check-in.</p>
+            <div class="form-group">
+              <label>Department</label>
+              <select id="regDept">
+                <option value="Computer Science">Computer Science</option>
+                <option value="Smart Computing">Smart Computing</option>
+                <option value="Business Admin">Business Admin</option>
+                <option value="Arts & Design">Arts & Design</option>
+              </select>
+            </div>
+          </div>
         </div>
-    </div>
 
-   
-    
+        <div class="form-group">
+          <label id="emailLabel">University email</label>
+          <input type="email" id="authEmailInput" required placeholder="student@kdu.ac.kr">
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="authPassInput" required placeholder="••••••••">
+        </div>
+
+        <p id="authError" class="auth-error hidden" role="alert"></p>
+
+        <button type="submit" id="authSubmitBtn" class="btn-primary flex-center">
+          <span>Continue to student portal</span> <i data-lucide="arrow-right"></i>
+        </button>
+      </form>
+
+      <div class="auth-toggle">
+        <span id="authToggleQuestion">New to KDU Events?</span>
+        <button type="button" onclick="toggleAuthMode()" id="authToggleAction">Create an account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN PORTAL APP ================= -->
+  <div id="mainPortalApp" class="app-layout hidden">
+    <!-- LEFT NAVY SIDEBAR -->
+    <aside class="sidebar" id="portalSidebar">
+      <div>
+        <div class="sidebar-brand">
+          <img src="logo.svg" alt="KDU Logo" class="brand-logo">
+          <span class="brand-title">KDU<span class="red-text">EVENTS</span></span>
+        </div>
+
+        <div class="role-badge-wrapper">
+          <span class="role-badge" id="sidebarRoleTag">Student Portal</span>
+        </div>
+
+        <nav class="nav-menu">
+          <button type="button" onclick="navigateTo('overview')" id="nav-overview" class="active"><i data-lucide="layout-grid"></i> Overview</button>
+          <button type="button" onclick="navigateTo('discover')" id="nav-discover"><i data-lucide="search"></i> Discover events</button>
+          <button type="button" onclick="navigateTo('myevents')" id="nav-myevents"><i data-lucide="calendar"></i> My events</button>
+          <button type="button" onclick="navigateTo('passes')" id="nav-passes"><i data-lucide="qr-code"></i> Event passes</button>
+          <button type="button" onclick="navigateTo('saved')" id="nav-saved"><i data-lucide="heart"></i> Saved</button>
+          <button type="button" onclick="navigateTo('notifications')" id="nav-notifications"><i data-lucide="bell"></i> Notifications</button>
+        </nav>
+      </div>
+
+      <div class="sidebar-user">
+        <div class="user-info">
+          <div class="avatar" id="userAvatar">ST</div>
+          <div class="user-details">
+            <strong id="userNameLabel">Student</strong>
+            <span id="userAccountTypeLabel">Student Account</span>
+          </div>
+        </div>
+        <button type="button" onclick="handleSignOut()" class="btn-signout"><i data-lucide="log-out"></i> Sign out</button>
+      </div>
+    </aside>
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+      <header class="top-bar">
+        <div class="top-bar-left">
+          <button type="button" class="menu-btn" onclick="toggleSidebar()" aria-label="Open menu" aria-controls="portalSidebar"><i data-lucide="menu"></i></button>
+          <div>
+          <div class="breadcrumb" id="headerBreadcrumbTitle">Overview</div>
+          <span class="sub-text">KDU Event Management System</span>
+          </div>
+        </div>
+        <button type="button" onclick="navigateTo('notifications')" class="bell-btn"><i data-lucide="bell"></i><span class="badge">1</span></button>
+      </header>
+
+      <div class="content-body">
+        <!-- OVERVIEW TAB -->
+        <section id="tab-overview" class="tab-content">
+          <div class="hero-banner">
+            <span class="dept-tag" id="overviewDeptTag">Computer Science</span>
+            <h2 id="overviewWelcomeHeading">Welcome back.</h2>
+            <p id="overviewSubText">You have 0 upcoming events and 1 campus update.</p>
+            <button type="button" onclick="navigateTo('discover')" class="btn-red flex-center">Discover events <i data-lucide="arrow-right"></i></button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card"><strong id="statRegisteredCount">0</strong><span>Registered</span></div>
+            <div class="stat-card"><strong>0</strong><span>Attended</span></div>
+            <div class="stat-card"><strong id="statSavedCount">0</strong><span>Saved events</span></div>
+          </div>
+
+          <div class="section-block">
+            <div class="section-head">
+              <h3>Coming up for you</h3>
+              <button type="button" onclick="navigateTo('discover')" class="link-btn">View all</button>
+            </div>
+            <div id="overviewUpcomingContainer"></div>
+          </div>
+        </section>
+
+        <!-- DISCOVER TAB -->
+        <section id="tab-discover" class="tab-content hidden">
+          <div class="section-title">
+            <span class="sub-eyebrow">Find Your Community</span>
+            <h2>Discover events</h2>
+            <p>Search workshops, club activities, sports, festivals, and academic sessions.</p>
+          </div>
+
+          <div class="filter-bar">
+            <div class="search-box">
+              <i data-lucide="search"></i>
+              <input type="text" id="searchInput" oninput="applyDiscoverFilters()" placeholder="Search events or venues...">
+            </div>
+            <select id="categoryFilter" onchange="applyDiscoverFilters()">
+              <option value="all">All Categories</option>
+              <option value="Technology">Technology</option>
+              <option value="Arts & Culture">Arts & Culture</option>
+              <option value="Entrepreneurship">Entrepreneurship</option>
+              <option value="Sports">Sports</option>
+              <option value="Academic">Academic</option>
+            </select>
+            <select id="statusFilter" onchange="applyDiscoverFilters()">
+              <option value="all">All Availability</option>
+              <option value="available">Seats Available</option>
+            </select>
+          </div>
+
+          <div class="results-count" id="eventsFoundLabel">Loading events…</div>
+          <div class="events-grid" id="discoverGrid"></div>
+        </section>
+
+        <!-- MY EVENTS TAB -->
+        <section id="tab-myevents" class="tab-content hidden">
+          <div class="section-title">
+            <span class="sub-eyebrow">Your Schedule</span>
+            <h2>My events</h2>
+            <p>Manage upcoming registrations and review your attendance history.</p>
+          </div>
+          <h3>Upcoming registrations</h3>
+          <div id="myUpcomingContainer"></div>
+        </section>
+
+        <!-- PASSES TAB -->
+        <section id="tab-passes" class="tab-content hidden">
+          <div class="section-title">
+            <span class="sub-eyebrow">Fast Entry</span>
+            <h2>Digital event passes</h2>
+            <p>Present your unique pass code at the venue entrance.</p>
+          </div>
+          <div id="passesContainer"></div>
+        </section>
+
+        <!-- SAVED TAB -->
+        <section id="tab-saved" class="tab-content hidden">
+          <div class="section-title">
+            <span class="sub-eyebrow">Your Shortlist</span>
+            <h2>Saved events</h2>
+            <p>Keep interesting activities close until you are ready to register.</p>
+          </div>
+          <div id="savedEventsContainer"></div>
+        </section>
+
+        <!-- NOTIFICATIONS TAB -->
+        <section id="tab-notifications" class="tab-content hidden">
+          <div class="section-title">
+            <span class="sub-eyebrow">Stay Informed</span>
+            <h2>Notifications</h2>
+            <p>Important updates from organizers appear here.</p>
+          </div>
+          <div class="notification-card">
+            <div class="icon-box"><i data-lucide="bell"></i></div>
+            <div>
+              <h4>Welcome to the new KDU Events portal</h4>
+              <p>Explore upcoming campus activities, save your favorites, register in one click, and keep your digital passes ready for check-in.</p>
+              <span class="timestamp">Nov 1, 2026, 10:55 PM</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- EVENT DETAIL MODAL -->
+  <div id="eventDetailModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <button type="button" onclick="closeEventDetailModal()" class="close-btn"><i data-lucide="x"></i></button>
+      <h3 id="modalEventTitle">Event Title</h3>
+      <div class="modal-img-wrapper"><img id="modalEventImg" src="" alt="Event banner"></div>
+      <span class="pill-blue" id="modalEventCategory">Category</span>
+      <p id="modalEventDescription"></p>
+      
+      <div class="meta-box">
+        <div><span>Date:</span> <strong id="modalEventDate"></strong></div>
+        <div><span>Venue:</span> <strong id="modalEventVenue"></strong></div>
+        <div><span>Department:</span> <strong id="modalEventDept"></strong></div>
+        <div><span>Seats:</span> <strong id="modalEventSeats"></strong></div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" id="modalRegisterBtn" onclick="handleModalRegisterAction()" class="btn-blue-full">Register now</button>
+        <button type="button" id="modalHeartBtn" onclick="handleModalHeartToggle()" class="btn-icon" aria-label="Save event"><i data-lucide="heart"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR CODE MODAL -->
+  <div id="qrModal" class="modal-overlay hidden">
+    <div class="modal-card modal-sm text-center">
+      <button type="button" onclick="closeQrModal()" class="close-btn"><i data-lucide="x"></i></button>
+      <div class="pass-card-dark">
+        <span class="eyebrow-red">Official Event Pass</span>
+        <h4 id="qrEventTitle">Event Title</h4>
+        <p id="qrEventDate" class="sub-date"></p>
+        <div class="qr-container">
+          <img id="qrPassImg" src="" alt="Event pass QR code">
+        </div>
+        <div class="pass-footer">
+          <span>Holder: <strong id="qrHolderName"></strong></span>
+          <span>ID: <strong id="qrHolderId"></strong></span>
+        </div>
+      </div>
+      <button type="button" onclick="closeQrModal()" class="btn-gray-full">Close Pass</button>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="portal.js"></script>
 </body>
 </html>

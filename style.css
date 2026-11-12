@@ -244,16 +244,13 @@ nav ul li a.active {
     color: #ffffff;
 }
 
-.hero-slider {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-}
 
 .slide {
     position: absolute;
     inset: 0;
     opacity: 0;
+    width: 100%;
+    height: 100%;
     visibility: hidden;
     transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
     pointer-events: none;
@@ -266,24 +263,37 @@ nav ul li a.active {
 }
 
 .slide video {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover; /* Forces the video to fill the entire container boundaries evenly */
 }
-
+.hero-slider {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
 .hero-slider::after {
     content: '';
     position: absolute;
     inset: 0;
     background: rgba(11, 25, 44, 0.65);
     z-index: 2;
+    pointer-events: none;
 }
 
 .hero-content {
-    position: relative;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 3;
     text-align: center;
     max-width: 900px;
+    width: 100%;
     padding: 0 20px;
     display: flex;
     flex-direction: column;
@@ -938,23 +948,7 @@ nav ul li a.active {
 /* ==========================================================================
    AUTH MODAL & FORM STYLES
    ========================================================================== */
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(5, 12, 22, 0.8);
-    backdrop-filter: blur(8px);
-    z-index: 9999;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-overlay.active {
-    display: flex;
-}
+/* (.modal-overlay is defined once, further down with the subscription modal) */
 
 .auth-card {
     position: relative;
@@ -1608,4 +1602,9 @@ nav ul li a.active {
         text-align: center;
         padding: 20px 16px 0 16px;
     }
+}
+/* Links to pages that are not built yet */
+.coming-soon {
+    opacity: 0.6;
+    cursor: default;
 }
