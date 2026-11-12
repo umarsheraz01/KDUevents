@@ -1610,3 +1610,43 @@ nav ul li a.active {
     opacity: 0.6;
     cursor: default;
 }
+
+/* ==========================================================================
+   HERO VIDEO: full width on tablets & phones (Android/iPhone)
+   ========================================================================== */
+.hero-slider {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+}
+.hero-content { box-sizing: border-box; }
+
+@media (max-width: 1024px) {
+    /* Video goes edge to edge; only the text keeps side spacing */
+    .hero {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .hero-content { padding: 0 30px; }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        /* Fill most of the phone screen below the header */
+        height: calc(100vh - 64px) !important;
+        height: calc(100svh - 64px) !important;
+        min-height: 520px !important;
+        max-height: 820px;
+        padding: 0 !important;
+    }
+    .hero-content {
+        padding: 0 20px;
+        width: 100%;
+        max-width: 100%;
+    }
+    .hero-title { overflow-wrap: anywhere; }
+
+}
+
+/* The first video has black bars recorded into its top and bottom - zoom slightly to hide them */
+.slide video.has-black-bars { transform: scale(1.18); }
