@@ -1040,3 +1040,14 @@ body.no-scroll { overflow: hidden; }
 
   .mobile-brand { margin-bottom: 20px; }
 }
+
+/* Logo + KDU EVENTS text link back to the home page */
+a.brand, a.mobile-brand, a.sidebar-brand {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+a.brand, a.mobile-brand { width: fit-content; }
+a.brand:hover .brand-title,
+a.mobile-brand:hover .brand-title,
+a.sidebar-brand:hover .brand-title { opacity: 0.85; }

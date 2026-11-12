@@ -1259,6 +1259,8 @@ nav ul li a.active {
 }
 
 .brand-col .footer-logo {
+    text-decoration: none;
+    width: fit-content;
     display: flex;
     align-items: center;
     gap: 10px;
