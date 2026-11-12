@@ -340,8 +340,30 @@
                 <input type="number" id="evSeats" min="1" max="100000" required placeholder="50">
               </div>
               <div class="form-group">
-                <label for="evImage">Image URL <span class="optional">(optional)</span></label>
-                <input type="url" id="evImage" maxlength="1000" placeholder="https://…">
+                <label for="evImage">Or paste an image link <span class="optional">(optional)</span></label>
+                <input type="url" id="evImage" maxlength="1000" placeholder="https://…" oninput="handleImageLinkInput()">
+              </div>
+              <div class="form-group span-2">
+                <label>Event banner <span class="optional">(JPG, PNG, WebP or GIF — up to 10 MB)</span></label>
+                <div class="banner-upload" id="bannerDropZone">
+                  <input type="file" id="evBannerFile" accept="image/jpeg,image/png,image/webp,image/gif" class="visually-hidden" onchange="handleBannerFile(this.files[0])">
+                  <div class="banner-empty" id="bannerEmpty">
+                    <div class="banner-icon"><i data-lucide="image-plus"></i></div>
+                    <p><strong>Upload a banner image</strong></p>
+                    <span>Drag &amp; drop an image here, or</span>
+                    <button type="button" class="btn-gray flex-center" onclick="document.getElementById('evBannerFile').click()"><i data-lucide="upload"></i> Choose image</button>
+                  </div>
+                  <div class="banner-preview hidden" id="bannerPreview">
+                    <img id="bannerPreviewImg" src="" alt="Banner preview">
+                    <div class="banner-preview-bar">
+                      <span id="bannerFileInfo"></span>
+                      <div class="banner-preview-actions">
+                        <button type="button" class="btn-gray flex-center" onclick="document.getElementById('evBannerFile').click()"><i data-lucide="refresh-cw"></i> Change</button>
+                        <button type="button" class="btn-danger flex-center" onclick="clearBanner()"><i data-lucide="trash-2"></i> Remove</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="form-group span-2">
                 <label for="evDescription">Description</label>

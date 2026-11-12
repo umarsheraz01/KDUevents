@@ -36,6 +36,13 @@ async function apiFetch(path, options = {}) {
 
 const isAdmin = () => Boolean(activeUser && activeUser.role === 'admin');
 
+// Uploaded banners are stored on our server as "/api/images/<id>"; links are used as-is
+const SERVER_ORIGIN = API_BASE.replace(/\/api\/?$/, '');
+function imageUrl(src) {
+  if (!src) return '';
+  return String(src).startsWith('/api/images/') ? SERVER_ORIGIN + src : src;
+}
+
 let eventsData = DEFAULT_EVENTS.slice();
 let activeUser = null;
 let authMode = 'login'; // 'login' or 'signup'
@@ -356,7 +363,7 @@ function eventCardHtml(evt, extraButton) {
   return `
     <div class="stat-card" style="text-align: left;">
       <div style="height: 140px; border-radius: 12px; overflow: hidden; margin-bottom: 12px;">
-        <img src="${escapeHtml(evt.image)}" style="width: 100%; height: 100%; object-fit: cover;" alt="${escapeHtml(evt.title)}">
+        <img src="${escapeHtml(imageUrl(evt.image))}" style="width: 100%; height: 100%; object-fit: cover;" alt="${escapeHtml(evt.title)}" loading="lazy">
       </div>
       <span class="eyebrow-red">${escapeHtml(evt.category)}</span>
       <h3 style="font-size: 14px; font-weight: 800; margin: 4px 0;">${escapeHtml(evt.title)}</h3>
@@ -446,7 +453,7 @@ function openEventDetailModal(id) {
   activeSelectedEventId = eventId(evt);
 
   document.getElementById("modalEventTitle").innerText = evt.title;
-  document.getElementById("modalEventImg").src = evt.image;
+  document.getElementById("modalEventImg").src = imageUrl(evt.image);
   document.getElementById("modalEventImg").alt = evt.title;
   document.getElementById("modalEventCategory").innerText = evt.category;
   document.getElementById("modalEventDescription").innerText = evt.description || '';
@@ -732,7 +739,7 @@ function renderAdminEvents() {
     const pct = total ? Math.min(100, Math.round((taken / total) * 100)) : 0;
     return `
       <div class="stat-card admin-event-card">
-        <div class="admin-event-img"><img src="${escapeHtml(evt.image)}" alt="${escapeHtml(evt.title)}"></div>
+        <div class="admin-event-img"><img src="${escapeHtml(imageUrl(evt.image))}" alt="${escapeHtml(evt.title)}" loading="lazy"></div>
         <span class="eyebrow-red">${escapeHtml(evt.category)}</span>
         <h3>${escapeHtml(evt.title)}</h3>
         <p class="admin-event-meta">${escapeHtml(evt.date)} • ${escapeHtml(evt.venue)}</p>
@@ -825,8 +832,21 @@ async function handleCreateEvent(e) {
   };
 
   const btn = document.getElementById("adminEventSubmit");
+  const btnLabel = btn.querySelector("span");
   btn.disabled = true;
   try {
+    // 1) Upload the banner (if one was chosen), 2) create the event with it
+    if (pendingBanner) {
+      if (btnLabel) btnLabel.textContent = "Uploading banner…";
+      const up = await apiFetch('/admin/images', { method: 'POST', body: JSON.stringify({ image: pendingBanner.dataUrl }) });
+      if (!up.ok) {
+        errEl.textContent = up.data.message || "Couldn't upload the banner image.";
+        errEl.classList.remove("hidden");
+        return;
+      }
+      body.image = up.data.url;
+    }
+    if (btnLabel) btnLabel.textContent = "Publishing…";
     const { ok, data } = await apiFetch('/admin/events', { method: 'POST', body: JSON.stringify(body) });
     if (!ok) {
       errEl.textContent = data.message || "Couldn't create the event.";
@@ -834,6 +854,7 @@ async function handleCreateEvent(e) {
       return;
     }
     document.getElementById("adminEventForm").reset();
+    clearBanner();
     showToast(`"${data.title}" is now live for students.`);
     await loadAdminData();
   } catch (err) {
@@ -841,8 +862,114 @@ async function handleCreateEvent(e) {
     errEl.classList.remove("hidden");
   } finally {
     btn.disabled = false;
+    if (btnLabel) btnLabel.textContent = "Publish event";
   }
 }
+
+// ---- Banner image upload ----
+let pendingBanner = null; // { dataUrl, info }
+const MAX_BANNER_SOURCE_BYTES = 10 * 1024 * 1024;
+const BANNER_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Couldn't read the file."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("That file doesn't look like a valid image."));
+    img.src = src;
+  });
+}
+
+// Shrinks big photos to banner size (max 1600px wide) so uploads are quick
+async function prepareBanner(file) {
+  const original = await readFileAsDataUrl(file);
+  const img = await loadImage(original);
+  const maxW = 1600, maxH = 1200;
+  const scale = Math.min(1, maxW / img.naturalWidth, maxH / img.naturalHeight);
+  // Small enough already (and keep GIF animations): upload as-is
+  if (scale === 1 && file.size <= 1.5 * 1024 * 1024) {
+    return { dataUrl: original, width: img.naturalWidth, height: img.naturalHeight, bytes: file.size };
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(img.naturalWidth * scale);
+  canvas.height = Math.round(img.naturalHeight * scale);
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff'; // transparent PNGs get a white background in JPEG
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  const bytes = Math.round((dataUrl.length - dataUrl.indexOf(',') - 1) * 0.75);
+  return { dataUrl, width: canvas.width, height: canvas.height, bytes };
+}
+
+function formatBytes(n) {
+  return n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`;
+}
+
+async function handleBannerFile(file) {
+  const errEl = document.getElementById("adminEventError");
+  errEl.classList.add("hidden");
+  if (!file) return;
+  const showErr = (msg) => { errEl.textContent = msg; errEl.classList.remove("hidden"); };
+  if (!BANNER_TYPES.includes(file.type)) return showErr("Please choose a JPG, PNG, WebP or GIF image.");
+  if (file.size > MAX_BANNER_SOURCE_BYTES) return showErr("That image is larger than 10 MB. Please choose a smaller one.");
+
+  try {
+    const prepared = await prepareBanner(file);
+    if (prepared.bytes > 2.5 * 1024 * 1024) return showErr("That image is still too large after resizing. Please choose a smaller one.");
+    pendingBanner = prepared;
+    document.getElementById("bannerPreviewImg").src = prepared.dataUrl;
+    document.getElementById("bannerFileInfo").textContent = `${file.name} • ${prepared.width}×${prepared.height} • ${formatBytes(prepared.bytes)}`;
+    document.getElementById("bannerEmpty").classList.add("hidden");
+    document.getElementById("bannerPreview").classList.remove("hidden");
+    document.getElementById("evImage").value = ''; // the upload replaces any pasted link
+    refreshIcons();
+  } catch (e) {
+    showErr(e.message || "Couldn't read that image.");
+  } finally {
+    document.getElementById("evBannerFile").value = ''; // allow choosing the same file again
+  }
+}
+
+function clearBanner() {
+  pendingBanner = null;
+  const img = document.getElementById("bannerPreviewImg");
+  if (img) img.src = '';
+  document.getElementById("bannerPreview")?.classList.add("hidden");
+  document.getElementById("bannerEmpty")?.classList.remove("hidden");
+}
+
+// Pasting a link removes a chosen upload (only one banner per event)
+function handleImageLinkInput() {
+  if (pendingBanner && document.getElementById("evImage").value.trim()) clearBanner();
+}
+
+// Drag & drop onto the banner area
+document.addEventListener('DOMContentLoaded', () => {
+  const zone = document.getElementById("bannerDropZone");
+  if (!zone) return;
+  ['dragenter', 'dragover'].forEach(t => zone.addEventListener(t, (e) => {
+    e.preventDefault();
+    zone.classList.add("dragging");
+  }));
+  ['dragleave', 'drop'].forEach(t => zone.addEventListener(t, (e) => {
+    e.preventDefault();
+    zone.classList.remove("dragging");
+  }));
+  zone.addEventListener('drop', (e) => {
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (file) handleBannerFile(file);
+  });
+});
 
 async function handleDeleteEvent(id) {
   const evt = findEvent(id);

@@ -6,7 +6,10 @@ const cors = require('cors');
 const crypto = require('crypto');
 
 const app = express();
-app.use(express.json({ limit: '100kb' }));
+// Small JSON bodies everywhere, except the image upload route which allows larger ones
+const smallJson = express.json({ limit: '100kb' });
+const imageJson = express.json({ limit: '4mb' });
+app.use((req, res, next) => (req.path === '/api/admin/images' ? next() : smallJson(req, res, next)));
 app.use(cors());
 
 // ---------------------------------------------------------------------------
@@ -71,6 +74,13 @@ const AnnouncementSchema = new mongoose.Schema({
   message: { type: String, required: true, trim: true }
 }, { timestamps: true });
 
+// Event banner images uploaded by the admin (stored in MongoDB so they survive server restarts)
+const ImageSchema = new mongoose.Schema({
+  data: { type: Buffer, required: true },
+  contentType: { type: String, required: true },
+  size: Number
+}, { timestamps: true });
+
 const SettingSchema = new mongoose.Schema({ key: { type: String, unique: true }, value: mongoose.Schema.Types.Mixed });
 
 const Event = mongoose.model('Event', EventSchema);
@@ -78,6 +88,7 @@ const User = mongoose.model('User', UserSchema);
 const Activity = mongoose.model('Activity', ActivitySchema);
 const Announcement = mongoose.model('Announcement', AnnouncementSchema);
 const Setting = mongoose.model('Setting', SettingSchema);
+const Image = mongoose.model('Image', ImageSchema);
 
 const dbOnline = () => mongoose.connection.readyState === 1;
 
@@ -452,7 +463,8 @@ app.post('/api/admin/events', requireAdmin, async (req, res) => {
     if (isNaN(startsAt.getTime())) return res.status(400).json({ message: 'Please choose a valid date and time.' });
     if (!venue) return res.status(400).json({ message: 'Please enter a venue.' });
     if (!Number.isFinite(seats) || seats < 1 || seats > 100000) return res.status(400).json({ message: 'Seats must be a number between 1 and 100000.' });
-    if (image && !/^https?:\/\//i.test(image)) return res.status(400).json({ message: 'Image must be a web address starting with http:// or https://' });
+    const uploaded = /^\/api\/images\/[a-f0-9]{24}$/.test(image);
+    if (image && !uploaded && !/^https?:\/\//i.test(image)) return res.status(400).json({ message: 'Image must be an uploaded picture or a web address starting with http:// or https://' });
     if (!image) image = DEFAULT_IMAGE;
 
     const date = cleanText(req.body.date, 60) || startsAt.toUTCString();
@@ -472,11 +484,50 @@ app.delete('/api/admin/events/:id', requireAdmin, async (req, res) => {
     if (!evt) return res.status(404).json({ message: 'Event not found.' });
     const id = String(evt._id);
     await User.updateMany({}, { $pull: { registered: id, saved: id } });
+    const imageMatch = /^\/api\/images\/([a-f0-9]{24})$/.exec(evt.image || '');
+    if (imageMatch) await Image.findByIdAndDelete(imageMatch[1]).catch(() => {});
     logActivity('event_deleted', req.user, `Admin deleted the event "${evt.title}"`, id);
     res.json({ message: 'Event deleted' });
   } catch (err) {
     console.error('Delete event error:', err.message);
     res.status(500).json({ message: 'Could not delete the event.' });
+  }
+});
+
+// Upload an event banner. Body: { image: "data:image/jpeg;base64,..." }
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_IMAGE_BYTES = 2.5 * 1024 * 1024;
+
+app.post('/api/admin/images', requireAdmin, imageJson, async (req, res) => {
+  try {
+    const match = /^data:([a-z/+.-]+);base64,([A-Za-z0-9+/=]+)$/.exec(String(req.body.image || ''));
+    if (!match) return res.status(400).json({ message: 'Please choose an image file.' });
+    const contentType = match[1].toLowerCase();
+    if (!ALLOWED_IMAGE_TYPES.includes(contentType)) return res.status(400).json({ message: 'Only JPG, PNG, WebP or GIF images are allowed.' });
+    const data = Buffer.from(match[2], 'base64');
+    if (!data.length) return res.status(400).json({ message: 'The image file is empty.' });
+    if (data.length > MAX_IMAGE_BYTES) return res.status(413).json({ message: 'The image is too large. Please use one under 2.5 MB.' });
+
+    const img = await Image.create({ data, contentType, size: data.length });
+    res.status(201).json({ url: `/api/images/${img._id}` });
+  } catch (err) {
+    console.error('Image upload error:', err.message);
+    res.status(500).json({ message: 'Could not upload the image.' });
+  }
+});
+
+// Serve an uploaded image (public, so it works in <img> tags)
+app.get('/api/images/:id', async (req, res) => {
+  try {
+    if (!dbOnline() || !mongoose.isValidObjectId(req.params.id)) return res.status(404).end();
+    const img = await Image.findById(req.params.id).lean();
+    if (!img) return res.status(404).end();
+    res.set('Content-Type', img.contentType);
+    res.set('Cache-Control', 'public, max-age=31536000, immutable');
+    res.set('X-Content-Type-Options', 'nosniff');
+    res.send(img.data.buffer ? Buffer.from(img.data.buffer) : img.data);
+  } catch (err) {
+    res.status(404).end();
   }
 });
 
@@ -512,6 +563,13 @@ app.delete('/api/admin/announcements/:id', requireAdmin, async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Could not remove the update.' });
   }
+});
+
+// Friendly message when a request body is too large or malformed
+app.use((err, req, res, next) => {
+  if (err && err.type === 'entity.too.large') return res.status(413).json({ message: 'The upload is too large. Please use a smaller image.' });
+  if (err && err.type === 'entity.parse.failed') return res.status(400).json({ message: 'Invalid request.' });
+  next(err);
 });
 
 // Newsletter subscription (routes/api.js -> POST /api/subscribe)
