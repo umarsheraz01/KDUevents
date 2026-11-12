@@ -107,13 +107,23 @@
           <span class="role-badge" id="sidebarRoleTag">Student Portal</span>
         </div>
 
-        <nav class="nav-menu">
+        <!-- Student navigation -->
+        <nav class="nav-menu" id="studentNav">
           <button type="button" onclick="navigateTo('overview')" id="nav-overview" class="active"><i data-lucide="layout-grid"></i> Overview</button>
           <button type="button" onclick="navigateTo('discover')" id="nav-discover"><i data-lucide="search"></i> Discover events</button>
           <button type="button" onclick="navigateTo('myevents')" id="nav-myevents"><i data-lucide="calendar"></i> My events</button>
           <button type="button" onclick="navigateTo('passes')" id="nav-passes"><i data-lucide="qr-code"></i> Event passes</button>
           <button type="button" onclick="navigateTo('saved')" id="nav-saved"><i data-lucide="heart"></i> Saved</button>
-          <button type="button" onclick="navigateTo('notifications')" id="nav-notifications"><i data-lucide="bell"></i> Notifications</button>
+          <button type="button" onclick="navigateTo('notifications')" id="nav-notifications"><i data-lucide="bell"></i> Notifications <span class="nav-count hidden" id="navNotifCount">0</span></button>
+        </nav>
+
+        <!-- Admin navigation -->
+        <nav class="nav-menu hidden" id="adminNav">
+          <button type="button" onclick="navigateTo('admin-overview')" id="nav-admin-overview"><i data-lucide="layout-dashboard"></i> Dashboard</button>
+          <button type="button" onclick="navigateTo('admin-events')" id="nav-admin-events"><i data-lucide="calendar-plus"></i> Manage events</button>
+          <button type="button" onclick="navigateTo('admin-students')" id="nav-admin-students"><i data-lucide="users"></i> Students</button>
+          <button type="button" onclick="navigateTo('admin-activity')" id="nav-admin-activity"><i data-lucide="activity"></i> Activity log</button>
+          <button type="button" onclick="navigateTo('admin-updates')" id="nav-admin-updates"><i data-lucide="megaphone"></i> Send updates</button>
         </nav>
       </div>
 
@@ -141,7 +151,7 @@
           <span class="sub-text">KDU Event Management System</span>
           </div>
         </div>
-        <button type="button" onclick="navigateTo('notifications')" class="bell-btn"><i data-lucide="bell"></i><span class="badge">1</span></button>
+        <button type="button" onclick="handleBellClick()" class="bell-btn" id="bellBtn" aria-label="Notifications"><i data-lucide="bell"></i><span class="badge hidden" id="bellBadge">0</span></button>
       </header>
 
       <div class="content-body">
@@ -150,7 +160,7 @@
           <div class="hero-banner">
             <span class="dept-tag" id="overviewDeptTag">Computer Science</span>
             <h2 id="overviewWelcomeHeading">Welcome back.</h2>
-            <p id="overviewSubText">You have 0 upcoming events and 1 campus update.</p>
+            <p id="overviewSubText">You have 0 upcoming events and 0 campus updates.</p>
             <button type="button" onclick="navigateTo('discover')" class="btn-red flex-center">Discover events <i data-lucide="arrow-right"></i></button>
           </div>
 
@@ -238,14 +248,194 @@
             <h2>Notifications</h2>
             <p>Important updates from organizers appear here.</p>
           </div>
+          <div class="notification-list" id="studentNotificationsList"></div>
           <div class="notification-card">
-            <div class="icon-box"><i data-lucide="bell"></i></div>
+            <div class="icon-box"><i data-lucide="sparkles"></i></div>
             <div>
               <h4>Welcome to the new KDU Events portal</h4>
               <p>Explore upcoming campus activities, save your favorites, register in one click, and keep your digital passes ready for check-in.</p>
-              <span class="timestamp">Nov 1, 2026, 10:55 PM</span>
+              <span class="timestamp">KDU Events Team</span>
             </div>
           </div>
+        </section>
+
+        <!-- ================= ADMIN: DASHBOARD ================= -->
+        <section id="tab-admin-overview" class="tab-content hidden">
+          <div class="hero-banner hero-admin">
+            <span class="dept-tag">Administration</span>
+            <h2>Welcome back, Admin.</h2>
+            <p id="adminOverviewSubText">Loading the latest numbers…</p>
+            <div class="hero-actions">
+              <button type="button" onclick="navigateTo('admin-events')" class="btn-red flex-center"><i data-lucide="plus"></i> Create event</button>
+              <button type="button" onclick="navigateTo('admin-updates')" class="btn-ghost flex-center"><i data-lucide="megaphone"></i> Send update</button>
+            </div>
+          </div>
+
+          <div class="stats-grid stats-grid-4">
+            <div class="stat-card"><i data-lucide="users" class="stat-icon"></i><strong id="adminStatStudents">–</strong><span>Students</span></div>
+            <div class="stat-card"><i data-lucide="calendar" class="stat-icon"></i><strong id="adminStatEvents">–</strong><span>Events</span></div>
+            <div class="stat-card"><i data-lucide="ticket" class="stat-icon"></i><strong id="adminStatRegistrations">–</strong><span>Registrations</span></div>
+            <div class="stat-card"><i data-lucide="megaphone" class="stat-icon"></i><strong id="adminStatUpdates">–</strong><span>Updates sent</span></div>
+          </div>
+
+          <div class="admin-columns">
+            <div class="panel-card">
+              <div class="section-head">
+                <h3>Recent activity</h3>
+                <button type="button" onclick="navigateTo('admin-activity')" class="link-btn">View all</button>
+              </div>
+              <div id="adminRecentActivity" class="activity-list"></div>
+            </div>
+            <div class="panel-card">
+              <div class="section-head">
+                <h3>Event capacity</h3>
+                <button type="button" onclick="navigateTo('admin-events')" class="link-btn">Manage</button>
+              </div>
+              <div id="adminCapacityList" class="capacity-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= ADMIN: MANAGE EVENTS ================= -->
+        <section id="tab-admin-events" class="tab-content hidden">
+          <div class="section-title">
+            <span class="sub-eyebrow">Event Management</span>
+            <h2>Manage events</h2>
+            <p>Publish new events for students and remove ones that are no longer running.</p>
+          </div>
+
+          <div class="panel-card">
+            <div class="section-head">
+              <h3>Create a new event</h3>
+            </div>
+            <form id="adminEventForm" class="admin-form" onsubmit="handleCreateEvent(event)">
+              <div class="form-group span-2">
+                <label for="evTitle">Event title</label>
+                <input type="text" id="evTitle" maxlength="150" required placeholder="e.g. Spring Coding Bootcamp">
+              </div>
+              <div class="form-group">
+                <label for="evCategory">Category</label>
+                <select id="evCategory" required>
+                  <option value="Technology">Technology</option>
+                  <option value="Arts & Culture">Arts & Culture</option>
+                  <option value="Entrepreneurship">Entrepreneurship</option>
+                  <option value="Sports">Sports</option>
+                  <option value="Academic">Academic</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="evDate">Date &amp; time</label>
+                <input type="datetime-local" id="evDate" required>
+              </div>
+              <div class="form-group">
+                <label for="evVenue">Venue</label>
+                <input type="text" id="evVenue" maxlength="120" required placeholder="e.g. Innovation Hall">
+              </div>
+              <div class="form-group">
+                <label for="evDept">Department / organizer</label>
+                <input type="text" id="evDept" maxlength="120" placeholder="e.g. Faculty of Computing">
+              </div>
+              <div class="form-group">
+                <label for="evSeats">Seats available</label>
+                <input type="number" id="evSeats" min="1" max="100000" required placeholder="50">
+              </div>
+              <div class="form-group">
+                <label for="evImage">Image URL <span class="optional">(optional)</span></label>
+                <input type="url" id="evImage" maxlength="1000" placeholder="https://…">
+              </div>
+              <div class="form-group span-2">
+                <label for="evDescription">Description</label>
+                <textarea id="evDescription" rows="3" maxlength="2000" placeholder="What will students do, learn or see?"></textarea>
+              </div>
+              <p id="adminEventError" class="auth-error hidden span-2" role="alert"></p>
+              <div class="span-2 form-actions">
+                <button type="submit" id="adminEventSubmit" class="btn-primary flex-center"><i data-lucide="plus"></i> <span>Publish event</span></button>
+              </div>
+            </form>
+          </div>
+
+          <div class="section-head section-gap">
+            <h3>All events <span class="muted-count" id="adminEventsCount"></span></h3>
+            <button type="button" onclick="loadAdminData()" class="link-btn flex-center"><i data-lucide="refresh-cw"></i> Refresh</button>
+          </div>
+          <div id="adminEventsList"></div>
+        </section>
+
+        <!-- ================= ADMIN: STUDENTS ================= -->
+        <section id="tab-admin-students" class="tab-content hidden">
+          <div class="section-title">
+            <span class="sub-eyebrow">Community</span>
+            <h2>Students</h2>
+            <p>Everyone who has created a student account on the portal.</p>
+          </div>
+          <div class="filter-bar filter-bar-single">
+            <div class="search-box">
+              <i data-lucide="search"></i>
+              <input type="text" id="adminStudentSearch" oninput="renderAdminStudents()" placeholder="Search by name, email, ID or department...">
+            </div>
+          </div>
+          <div class="results-count" id="adminStudentsCount"></div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Student</th><th>Student ID</th><th>Department</th><th>Registered</th><th>Joined</th><th>Last sign-in</th></tr>
+              </thead>
+              <tbody id="adminStudentsBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= ADMIN: ACTIVITY LOG ================= -->
+        <section id="tab-admin-activity" class="tab-content hidden">
+          <div class="section-title">
+            <span class="sub-eyebrow">Live Feed</span>
+            <h2>Activity log</h2>
+            <p>Sign-ups, sign-ins, registrations and admin changes, newest first.</p>
+          </div>
+          <div class="filter-bar filter-bar-activity">
+            <select id="adminActivityFilter" onchange="renderAdminActivity()">
+              <option value="all">All activity</option>
+              <option value="signup">New accounts</option>
+              <option value="login">Sign-ins</option>
+              <option value="register">Registrations</option>
+              <option value="cancel">Cancellations</option>
+              <option value="save">Saved events</option>
+              <option value="admin">Admin actions</option>
+            </select>
+            <button type="button" onclick="loadAdminData()" class="btn-gray flex-center"><i data-lucide="refresh-cw"></i> Refresh</button>
+          </div>
+          <div class="panel-card">
+            <div id="adminActivityList" class="activity-list"></div>
+          </div>
+        </section>
+
+        <!-- ================= ADMIN: SEND UPDATES ================= -->
+        <section id="tab-admin-updates" class="tab-content hidden">
+          <div class="section-title">
+            <span class="sub-eyebrow">Announcements</span>
+            <h2>Send updates to students</h2>
+            <p>Updates appear instantly in every student's Notifications tab.</p>
+          </div>
+          <div class="panel-card">
+            <form id="adminUpdateForm" class="admin-form" onsubmit="handleSendUpdate(event)">
+              <div class="form-group span-2">
+                <label for="updTitle">Title</label>
+                <input type="text" id="updTitle" maxlength="150" required placeholder="e.g. Venue change for the Tech Summit">
+              </div>
+              <div class="form-group span-2">
+                <label for="updMessage">Message</label>
+                <textarea id="updMessage" rows="4" maxlength="2000" required placeholder="Write the update students should see…"></textarea>
+              </div>
+              <p id="adminUpdateError" class="auth-error hidden span-2" role="alert"></p>
+              <div class="span-2 form-actions">
+                <button type="submit" id="adminUpdateSubmit" class="btn-primary flex-center"><i data-lucide="send"></i> <span>Send to all students</span></button>
+              </div>
+            </form>
+          </div>
+          <div class="section-head section-gap">
+            <h3>Sent updates</h3>
+          </div>
+          <div id="adminUpdatesList" class="notification-list"></div>
         </section>
       </div>
     </main>
@@ -293,6 +483,20 @@
       <button type="button" onclick="closeQrModal()" class="btn-gray-full">Close Pass</button>
     </div>
   </div>
+
+  <!-- ADMIN: ATTENDEES MODAL -->
+  <div id="attendeesModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <button type="button" onclick="closeAttendeesModal()" class="close-btn" aria-label="Close"><i data-lucide="x"></i></button>
+      <span class="eyebrow-red">Registered students</span>
+      <h3 id="attendeesTitle">Event</h3>
+      <p class="attendees-sub" id="attendeesSub"></p>
+      <div id="attendeesList" class="attendees-list"></div>
+    </div>
+  </div>
+
+  <!-- Small confirmation message -->
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
   <script src="config.js"></script>
   <script src="portal.js"></script>
