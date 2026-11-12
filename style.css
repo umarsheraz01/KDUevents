@@ -1650,3 +1650,34 @@ nav ul li a.active {
 
 /* The first video has black bars recorded into its top and bottom - zoom slightly to hide them */
 .slide video.has-black-bars { transform: scale(1.18); }
+
+/* ==========================================================================
+   MOBILE HEADER: logo on the left, "Register now" + menu button on the right
+   ========================================================================== */
+@media (max-width: 768px) {
+    header { gap: 10px; }
+    .logo-container { order: 1; min-width: 0; }
+    .auth-buttons { order: 2; margin-left: auto; }
+    .hamburger-btn {
+        order: 3;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        padding: 0;
+        font-size: 1.35rem;
+        border-radius: 10px;
+        background-color: rgba(255, 255, 255, 0.08);
+        flex-shrink: 0;
+    }
+    .hamburger-btn:hover,
+    .hamburger-btn:focus-visible { background-color: rgba(255, 255, 255, 0.16); }
+    header nav ul li .dropdown-trigger { font-size: 1.1rem; padding: 8px 0; }
+}
+
+/* Very narrow phones: keep everything on one line */
+@media (max-width: 360px) {
+    .logo-text { font-size: 0.9rem; }
+    .register-btn { padding: 8px 10px; font-size: 0.75rem; }
+}
