@@ -57,35 +57,32 @@
       <!-- Background Slider Container -->
       <div class="hero-slider">
         
-        <!-- Slide 0: Image (shown first) -->
-        <div class="slide active">
-          <img src="assets/WhatsApp Image 2026-10-12 at 11.01.36.jpeg" alt="KDU students at a campus event">
-        </div>
+       
 
-        <!-- Slide 1: Video -->
-        <div class="slide">
-          <video muted loop playsinline preload="auto">
+        <!-- Slide 1: Video (visible and playing as soon as the page opens) -->
+        <div class="slide active">
+          <video autoplay muted loop playsinline preload="auto" poster="assets/posters/video2.jpg">
             <source src="assets/video2.mp4" type="video/mp4">
           </video>
         </div>
        
         <!-- Slide 2: Video -->
         <div class="slide">
-          <video muted loop playsinline preload="metadata">
+          <video muted loop playsinline preload="metadata" poster="assets/posters/video3.jpg">
             <source src="assets/video3.mp4" type="video/mp4">
           </video>
         </div>
 
         <!-- Slide 3: Video -->
         <div class="slide">
-          <video muted loop playsinline preload="metadata">
+          <video muted loop playsinline preload="metadata" poster="assets/posters/video4.jpg">
             <source src="assets/video4.mp4" type="video/mp4">
           </video>
         </div>
        
         <!-- Slide 4: Video -->
         <div class="slide">
-          <video muted loop playsinline preload="metadata">
+          <video muted loop playsinline preload="metadata" poster="assets/posters/video5.jpg">
             <source src="assets/video5.mp4" type="video/mp4">
           </video>
         </div>
@@ -407,17 +404,39 @@
     }
   }
 
-  if (nextBtn) {
-    nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
-  }
-  if (prevBtn) {
-    prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+  // Auto-advance: each slide stays for 6 seconds, counted from when its
+  // video actually starts playing (so a slow-loading video is never skipped)
+  const SLIDE_TIME = 6000;
+  const MAX_WAIT = 12000; // move on anyway if a video can't load
+  let slideTimer = null;
+
+  function scheduleNext() {
+    clearTimeout(slideTimer);
+    const video = slides[currentSlide] && slides[currentSlide].querySelector('video');
+    const startTimer = () => {
+      clearTimeout(slideTimer);
+      slideTimer = setTimeout(() => goTo(currentSlide + 1), SLIDE_TIME);
+    };
+    if (!video || (!video.paused && video.readyState >= 3)) return startTimer();
+    const thisSlide = currentSlide;
+    video.addEventListener('playing', () => { if (currentSlide === thisSlide) startTimer(); }, { once: true });
+    slideTimer = setTimeout(() => goTo(currentSlide + 1), MAX_WAIT);
   }
 
-  // Auto-slide every 6 seconds
-  setInterval(() => {
-    showSlide(currentSlide + 1);
-  }, 6000);
+  function goTo(index) {
+    showSlide(index);
+    scheduleNext();
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => goTo(currentSlide + 1));
+  }
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => goTo(currentSlide - 1));
+  }
+
+  // Start with the first video right away
+  goTo(0);
 });
       /* ==========================================
          2. EVENT FILTERING CONTROLLER
