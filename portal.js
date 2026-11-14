@@ -84,6 +84,17 @@ async function fetchEvents() {
   }
   renderDiscoverGrid(eventsData);
   if (activeUser && !isAdmin()) renderUserLists();
+  openPendingEvent();
+}
+
+// Links like portal.html?event=<id> (from the homepage) open that event once signed in
+let pendingEventId = new URLSearchParams(window.location.search).get('event');
+function openPendingEvent() {
+  if (!pendingEventId || !activeUser || isAdmin() || !findEvent(pendingEventId)) return;
+  const id = pendingEventId;
+  pendingEventId = null;
+  navigateTo('discover');
+  openEventDetailModal(id);
 }
 
 // SESSION TOKEN (issued by the server after a successful sign-in)
@@ -283,6 +294,7 @@ function openMainPortal(serverState) {
   } else {
     navigateTo('overview');
     loadAnnouncements();
+    openPendingEvent();
   }
 }
 
@@ -486,23 +498,93 @@ function updateModalButtons() {
   heartBtn.setAttribute('aria-pressed', isSaved ? 'true' : 'false');
 }
 
-function handleModalRegisterAction() {
-  if (!activeUser || !activeSelectedEventId) return;
-  const list = userState.registered;
+async function handleModalRegisterAction() {
+  if (!activeUser || !activeSelectedEventId || isAdmin()) return;
   const evt = findEvent(activeSelectedEventId);
-  const idx = list.indexOf(activeSelectedEventId);
-  if (idx >= 0) {
-    list.splice(idx, 1);
-    evt.registeredCount = Math.max(0, (evt.registeredCount || 0) - 1);
-    showToast("Registration cancelled.");
-  } else if (seatsLeft(evt) > 0) {
-    list.push(activeSelectedEventId);
-    evt.registeredCount = (evt.registeredCount || 0) + 1;
-    showToast("You're registered! Your pass is in Event passes.");
+  if (!evt) return;
+
+  // Already registered -> cancel
+  if (userState.registered.includes(activeSelectedEventId)) {
+    if (!confirm(`Cancel your registration for "${evt.title}"?`)) return;
+    try {
+      const { ok, data } = await apiFetch(`/events/${encodeURIComponent(activeSelectedEventId)}/register`, { method: 'DELETE' });
+      if (!ok) return showToast(data.message || "Couldn't cancel your registration.", true);
+      userState.registered = (data.registered || []).map(String);
+      showToast("Registration cancelled.");
+    } catch (e) {
+      return showToast("Couldn't reach the server. Please try again.", true);
+    }
+    await fetchEvents();
+    updateModalButtons();
+    renderUserLists();
+    return;
   }
-  saveUserState();
-  updateModalButtons();
-  renderUserLists();
+
+  if (seatsLeft(evt) <= 0) return;
+  openRegisterForm(evt);
+}
+
+// ---- Event registration form ----
+function openRegisterForm(evt) {
+  const form = document.getElementById("eventRegisterForm");
+  form.reset();
+  document.getElementById("regFormError").classList.add("hidden");
+  document.getElementById("regFormEventTitle").textContent = evt.title;
+  document.getElementById("regFormEventMeta").textContent = `${evt.date} • ${evt.venue} • ${seatsLeft(evt)} seat${seatsLeft(evt) === 1 ? '' : 's'} left`;
+  document.getElementById("erName").value = activeUser.name || '';
+  document.getElementById("erStudentId").value = activeUser.studentId || '';
+  document.getElementById("erDept").value = activeUser.dept || '';
+  document.getElementById("erEmail").value = activeUser.email || '';
+  document.getElementById("erPhone").value = activeUser.phone || '';
+  document.getElementById("eventDetailModal").classList.add("hidden");
+  document.getElementById("registerFormModal").classList.remove("hidden");
+  refreshIcons();
+  const firstEmpty = ["erName", "erStudentId", "erDept", "erPhone"].map(id => document.getElementById(id)).find(el => !el.value);
+  (firstEmpty || document.getElementById("erPhone")).focus();
+}
+
+function closeRegisterForm() {
+  document.getElementById("registerFormModal").classList.add("hidden");
+}
+
+async function handleEventRegistration(e) {
+  e.preventDefault();
+  const errEl = document.getElementById("regFormError");
+  const showErr = (msg) => { errEl.textContent = msg; errEl.classList.remove("hidden"); };
+  errEl.classList.add("hidden");
+
+  const body = {
+    name: document.getElementById("erName").value.trim(),
+    studentId: document.getElementById("erStudentId").value.trim(),
+    dept: document.getElementById("erDept").value,
+    phone: document.getElementById("erPhone").value.trim(),
+    note: document.getElementById("erNote").value.trim(),
+    agree: document.getElementById("erAgree").checked
+  };
+  if (!body.name) return showErr("Please enter your full name.");
+  if (!body.studentId) return showErr("Please enter your student ID.");
+  if (!body.dept) return showErr("Please choose your department.");
+  if (!/^[+()\d][\d\s()+-]{6,19}$/.test(body.phone)) return showErr("Please enter a valid phone number.");
+  if (!body.agree) return showErr("Please confirm that you will attend.");
+
+  const id = activeSelectedEventId;
+  const btn = document.getElementById("regFormSubmit");
+  btn.disabled = true;
+  try {
+    const { ok, data } = await apiFetch(`/events/${encodeURIComponent(id)}/register`, { method: 'POST', body: JSON.stringify(body) });
+    if (!ok) return showErr(data.message || "Couldn't complete your registration.");
+    userState.registered = (data.registered || []).map(String);
+    if (data.user) activeUser = { ...activeUser, ...data.user };
+    closeRegisterForm();
+    showToast("You're registered! Your QR pass is in Event passes.");
+    await fetchEvents();
+    renderUserLists();
+    openEventDetailModal(id);
+  } catch (err) {
+    showErr("Couldn't reach the server. Please try again.");
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 function handleModalHeartToggle() {
@@ -988,27 +1070,66 @@ async function handleDeleteEvent(id) {
 }
 
 // ---- Attendees ----
+let attendeesCache = { event: null, list: [] };
+
 async function openAttendeesModal(id) {
   const evt = findEvent(id);
   if (!evt) return;
+  attendeesCache = { event: evt, list: [] };
   document.getElementById("attendeesTitle").textContent = evt.title;
   document.getElementById("attendeesSub").textContent = `${evt.date} • ${evt.venue}`;
+  document.getElementById("attendeesCount").textContent = '';
+  document.getElementById("attendeesCsvBtn").disabled = true;
   const list = document.getElementById("attendeesList");
   list.innerHTML = emptyState("Loading…");
   document.getElementById("attendeesModal").classList.remove("hidden");
   refreshIcons();
   try {
     const { ok, data } = await apiFetch(`/admin/events/${encodeURIComponent(id)}/attendees`);
-    if (!ok) { list.innerHTML = emptyState(data.message || "Couldn't load attendees."); return; }
+    if (!ok) { list.innerHTML = emptyState(data.message || "Couldn't load the participant list."); return; }
+    attendeesCache.list = data;
+    const total = Number(evt.seats) || 0;
+    document.getElementById("attendeesCount").textContent = `${data.length} of ${total} seats taken`;
+    document.getElementById("attendeesCsvBtn").disabled = !data.length;
     list.innerHTML = data.length ? data.map((st, i) => `
       <div class="attendee-row">
         <span class="attendee-num">${i + 1}</span>
-        <div><strong>${escapeHtml(st.name || st.email)}</strong><span>${escapeHtml(st.email)}${st.studentId ? ' • ' + escapeHtml(st.studentId) : ''}</span></div>
-        <span class="attendee-dept">${escapeHtml(st.dept || '')}</span>
+        <div class="attendee-main">
+          <strong>${escapeHtml(st.name || st.email)}</strong>
+          <span>${escapeHtml(st.email)}${st.studentId ? ' • ' + escapeHtml(st.studentId) : ''}</span>
+          ${st.note ? `<em class="attendee-note">“${escapeHtml(st.note)}”</em>` : ''}
+        </div>
+        <div class="attendee-side">
+          <span class="attendee-dept">${escapeHtml(st.dept || '')}</span>
+          ${st.phone ? `<span class="attendee-phone">${escapeHtml(st.phone)}</span>` : ''}
+          ${st.registeredAt ? `<span class="attendee-time">${escapeHtml(formatDateTime(st.registeredAt))}</span>` : ''}
+        </div>
       </div>`).join('') : emptyState("No students have registered yet.");
+    refreshIcons();
   } catch (e) {
     list.innerHTML = emptyState("Couldn't reach the server.");
   }
+}
+
+// Download the participant list as a CSV file (opens in Excel / Google Sheets)
+function downloadAttendeesCsv() {
+  const { event, list } = attendeesCache;
+  if (!event || !list.length) return;
+  const cell = (v) => {
+    let t = String(v == null ? '' : v);
+    if (/^[=+\-@]/.test(t)) t = "'" + t; // stop spreadsheet formulas
+    return '"' + t.replace(/"/g, '""') + '"';
+  };
+  const rows = [["#", "Name", "Email", "Student ID", "Department", "Phone", "Note", "Registered at"]];
+  list.forEach((st, i) => rows.push([i + 1, st.name, st.email, st.studentId, st.dept, st.phone, st.note, st.registeredAt ? formatDateTime(st.registeredAt) : '']));
+  const csv = '\ufeff' + rows.map(r => r.map(cell).join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${event.title.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'event'}-participants.csv`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 }
 
 function closeAttendeesModal() {
@@ -1058,5 +1179,5 @@ async function handleDeleteUpdate(id) {
 
 // Close admin modal with Escape too
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeAttendeesModal();
+  if (e.key === 'Escape') { closeAttendeesModal(); closeRegisterForm(); }
 });

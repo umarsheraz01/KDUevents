@@ -135,8 +135,8 @@
         </div>
     </div>
 
-    <!-- 2. Events Grid Container -->
-    <div class="events-grid">
+    <!-- 2. Events Grid Container (filled from the database; these cards are the offline fallback) -->
+    <div class="events-grid" id="homeEventsGrid">
         <!-- Event Card 1 -->
         <div class="event-card" data-category="technology">
             <div class="event-card-img-container">
@@ -443,7 +443,6 @@
          ========================================== */
       document.addEventListener('DOMContentLoaded', function () {
         const filterTabs = document.querySelectorAll('.filter-tab');
-        const eventCards = document.querySelectorAll('.event-card');
 
         filterTabs.forEach(tab => {
             tab.addEventListener('click', function () {
@@ -452,7 +451,8 @@
 
                 const filterValue = this.getAttribute('data-filter');
 
-                eventCards.forEach(card => {
+                // Look up the cards on every click: they are loaded from the server after the page opens
+                document.querySelectorAll('#homeEventsGrid .event-card').forEach(card => {
                     const cardCategory = card.getAttribute('data-category');
 
                     if (filterValue === 'all' || cardCategory === filterValue) {
@@ -465,6 +465,66 @@
         });
       });
        
+      /* ==========================================
+         UPCOMING EVENTS FROM THE DATABASE
+         (the same events the admin manages in the portal)
+         ========================================== */
+      document.addEventListener('DOMContentLoaded', async () => {
+        const grid = document.getElementById('homeEventsGrid');
+        if (!grid || !window.KDU_API_BASE) return;
+        const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const origin = window.KDU_API_BASE.replace(/\/api\/?$/, '');
+        const imageUrl = (src) => !src ? 'assets/WhatsApp Image 2026-10-12 at 11.01.35.jpeg' : (String(src).startsWith('/api/images/') ? origin + src : src);
+        const categoryKey = (c) => ({ 'Technology': 'technology', 'Arts & Culture': 'arts', 'Entrepreneurship': 'entrepreneurship' }[c] || String(c || 'other').toLowerCase().replace(/[^a-z]+/g, '-'));
+        try {
+          const res = await fetch(`${window.KDU_API_BASE}/events`);
+          if (!res.ok) return;
+          let events = await res.json();
+          if (!Array.isArray(events) || !events.length) return;
+
+          // Upcoming first (soonest at the top), at most 6 cards
+          const now = Date.now();
+          const time = (e) => new Date(e.startsAt || e.date).getTime();
+          const upcoming = events.filter(e => !(time(e) < now));
+          events = (upcoming.length ? upcoming : events).sort((a, b) => (time(a) || 0) - (time(b) || 0)).slice(0, 6);
+
+          grid.innerHTML = events.map(e => {
+            const d = new Date(e.startsAt || e.date);
+            const valid = !isNaN(d.getTime());
+            const day = valid ? String(d.getDate()).padStart(2, '0') : '--';
+            const month = valid ? d.toLocaleString('en-US', { month: 'short' }) : '';
+            const clock = valid ? d.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit' }) : esc(e.date);
+            const left = Math.max(0, (Number(e.seats) || 0) - (Number(e.registeredCount) || 0));
+            return `
+        <div class="event-card" data-category="${esc(categoryKey(e.category))}">
+            <div class="event-card-img-container">
+                <img src="${esc(imageUrl(e.image))}" alt="${esc(e.title)}" loading="lazy">
+                <div class="date-badge"><span class="day">${day}</span><span class="month">${esc(month)}</span></div>
+            </div>
+            <div class="event-card-body">
+                <span class="card-category">${esc(e.category)}</span>
+                <h3 class="card-title">${esc(e.title)}</h3>
+                <div class="card-divider"></div>
+                <div class="card-info-list">
+                    <span><i class="fa-regular fa-clock"></i> ${esc(clock)}</span>
+                    <span><i class="fa-solid fa-location-dot"></i> ${esc(e.venue)}</span>
+                </div>
+                <div class="card-footer-flex">
+                    <span class="spots-left">${left > 0 ? left + ' spot' + (left === 1 ? '' : 's') + ' left' : 'Fully booked'}</span>
+                    <a href="portal.html?event=${encodeURIComponent(e._id)}" class="view-event-link">${left > 0 ? 'Register' : 'View'} <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>`;
+          }).join('');
+
+          // Re-apply the selected filter tab to the new cards
+          const active = document.querySelector('.filter-tab.active');
+          if (active) active.click();
+        } catch (err) {
+          // Server unreachable: keep the built-in cards
+        }
+      });
+
       /*E-Mail Button */
       
       document.addEventListener('DOMContentLoaded', () => {

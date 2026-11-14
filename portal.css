@@ -1488,3 +1488,65 @@ a.sidebar-brand:hover .brand-title { opacity: 0.85; }
   .banner-preview-bar span { white-space: normal; }
   .banner-preview-actions > button { flex: 1; }
 }
+
+/* ---------- Event registration form (student) ---------- */
+.reg-form { margin-top: 4px; }
+.reg-form .form-group { margin-bottom: 14px; }
+.input-readonly { background-color: #f1f5f9 !important; color: #64748b; cursor: not-allowed; }
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  color: #334155;
+  line-height: 1.5;
+  margin: 2px 0 14px;
+  cursor: pointer;
+}
+.check-row input { margin-top: 2px; width: 16px; height: 16px; accent-color: #0056b3; flex-shrink: 0; }
+.reg-actions { gap: 10px; }
+.reg-actions .btn-gray { padding: 14px 22px; }
+
+/* ---------- Participant list (admin) ---------- */
+.modal-wide { max-width: 720px; }
+.attendees-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.attendees-toolbar .muted-count { font-size: 13px; }
+.attendees-toolbar .btn-gray:disabled { opacity: 0.5; cursor: not-allowed; }
+.attendee-row { align-items: flex-start; }
+.attendee-main { min-width: 0; flex: 1; }
+.attendee-main span { word-break: break-all; }
+.attendee-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #475569;
+  font-style: italic;
+  word-break: break-word;
+}
+.attendee-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.attendee-side .attendee-dept { margin-left: 0; }
+.attendee-phone { font-size: 12px !important; color: #0f172a !important; font-weight: 600; }
+.attendee-time { font-size: 11px !important; }
+
+@media (max-width: 640px) {
+  .attendee-row { flex-wrap: wrap; }
+  .attendee-side { width: 100%; align-items: flex-start; text-align: left; padding-left: 38px; }
+  .attendee-side .attendee-dept { display: inline; }
+  .attendees-toolbar { flex-wrap: wrap; }
+  .reg-actions { flex-direction: column-reverse; }
+  .reg-actions .btn-gray, .reg-actions .btn-primary { width: 100%; }
+}

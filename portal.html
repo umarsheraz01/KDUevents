@@ -506,13 +506,69 @@
     </div>
   </div>
 
-  <!-- ADMIN: ATTENDEES MODAL -->
-  <div id="attendeesModal" class="modal-overlay hidden">
+  <!-- STUDENT: EVENT REGISTRATION FORM -->
+  <div id="registerFormModal" class="modal-overlay hidden">
     <div class="modal-card">
+      <button type="button" onclick="closeRegisterForm()" class="close-btn" aria-label="Close"><i data-lucide="x"></i></button>
+      <span class="eyebrow-red">Event registration</span>
+      <h3 id="regFormEventTitle">Event</h3>
+      <p class="attendees-sub" id="regFormEventMeta"></p>
+
+      <form id="eventRegisterForm" class="admin-form reg-form" onsubmit="handleEventRegistration(event)" novalidate>
+        <div class="form-group span-2">
+          <label for="erName">Full name</label>
+          <input type="text" id="erName" maxlength="100" required autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label for="erStudentId">Student ID</label>
+          <input type="text" id="erStudentId" maxlength="50" required placeholder="KDU/2026/001">
+        </div>
+        <div class="form-group">
+          <label for="erDept">Department</label>
+          <select id="erDept" required>
+            <option value="">Choose…</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Smart Computing">Smart Computing</option>
+            <option value="Business Admin">Business Admin</option>
+            <option value="Arts & Design">Arts & Design</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="erEmail">University email</label>
+          <input type="email" id="erEmail" readonly class="input-readonly">
+        </div>
+        <div class="form-group">
+          <label for="erPhone">Phone number</label>
+          <input type="tel" id="erPhone" maxlength="25" required placeholder="010-1234-5678" autocomplete="tel">
+        </div>
+        <div class="form-group span-2">
+          <label for="erNote">Note for the organizer <span class="optional">(optional)</span></label>
+          <textarea id="erNote" rows="2" maxlength="300" placeholder="Dietary needs, accessibility requests or questions"></textarea>
+        </div>
+        <label class="check-row span-2" for="erAgree">
+          <input type="checkbox" id="erAgree" required>
+          <span>I will attend this event and agree to share these details with the organizer.</span>
+        </label>
+        <p id="regFormError" class="auth-error hidden span-2" role="alert"></p>
+        <div class="span-2 form-actions reg-actions">
+          <button type="button" class="btn-gray" onclick="closeRegisterForm()">Cancel</button>
+          <button type="submit" id="regFormSubmit" class="btn-primary flex-center"><i data-lucide="ticket"></i> <span>Confirm registration</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADMIN: PARTICIPANT LIST -->
+  <div id="attendeesModal" class="modal-overlay hidden">
+    <div class="modal-card modal-wide">
       <button type="button" onclick="closeAttendeesModal()" class="close-btn" aria-label="Close"><i data-lucide="x"></i></button>
-      <span class="eyebrow-red">Registered students</span>
+      <span class="eyebrow-red">Participant list</span>
       <h3 id="attendeesTitle">Event</h3>
       <p class="attendees-sub" id="attendeesSub"></p>
+      <div class="attendees-toolbar">
+        <span id="attendeesCount" class="muted-count"></span>
+        <button type="button" id="attendeesCsvBtn" class="btn-gray flex-center" onclick="downloadAttendeesCsv()" disabled><i data-lucide="download"></i> Download CSV</button>
+      </div>
       <div id="attendeesList" class="attendees-list"></div>
     </div>
   </div>

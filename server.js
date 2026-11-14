@@ -55,6 +55,7 @@ const UserSchema = new mongoose.Schema({
   dept: { type: String, trim: true },
   registered: { type: [String], default: [] },
   saved: { type: [String], default: [] },
+  phone: { type: String, trim: true },
   lastLoginAt: Date
 }, { timestamps: true });
 
@@ -81,6 +82,19 @@ const ImageSchema = new mongoose.Schema({
   size: Number
 }, { timestamps: true });
 
+// One document per student per event, filled in through the registration form
+const RegistrationSchema = new mongoose.Schema({
+  eventId: { type: String, required: true, index: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  name: { type: String, trim: true },
+  email: { type: String, trim: true, lowercase: true },
+  studentId: { type: String, trim: true },
+  dept: { type: String, trim: true },
+  phone: { type: String, trim: true },
+  note: { type: String, trim: true }
+}, { timestamps: true });
+RegistrationSchema.index({ eventId: 1, user: 1 }, { unique: true });
+
 const SettingSchema = new mongoose.Schema({ key: { type: String, unique: true }, value: mongoose.Schema.Types.Mixed });
 
 const Event = mongoose.model('Event', EventSchema);
@@ -88,6 +102,7 @@ const User = mongoose.model('User', UserSchema);
 const Activity = mongoose.model('Activity', ActivitySchema);
 const Announcement = mongoose.model('Announcement', AnnouncementSchema);
 const Setting = mongoose.model('Setting', SettingSchema);
+const Registration = mongoose.model('Registration', RegistrationSchema);
 const Image = mongoose.model('Image', ImageSchema);
 
 const dbOnline = () => mongoose.connection.readyState === 1;
@@ -157,7 +172,7 @@ function adminUser() {
 }
 
 function publicUser(u) {
-  return { name: u.name, email: u.email, role: 'student', studentId: u.studentId, dept: u.dept };
+  return { name: u.name, email: u.email, role: 'student', studentId: u.studentId, dept: u.dept, phone: u.phone || '' };
 }
 
 const cleanText = (v, max = 200) => String(v == null ? '' : v).trim().slice(0, max);
@@ -350,47 +365,99 @@ function cleanIdList(list) {
   return [...new Set(list.map(String).filter(id => id.length > 0 && id.length <= 64))].slice(0, 200);
 }
 
+// Saved (favorite) events. Registrations go through the registration form endpoints below.
 app.put('/api/me/state', requireAuth, async (req, res) => {
   if (req.user.role === 'admin') return res.json({ registered: [], saved: [] });
   try {
     const user = req.user;
     const events = await Event.find().lean();
     const byId = new Map(events.map(e => [String(e._id), e]));
-
-    // Only keep ids of events that still exist
-    const nextRegistered = cleanIdList(req.body.registered).filter(id => byId.has(id));
     const nextSaved = cleanIdList(req.body.saved).filter(id => byId.has(id));
-
-    const prevRegistered = user.registered || [];
     const prevSaved = user.saved || [];
-    const added = nextRegistered.filter(id => !prevRegistered.includes(id));
-    const removed = prevRegistered.filter(id => !nextRegistered.includes(id) && byId.has(id));
 
-    // Seat limit check for new registrations
-    if (added.length) {
-      const counts = await registrationCounts();
-      for (const id of added) {
-        const evt = byId.get(id);
-        if ((counts[id] || 0) >= (Number(evt.seats) || 0)) {
-          return res.status(409).json({ message: `Sorry, "${evt.title}" is fully booked.`, registered: prevRegistered, saved: prevSaved });
-        }
-      }
-    }
-
-    user.registered = nextRegistered;
     user.saved = nextSaved;
     await user.save();
 
     const who = user.name || user.email;
-    added.forEach(id => logActivity('register', user, `${who} registered for "${byId.get(id).title}"`, id));
-    removed.forEach(id => logActivity('cancel', user, `${who} cancelled their registration for "${byId.get(id).title}"`, id));
     nextSaved.filter(id => !prevSaved.includes(id))
       .forEach(id => logActivity('save', user, `${who} saved "${byId.get(id).title}"`, id));
 
-    res.json({ registered: user.registered, saved: user.saved });
+    res.json({ registered: user.registered || [], saved: user.saved });
   } catch (err) {
     console.error('Save state error:', err.message);
     res.status(500).json({ message: 'Could not save your changes.' });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// EVENT REGISTRATION FORM
+// ---------------------------------------------------------------------------
+const PHONE_RE = /^[+()\d][\d\s()+-]{6,19}$/;
+
+app.post('/api/events/:id/register', requireAuth, async (req, res) => {
+  if (req.user.role === 'admin') return res.status(403).json({ message: 'The admin account cannot register for events.' });
+  try {
+    const user = req.user;
+    const id = String(req.params.id);
+    if (!mongoose.isValidObjectId(id)) return res.status(404).json({ message: 'Event not found.' });
+    const evt = await Event.findById(id).lean();
+    if (!evt) return res.status(404).json({ message: 'Event not found.' });
+
+    const name = cleanText(req.body.name, 100) || user.name;
+    const studentId = cleanText(req.body.studentId, 50);
+    const dept = cleanText(req.body.dept, 100);
+    const phone = cleanText(req.body.phone, 25);
+    const note = cleanText(req.body.note, 300);
+
+    if (!name) return res.status(400).json({ message: 'Please enter your full name.' });
+    if (!studentId) return res.status(400).json({ message: 'Please enter your student ID.' });
+    if (!dept) return res.status(400).json({ message: 'Please choose your department.' });
+    if (!PHONE_RE.test(phone)) return res.status(400).json({ message: 'Please enter a valid phone number.' });
+    if (req.body.agree !== true) return res.status(400).json({ message: 'Please confirm that you will attend.' });
+
+    if ((user.registered || []).includes(id) || await Registration.exists({ eventId: id, user: user._id })) {
+      return res.status(409).json({ message: 'You are already registered for this event.' });
+    }
+
+    const counts = await registrationCounts();
+    if ((counts[id] || 0) >= (Number(evt.seats) || 0)) {
+      return res.status(409).json({ message: `Sorry, "${evt.title}" is fully booked.` });
+    }
+
+    await Registration.create({ eventId: id, user: user._id, name, email: user.email, studentId, dept, phone, note });
+    user.registered = [...new Set([...(user.registered || []), id])];
+    // Remember details for next time
+    if (!user.studentId) user.studentId = studentId;
+    if (!user.dept) user.dept = dept;
+    user.phone = phone;
+    await user.save();
+
+    logActivity('register', user, `${name} registered for "${evt.title}"`, id);
+    res.status(201).json({ message: 'Registered', registered: user.registered, saved: user.saved || [], user: publicUser(user) });
+  } catch (err) {
+    if (err && err.code === 11000) return res.status(409).json({ message: 'You are already registered for this event.' });
+    console.error('Register for event error:', err.message);
+    res.status(500).json({ message: 'Could not complete your registration. Please try again.' });
+  }
+});
+
+app.delete('/api/events/:id/register', requireAuth, async (req, res) => {
+  if (req.user.role === 'admin') return res.status(403).json({ message: 'Admin access only.' });
+  try {
+    const user = req.user;
+    const id = String(req.params.id);
+    const had = (user.registered || []).includes(id);
+    await Registration.deleteOne({ eventId: id, user: user._id });
+    user.registered = (user.registered || []).filter(r => r !== id);
+    await user.save();
+    if (had) {
+      const evt = mongoose.isValidObjectId(id) ? await Event.findById(id).lean() : null;
+      logActivity('cancel', user, `${user.name || user.email} cancelled their registration for "${evt ? evt.title : 'an event'}"`, id);
+    }
+    res.json({ message: 'Registration cancelled', registered: user.registered, saved: user.saved || [] });
+  } catch (err) {
+    console.error('Cancel registration error:', err.message);
+    res.status(500).json({ message: 'Could not cancel your registration.' });
   }
 });
 
@@ -484,6 +551,7 @@ app.delete('/api/admin/events/:id', requireAdmin, async (req, res) => {
     if (!evt) return res.status(404).json({ message: 'Event not found.' });
     const id = String(evt._id);
     await User.updateMany({}, { $pull: { registered: id, saved: id } });
+    await Registration.deleteMany({ eventId: id });
     const imageMatch = /^\/api\/images\/([a-f0-9]{24})$/.exec(evt.image || '');
     if (imageMatch) await Image.findByIdAndDelete(imageMatch[1]).catch(() => {});
     logActivity('event_deleted', req.user, `Admin deleted the event "${evt.title}"`, id);
@@ -531,10 +599,21 @@ app.get('/api/images/:id', async (req, res) => {
   }
 });
 
+// Participant list: registration form details for every student registered for the event
 app.get('/api/admin/events/:id/attendees', requireAdmin, async (req, res) => {
   try {
-    const users = await User.find({ registered: req.params.id }).sort({ name: 1 }).lean();
-    res.json(users.map(u => ({ name: u.name, email: u.email, studentId: u.studentId, dept: u.dept })));
+    const id = String(req.params.id);
+    const [regs, users] = await Promise.all([
+      Registration.find({ eventId: id }).sort({ createdAt: 1 }).lean(),
+      User.find({ registered: id }).lean()
+    ]);
+    const list = regs.map(r => ({ name: r.name, email: r.email, studentId: r.studentId, dept: r.dept, phone: r.phone, note: r.note, registeredAt: r.createdAt }));
+    // Older registrations made before the form existed
+    const withForm = new Set(regs.map(r => String(r.user)));
+    users.filter(u => !withForm.has(String(u._id))).forEach(u => list.push({
+      name: u.name, email: u.email, studentId: u.studentId, dept: u.dept, phone: u.phone || '', note: '', registeredAt: null
+    }));
+    res.json(list);
   } catch (err) {
     res.status(500).json({ message: 'Could not load attendees.' });
   }
