@@ -1,3 +1,13 @@
+// =============================================================================
+// js/featured-event.js — FEATURED EVENT PAGE (featured-event.html)
+// -----------------------------------------------------------------------------
+// 1. Mobile menu            (open / close on phones)
+// 2. Schedule accordions    (click a time slot to show its details)
+// 3. Share button           (share the page or copy its link)
+// 4. "Get directions"       (shows a small message)
+// 5. Newsletter form        (same server call as the homepage: POST /api/subscribe)
+// Plus showToast(): the small message that slides up at the bottom.
+// =============================================================================
 document.addEventListener('DOMContentLoaded', () => {
 
   // --- 1. Mobile Menu Drawer Toggle ---

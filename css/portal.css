@@ -1,4 +1,25 @@
-/* NATIVE CSS - KDU EVENTS DESIGN SYSTEM */
+/* =============================================================================
+   css/portal.css — STUDENT + ADMIN PORTAL (portal.html)
+   -----------------------------------------------------------------------------
+   TABLE OF CONTENTS (search for the section name to jump there)
+     1.  Base styles & utilities
+     2.  Login screen (photo panel + sign-in form)
+     3.  Portal layout (sidebar, top bar, content area)
+     4.  Cards & panels (overview banner, stat cards)
+     5.  Pop-up windows (event details, QR pass)
+     6.  Discover page (search bar, event grid)
+     7.  Responsive layout (tablets, phones, small screens)
+     8.  Login screen extras (logo, campus photo background on desktop & phones)
+     9.  Admin portal (dashboard, forms, tables, activity, toast message)
+     10. Event banner upload (admin)
+     11. Event registration form (student)
+     12. Participant list (admin)
+   Colors used everywhere: navy #061838 · KDU red #e63946 · blue #0056b3
+   ============================================================================= */
+
+/* =============================================================================
+   1. BASE STYLES & UTILITIES
+   ============================================================================= */
 
 * {
   margin: 0;
@@ -12,14 +33,17 @@ body {
   color: #0f172a;
 }
 
-/* UTILITIES */
+/* Utilities */
 .hidden { display: none !important; }
 .italic { font-style: italic; }
 .red-text { color: #e63946; }
 .text-center { text-align: center; }
 .flex-center { display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-/* AUTHENTICATION SCREEN */
+/* =============================================================================
+   2. LOGIN SCREEN
+   Left: campus photo panel · Right: sign-in / sign-up form
+   ============================================================================= */
 .auth-wrapper {
   display: grid;
   grid-template-columns: 1fr;
@@ -41,7 +65,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background-image: linear-gradient(to top, rgba(6, 24, 56, 0.95), rgba(6, 24, 56, 0.6)), url('kdu-login.jpg');
+  background-image: linear-gradient(to top, rgba(6, 24, 56, 0.95), rgba(6, 24, 56, 0.6)), url('../kdu-login.jpg');
   background-size: cover;
   background-position: center;
 }
@@ -112,7 +136,7 @@ body {
   color: #94a3b8;
 }
 
-/* AUTH FORM */
+/* ---- Sign-in / sign-up form ---- */
 .auth-form-panel {
   padding: 48px;
   display: flex;
@@ -252,7 +276,10 @@ body {
   margin-left: 4px;
 }
 
-/* APP MAIN LAYOUT */
+/* =============================================================================
+   3. PORTAL LAYOUT
+   Sidebar menu on the left, top bar, scrolling content area
+   ============================================================================= */
 .app-layout {
   display: flex;
   min-height: 100vh;
@@ -457,7 +484,10 @@ body {
   margin: 0 auto;
 }
 
-/* CARDS & PANELS */
+/* =============================================================================
+   4. CARDS & PANELS
+   Welcome banner, stat cards, section headings
+   ============================================================================= */
 .hero-banner {
   background-color: #061838;
   color: #ffffff;
@@ -539,7 +569,10 @@ body {
   cursor: pointer;
 }
 
-/* MODALS */
+/* =============================================================================
+   5. POP-UP WINDOWS
+   Event details, QR pass (the dark background + white card)
+   ============================================================================= */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -637,7 +670,10 @@ body {
   color: #94a3b8;
 }
 
-/* SEARCH & DISCOVER */
+/* =============================================================================
+   6. DISCOVER PAGE
+   Search bar, filters, event card grid
+   ============================================================================= */
 .filter-bar {
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
@@ -730,9 +766,10 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* =========================================================
-   RESPONSIVE LAYOUT
-   ========================================================= */
+/* =============================================================================
+   7. RESPONSIVE LAYOUT
+   Breakpoints: 1199px (large tablets) · 1023px (tablets) · 640px (phones) · 360px
+   ============================================================================= */
 
 img { max-width: 100%; }
 body.no-scroll { overflow: hidden; }
@@ -943,6 +980,11 @@ body.no-scroll { overflow: hidden; }
   .nav-menu button { padding: 10px 16px; }
 }
 
+/* =============================================================================
+   8. LOGIN SCREEN EXTRAS
+   Phones show only the form; campus photo background; KDU logo
+   ============================================================================= */
+
 /* ---------- Phones (Android / slim devices): login form only ---------- */
 .mobile-brand { display: none; }
 
@@ -992,7 +1034,7 @@ body.no-scroll { overflow: hidden; }
     background-color: #061838;
     background-image:
       linear-gradient(90deg, rgba(6, 24, 56, 0.92) 0%, rgba(6, 24, 56, 0.6) 50%, rgba(6, 24, 56, 0.35) 100%),
-      url('kdu-login.jpg');
+      url('../kdu-login.jpg');
     background-size: cover;
     background-position: center 35%;
     background-attachment: fixed;
@@ -1021,7 +1063,7 @@ body.no-scroll { overflow: hidden; }
     background-color: #061838;
     background-image:
       linear-gradient(180deg, rgba(6, 24, 56, 0.55) 0%, rgba(6, 24, 56, 0.75) 100%),
-      url('kdu-login.jpg');
+      url('../kdu-login.jpg');
     /* Zoomed slightly so the photo's white frame border stays out of view */
     background-size: auto 125%;
     background-position: center center;
@@ -1052,9 +1094,10 @@ a.brand:hover .brand-title,
 a.mobile-brand:hover .brand-title,
 a.sidebar-brand:hover .brand-title { opacity: 0.85; }
 
-/* =========================================================
-   ADMIN PORTAL (same design language as the student portal)
-   ========================================================= */
+/* =============================================================================
+   9. ADMIN PORTAL
+   Dashboard, forms, event cards, students table, activity feed, toast message
+   ============================================================================= */
 
 /* Sidebar counter next to "Notifications" */
 .nav-count {
@@ -1415,7 +1458,9 @@ a.sidebar-brand:hover .brand-title { opacity: 0.85; }
   .toast { bottom: 16px; }
 }
 
-/* ---------- Event banner upload (admin) ---------- */
+/* =============================================================================
+   10. EVENT BANNER UPLOAD (admin)
+   ============================================================================= */
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -1489,7 +1534,9 @@ a.sidebar-brand:hover .brand-title { opacity: 0.85; }
   .banner-preview-actions > button { flex: 1; }
 }
 
-/* ---------- Event registration form (student) ---------- */
+/* =============================================================================
+   11. EVENT REGISTRATION FORM (student)
+   ============================================================================= */
 .reg-form { margin-top: 4px; }
 .reg-form .form-group { margin-bottom: 14px; }
 .input-readonly { background-color: #f1f5f9 !important; color: #64748b; cursor: not-allowed; }
@@ -1507,7 +1554,9 @@ a.sidebar-brand:hover .brand-title { opacity: 0.85; }
 .reg-actions { gap: 10px; }
 .reg-actions .btn-gray { padding: 14px 22px; }
 
-/* ---------- Participant list (admin) ---------- */
+/* =============================================================================
+   12. PARTICIPANT LIST (admin)
+   ============================================================================= */
 .modal-wide { max-width: 720px; }
 .attendees-toolbar {
   display: flex;

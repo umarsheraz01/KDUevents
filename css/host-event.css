@@ -1,3 +1,9 @@
+/* =============================================================================
+   css/host-event.css — "HOST AN EVENT" PAGE (host-event.html)
+   Sections: theme colors · navigation header · hero banner · form card ·
+             logistics toggle cards · submit button · footer
+   ============================================================================= */
+
 /* Reset & Theme Variables matching KDU Events Main Page */
     :root {
       --bg-dark: #0b192c;

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Publishes the student/admin portal to https://portal.kduevents.co.kr
 #
-# The portal is edited in this project (portal.html, portal.css, portal.js).
+# The portal is edited in this project (portal.html, css/portal.css, js/portal/).
 # This script copies those files into a small separate site and pushes it to
 # the "kdu-portal" GitHub repo, which GitHub Pages serves on the subdomain.
 #
@@ -20,9 +20,11 @@ rm -rf "$OUT"
 mkdir -p "$OUT"
 
 # Files the portal needs
-for f in portal.css portal.js config.js logo.svg kdu-login.jpg; do
-  cp "$ROOT/$f" "$OUT/$f"
-done
+mkdir -p "$OUT/css" "$OUT/js/portal"
+cp "$ROOT/css/portal.css" "$OUT/css/"
+cp "$ROOT/js/config.js" "$OUT/js/"
+cp "$ROOT"/js/portal/*.js "$OUT/js/portal/"
+cp "$ROOT/logo.svg" "$ROOT/kdu-login.jpg" "$OUT/"
 
 # The portal page becomes the home page of the subdomain.
 # Links back to "index.html" (the main site) must point to the main domain.

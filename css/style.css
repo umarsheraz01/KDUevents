@@ -1,5 +1,24 @@
+/* =============================================================================
+   css/style.css — HOMEPAGE (index.html)
+   -----------------------------------------------------------------------------
+   TABLE OF CONTENTS (search for the section name to jump there)
+     1.  Root variables & base styles
+     2.  Header & navigation (logo, menu, Login / Register buttons)
+     3.  Hero section (full-screen video slider)
+     4.  Featured event banner
+     5.  Upcoming events section (filter tabs + event cards)
+     6.  Stats banner
+     7.  Previously on campus (archive)
+     8.  Newsletter section, then 8b. the "subscribed" pop-up
+     9.  Site footer
+     10. Responsive design (tablets 1024px and down)
+     11. Mobile & Android fixes (768px and down)
+     12. Hero video on tablets & phones
+     13. Mobile header (menu button on the right)
+   ============================================================================= */
+
 /* ==========================================================================
-   ROOT VARIABLES & BASE STYLES
+   1. ROOT VARIABLES & BASE STYLES
    ========================================================================== */
 :root {
     --primary-navy: #0B192C;
@@ -33,7 +52,7 @@ html, body {
 }
 
 /* ==========================================================================
-   HEADER & NAVIGATION
+   2. HEADER & NAVIGATION
    ========================================================================== */
 header {
     background-color: #0B192C;
@@ -230,7 +249,7 @@ nav ul li a.active {
 }
 
 /* ==========================================================================
-   HERO SECTION (FULL SCREEN DESKTOP)
+   3. HERO SECTION (FULL SCREEN DESKTOP)
    ========================================================================== */
 .hero {
     position: relative;
@@ -397,7 +416,7 @@ nav ul li a.active {
 }
 
 /* ==========================================================================
-   FEATURED EVENT BANNER
+   4. FEATURED EVENT BANNER
    ========================================================================== */
 .featured-wrapper {
     max-width: 1320px;
@@ -508,7 +527,7 @@ nav ul li a.active {
 }
 
 /* ==========================================================================
-   UPCOMING EVENTS SECTION (3-COLUMN DESKTOP GRID)
+   5. UPCOMING EVENTS SECTION (3-COLUMN DESKTOP GRID)
    ========================================================================== */
 .upcoming-section {
     max-width: 1320px;
@@ -701,7 +720,7 @@ nav ul li a.active {
 }
 
 /* ==========================================================================
-   STATS BANNER SECTION
+   6. STATS BANNER SECTION
    ========================================================================== */
 .stats-banner {
     background-color: var(--primary-navy);
@@ -780,7 +799,7 @@ nav ul li a.active {
 }
 
 /* ==========================================================================
-   PREVIOUSLY ON CAMPUS (ARCHIVE)
+   7. PREVIOUSLY ON CAMPUS (ARCHIVE)
    ========================================================================== */
 .archive-section {
     max-width: 1320px;
@@ -853,7 +872,7 @@ nav ul li a.active {
 }
 
 /* ==========================================================================
-   NEWSLETTER SECTION
+   8. NEWSLETTER SECTION
    ========================================================================== */
 .newsletter-section {
     max-width: 1320px;
@@ -946,7 +965,7 @@ nav ul li a.active {
 }
 
 /* ==========================================================================
-   AUTH MODAL & FORM STYLES
+   8b. NEWSLETTER "SUBSCRIBED" POP-UP (+ old login-box styles that no page uses any more)
    ========================================================================== */
 /* (.modal-overlay is defined once, further down with the subscription modal) */
 
@@ -1213,7 +1232,7 @@ nav ul li a.active {
 }
 
 /* ==========================================================================
-   SITE FOOTER
+   9. SITE FOOTER
    ========================================================================== */
 .site-footer {
     background-color: #0B192C;
@@ -1343,7 +1362,7 @@ nav ul li a.active {
 }
 
 /* ==========================================================================
-   RESPONSIVE DESIGN (TABLETS 1024px and down)
+   10. RESPONSIVE DESIGN (TABLETS 1024px and down)
    ========================================================================== */
 @media (max-width: 1100px) {
     nav ul {
@@ -1374,7 +1393,7 @@ nav ul li a.active {
 }
 
 /* ==========================================================================
-   MOBILE & ANDROID RESPONSIVE FIXES (768px and down)
+   11. MOBILE & ANDROID RESPONSIVE FIXES (768px and down)
    ========================================================================== */
 @media (max-width: 768px) {
     header {
@@ -1612,7 +1631,7 @@ nav ul li a.active {
 }
 
 /* ==========================================================================
-   HERO VIDEO: full width on tablets & phones (Android/iPhone)
+   12. HERO VIDEO: full width on tablets & phones (Android/iPhone)
    ========================================================================== */
 .hero-slider {
     position: absolute;
@@ -1652,7 +1671,7 @@ nav ul li a.active {
 .slide video.has-black-bars { transform: scale(1.18); }
 
 /* ==========================================================================
-   MOBILE HEADER: logo on the left, "Register now" + menu button on the right
+   13. MOBILE HEADER: logo on the left, "Register now" + menu button on the right
    ========================================================================== */
 @media (max-width: 768px) {
     header { gap: 10px; }

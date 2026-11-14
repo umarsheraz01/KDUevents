@@ -2,10 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+<!--
+  =============================================================================
+  portal.html — STUDENT PORTAL + ADMIN PORTAL (kduevents.co.kr/portal.html)
+  -----------------------------------------------------------------------------
+  1. Login screen (Student Portal / Admin Portal tabs, sign up)
+  2. Portal shell: sidebar menu + top bar
+  3. Student tabs: Overview · Discover · My events · Passes · Saved · Notifications
+  4. Admin tabs:   Dashboard · Manage events · Students · Activity log · Send updates
+  5. Pop-up windows: event details · registration form · participant list · QR pass
+  Styles:  css/portal.css
+  Scripts: js/config.js → js/portal/core.js → auth.js → navigation.js →
+           student.js → admin.js  (bottom of this file)
+  =============================================================================
+-->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KDU EVENTS - Student Portal</title>
   <link rel="icon" type="image/svg+xml" href="logo.svg">
-  <link rel="stylesheet" href="portal.css">
+  <link rel="stylesheet" href="css/portal.css">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -576,7 +590,12 @@
   <!-- Small confirmation message -->
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
-  <script src="config.js"></script>
-  <script src="portal.js"></script>
+  <!-- JavaScript: server address, then the portal split by feature (order matters) -->
+  <script src="js/config.js"></script>
+  <script src="js/portal/core.js"></script>        <!-- settings, shared state, helpers -->
+  <script src="js/portal/auth.js"></script>        <!-- sign in / sign up / session -->
+  <script src="js/portal/navigation.js"></script>  <!-- sidebar, tabs, card buttons -->
+  <script src="js/portal/student.js"></script>     <!-- student portal + registration form -->
+  <script src="js/portal/admin.js"></script>       <!-- admin portal + participant list -->
 </body>
 </html>

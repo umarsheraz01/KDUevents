@@ -1,3 +1,9 @@
+// =============================================================================
+// models/subscriber.js — A NEWSLETTER SUBSCRIBER
+// -----------------------------------------------------------------------------
+// Created when someone enters their email in the newsletter box on the
+// homepage (see routes/newsletter.js). They then get the welcome email.
+// =============================================================================
 const mongoose = require('mongoose');
 
 const subscriberSchema = new mongoose.Schema({
