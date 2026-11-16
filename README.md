@@ -35,8 +35,8 @@ Event Management/
 ├── index.html              Homepage
 ├── portal.html             Student portal + admin portal (one page, two modes)
 ├── featured-event.html     Full page for the featured event
-├── venue.html              "Book a venue" form (not connected to the server yet)
-├── host-event.html         "Host an event" form (not connected to the server yet)
+├── venue.html              "Book a venue" form → emailed to admin@kduevents.co.kr
+├── host-event.html         "Host an event" form → emailed to admin@kduevents.co.kr
 │
 ├── css/                    One stylesheet per page
 │   ├── style.css             → index.html
@@ -49,6 +49,7 @@ Event Management/
 │   ├── config.js             Server address (loaded first on every page)
 │   ├── home.js               Homepage: video slider, live events, filters, newsletter, menu
 │   ├── featured-event.js     Featured event page: menu, schedule, share, newsletter
+│   ├── requests.js           Sends the Host-an-event / Book-a-venue forms to the server
 │   └── portal/               The portal, split by feature (loaded in this order):
 │       ├── core.js             1. settings, shared state, apiFetch(), helpers
 │       ├── auth.js             2. sign in / sign up / login session
@@ -63,16 +64,18 @@ Event Management/
 │   ├── security.js           password hashing, login tokens, login limits
 │   ├── auth.js               requireAuth / requireAdmin (who may use a route)
 │   ├── helpers.js            activity log, seat counts, input cleaning
-│   └── emails/welcome-email.js   design of the newsletter welcome email
+│   ├── mailer.js             sends emails through Gmail
+│   └── emails/               welcome-email.js (newsletter) · request-email.js (host/venue requests)
 ├── routes/                 The API — one file per area
 │   ├── events.js             GET /api/events · POST/DELETE /api/events/:id/register
 │   ├── auth.js               /api/auth/register · /api/auth/login · /api/auth/me
 │   ├── student.js            /api/me/state (saved events) · /api/announcements
 │   ├── admin.js              /api/admin/…  (dashboard, events, participant list, uploads, updates)
 │   ├── images.js             /api/images/:id (shows uploaded banners)
-│   └── newsletter.js         /api/subscribe (saves the email + sends the welcome email)
+│   ├── newsletter.js         /api/subscribe (saves the email + sends the welcome email)
+│   └── requests.js           /api/requests/host-event · /api/requests/venue-booking (emails the admin)
 ├── models/                 What each database record looks like
-│   ├── event.js · user.js · registration.js · activity.js
+│   ├── event.js · user.js · registration.js · activity.js · request.js
 │   └── announcement.js · image.js · setting.js · subscriber.js
 │
 ├── assets/                 Photos, videos and video poster images
@@ -102,6 +105,7 @@ Event Management/
 | Activity log | `js/portal/admin.js` → section 2 | `lib/helpers.js` → `logActivity()` |
 | Seat limits (no overbooking) | — | `routes/events.js` (registration) · `lib/helpers.js` → `registrationCounts()` |
 | Newsletter + welcome email | `js/home.js` → section 4 | `routes/newsletter.js` · `lib/emails/welcome-email.js` |
+| Host an event / Book a venue → email to admin | `js/requests.js` | `routes/requests.js` · `lib/emails/request-email.js` |
 | Homepage video slider | `js/home.js` → section 1 | — |
 | Phone / tablet layouts | the `@media` sections at the end of each CSS file | — |
 
@@ -115,7 +119,7 @@ Every code file starts with a short header explaining what it does, and long fil
 2. Start the server: `npm start` → you'll see `KDU Events Server running on port 5050` and `MongoDB Database Connected Successfully`
 3. Open `index.html` with VS Code **Live Server** (or open the file directly). Keep the server terminal open while you use the portal.
 
-The `.env` file must contain: `PORT`, `MONGO_URI`, `EMAIL_USER`, `EMAIL_PASS`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SESSION_SECRET`.
+The `.env` file must contain: `PORT`, `MONGO_URI`, `EMAIL_USER`, `EMAIL_PASS`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SESSION_SECRET`. Optional: `REQUESTS_EMAIL` (inbox for host/venue requests, default admin@kduevents.co.kr).
 
 ## 5. Publishing changes
 

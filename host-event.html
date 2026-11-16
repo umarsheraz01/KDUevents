@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
 <!--
   =============================================================================
-  host-event.html — "HOST AN EVENT" PAGE (a form; not connected to the server yet)
+  host-event.html — "HOST AN EVENT" PAGE
+  The form is sent by js/requests.js to the server (routes/requests.js),
+  which emails it to admin@kduevents.co.kr.
   Styles: css/host-event.css
   =============================================================================
 -->
@@ -45,7 +47,7 @@
 
   <!-- Form Container -->
   <main class="host-container">
-    <form class="host-card-form" action="#" method="POST">
+    <form class="host-card-form" id="hostEventForm" data-endpoint="host-event" novalidate>
       
       <div class="form-header">
         <h2>Event Proposal Application</h2>
@@ -57,34 +59,54 @@
         <h3 class="section-title"><span class="num-badge">1</span> Basic Information</h3>
         
         <div class="form-grid">
+          <div class="form-group">
+            <label for="organizerName">Organizer / Club Name *</label>
+            <input type="text" id="organizerName" name="name" maxlength="120" placeholder="e.g. Neha Verma / Smart Computing Club" required>
+          </div>
+
+          <div class="form-group">
+            <label for="organizerEmail">Email Address *</label>
+            <input type="email" id="organizerEmail" name="email" maxlength="160" placeholder="e.g. you@kdu.ac.kr" autocomplete="email" required>
+          </div>
+
+          <div class="form-group">
+            <label for="organizerPhone">Contact Phone Number *</label>
+            <input type="tel" id="organizerPhone" name="phone" maxlength="25" placeholder="e.g. 010-1234-5678" autocomplete="tel" required>
+          </div>
+
+          <div class="form-group">
+            <label for="organizerStudentId">Student ID</label>
+            <input type="text" id="organizerStudentId" name="studentId" maxlength="50" placeholder="e.g. 2417112">
+          </div>
+
           <div class="form-group full-width">
             <label for="eventTitle">Event Title *</label>
-            <input type="text" id="eventTitle" placeholder="e.g. Future Forward: Tech & Innovation Summit" required>
+            <input type="text" id="eventTitle" name="title" placeholder="e.g. Future Forward: Tech & Innovation Summit" required>
           </div>
 
           <div class="form-group">
             <label for="eventCategory">Category *</label>
-            <select id="eventCategory" required>
+            <select id="eventCategory" name="category" required>
               <option value="" disabled selected>Select Category</option>
-              <option value="technology">Technology & AI</option>
-              <option value="arts">Arts & Culture</option>
-              <option value="entrepreneurship">Entrepreneurship</option>
-              <option value="social">Social & Student Life</option>
+              <option value="Technology &amp; AI">Technology & AI</option>
+              <option value="Arts &amp; Culture">Arts & Culture</option>
+              <option value="Entrepreneurship">Entrepreneurship</option>
+              <option value="Social &amp; Student Life">Social & Student Life</option>
             </select>
           </div>
 
           <div class="form-group">
             <label for="targetAudience">Target Audience</label>
-            <select id="targetAudience">
-              <option value="all">All Students & Faculty</option>
-              <option value="undergrad">Undergraduates Only</option>
-              <option value="international">International Students</option>
+            <select id="targetAudience" name="audience">
+              <option value="All Students &amp; Faculty">All Students & Faculty</option>
+              <option value="Undergraduates Only">Undergraduates Only</option>
+              <option value="International Students">International Students</option>
             </select>
           </div>
 
           <div class="form-group full-width">
             <label for="eventDescription">Event Description *</label>
-            <textarea id="eventDescription" rows="4" placeholder="Provide a detailed overview of schedule, speakers, and goals..." required></textarea>
+            <textarea id="eventDescription" name="description" rows="4" placeholder="Provide a detailed overview of schedule, speakers, and goals..." required></textarea>
           </div>
         </div>
       </div>
@@ -96,27 +118,27 @@
         <div class="form-grid">
           <div class="form-group">
             <label for="eventDate">Event Date *</label>
-            <input type="date" id="eventDate" required>
+            <input type="date" id="eventDate" name="date" required>
           </div>
 
           <div class="form-group">
             <label for="eventTime">Start Time *</label>
-            <input type="time" id="eventTime" required>
+            <input type="time" id="eventTime" name="time" required>
           </div>
 
           <div class="form-group">
             <label for="venueSelect">Venue Request *</label>
-            <select id="venueSelect" required>
+            <select id="venueSelect" name="venue" required>
               <option value="" disabled selected>Select Preferred Venue</option>
-              <option value="innovation-hall">Innovation Hall (Main Campus)</option>
-              <option value="atrium">The Atrium Auditorium</option>
-              <option value="student-commons">Student Commons Center</option>
+              <option value="Innovation Hall (Main Campus)">Innovation Hall (Main Campus)</option>
+              <option value="The Atrium Auditorium">The Atrium Auditorium</option>
+              <option value="Student Commons Center">Student Commons Center</option>
             </select>
           </div>
 
           <div class="form-group">
             <label for="expectedAttendees">Expected Attendees</label>
-            <input type="number" id="expectedAttendees" min="10" placeholder="e.g. 150">
+            <input type="number" id="expectedAttendees" name="attendees" min="10" placeholder="e.g. 150">
           </div>
         </div>
       </div>
@@ -127,7 +149,7 @@
 
         <div class="logistics-grid">
           <label class="toggle-card">
-            <input type="checkbox">
+            <input type="checkbox" name="logistics" value="Catering &amp; Refreshments">
             <div>
               <span class="toggle-title">Catering & Refreshments</span>
               <span class="toggle-desc">Food, drinks, or coffee setup required</span>
@@ -135,7 +157,7 @@
           </label>
 
           <label class="toggle-card">
-            <input type="checkbox">
+            <input type="checkbox" name="logistics" value="AV &amp; Microphone System">
             <div>
               <span class="toggle-title">AV & Microphone System</span>
               <span class="toggle-desc">Projectors, microphones, and speakers</span>
@@ -143,7 +165,7 @@
           </label>
 
           <label class="toggle-card">
-            <input type="checkbox">
+            <input type="checkbox" name="logistics" value="Stage Setup &amp; Lighting">
             <div>
               <span class="toggle-title">Stage Setup & Lighting</span>
               <span class="toggle-desc">Podium, stage lighting, and banners</span>
@@ -151,7 +173,7 @@
           </label>
 
           <label class="toggle-card">
-            <input type="checkbox">
+            <input type="checkbox" name="logistics" value="Live Stream / Recording">
             <div>
               <span class="toggle-title">Live Stream / Recording</span>
               <span class="toggle-desc">Camera setup and university broadcast</span>
@@ -162,6 +184,7 @@
 
       <!-- Submit Action -->
       <div class="form-actions">
+        <p class="form-status" role="status" aria-live="polite"></p>
         <button type="submit" class="btn-submit-proposal">Submit Event Proposal &rarr;</button>
       </div>
 
@@ -214,5 +237,7 @@
     </div>
   </footer>
 
+  <script src="js/config.js"></script>
+  <script src="js/requests.js"></script>
 </body>
 </html>

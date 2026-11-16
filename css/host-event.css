@@ -389,3 +389,9 @@
         padding: 24px;
       }
     }
+/* Message shown after sending the form (set by js/requests.js) */
+.form-status { margin: 0 0 14px; font-size: 14px; line-height: 1.5; text-align: left; }
+.form-status:empty { display: none; }
+.form-status.is-success { color: #4ade80; }
+.form-status.is-error { color: #f87171; }
+button[type="submit"]:disabled { opacity: 0.6; cursor: wait; }

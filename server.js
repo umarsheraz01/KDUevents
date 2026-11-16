@@ -40,6 +40,7 @@ app.use('/api', require('./routes/student'));         // saved events, announcem
 app.use('/api/admin', require('./routes/admin'));     // admin portal (dashboard, events, participant list…)
 app.use('/api/images', require('./routes/images'));   // uploaded event banners
 app.use('/api', require('./routes/newsletter'));      // newsletter sign-up + welcome email
+app.use('/api/requests', require('./routes/requests')); // host-an-event + book-a-venue forms → email to admin
 
 // ---- 5. Friendly errors for bad request bodies -------------------------------
 app.use((err, req, res, next) => {
