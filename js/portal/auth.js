@@ -241,7 +241,7 @@ function updateUserUI() {
   document.getElementById("userAccountTypeLabel").innerText = adminAccount ? 'Admin Account' : 'Student Account';
   document.getElementById("sidebarRoleTag").innerText = adminAccount ? 'Admin Portal' : 'Student Portal';
   if (isAdmin()) return;
-  document.getElementById("overviewDeptTag").innerText = activeUser.dept || "Computer Science";
+  document.getElementById("overviewDeptTag").innerText = activeUser.dept || "Smart Computing";
   document.getElementById("overviewWelcomeHeading").innerText = `Welcome back, ${nameStr.split(' ')[0]}.`;
   renderUserLists();
 }
