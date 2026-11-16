@@ -116,6 +116,8 @@ function selectAuthRole(role) {
   if (stTab) stTab.classList.toggle("active", role === 'student');
   if (adTab) adTab.classList.toggle("active", role === 'admin');
   if (emailLabel) emailLabel.innerText = role === 'admin' ? "Admin email" : "University email";
+  const emailInput = document.getElementById("authEmailInput");
+  if (emailInput) emailInput.placeholder = role === 'admin' ? "admin@kduevents.co.kr" : "student@kdu.ac.kr";
   if (submitBtn) submitBtn.innerHTML = `<span>Continue to ${role} portal</span> <i data-lucide="arrow-right"></i>`;
   refreshIcons();
 }
