@@ -221,16 +221,60 @@ function openMainPortal(serverState) {
 
 function handleSignOut() {
   toggleSidebar(false);
+
+  // Tell the server to cancel this login, so the old token can never be reused
+  const oldToken = getToken();
+  if (oldToken) {
+    fetch(`${API_BASE}/auth/logout`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${oldToken}` }
+    }).catch(() => {});
+  }
+
   setToken(null);
   activeUser = null;
   announcements = [];
   adminData = { summary: null, events: [], students: [], activity: [], updates: [] };
   userState = { registered: [], saved: [] };
-  const form = document.getElementById("authForm");
-  if (form) form.reset();
+  clearLoginFields();
   document.getElementById("mainPortalApp").classList.add("hidden");
   document.getElementById("authScreen").classList.remove("hidden");
 }
+
+// Empty the email & password boxes (again a moment later, in case the browser refills them)
+function clearLoginFields() {
+  const form = document.getElementById("authForm");
+  if (form) form.reset();
+  const wipe = () => {
+    const email = document.getElementById("authEmailInput");
+    const pass = document.getElementById("authPassInput");
+    if (email) email.value = "";
+    if (pass) pass.value = "";
+  };
+  wipe();
+  setTimeout(wipe, 300);
+}
+
+// Show the sign-in screen without contacting the server (the token is already gone)
+function showSignedOutScreen() {
+  if (!activeUser) return;
+  activeUser = null;
+  userState = { registered: [], saved: [] };
+  toggleSidebar(false);
+  clearLoginFields();
+  document.getElementById("mainPortalApp").classList.add("hidden");
+  document.getElementById("authScreen").classList.remove("hidden");
+}
+
+// Signed out in ANOTHER tab -> sign out in this tab too
+window.addEventListener("storage", (e) => {
+  if (e.key === TOKEN_KEY && !e.newValue) showSignedOutScreen();
+});
+
+// Page brought back with the browser's Back/Forward buttons: re-check the login
+window.addEventListener("pageshow", (e) => {
+  if (e.persisted && activeUser && !getToken()) showSignedOutScreen();
+});
 
 function updateUserUI() {
   if (!activeUser) return;

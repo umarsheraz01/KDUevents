@@ -4,6 +4,7 @@
 // POST /api/auth/register   create a student account (portal "Create an account")
 // POST /api/auth/login      sign in as a student or as the admin
 // GET  /api/auth/me         restore the session after a page refresh
+// POST /api/auth/logout     sign out: the token stops working on the server
 // =============================================================================
 const express = require('express');
 const router = express.Router();
@@ -11,7 +12,7 @@ const router = express.Router();
 const { ADMIN_EMAIL, ADMIN_PASSWORD } = require('../lib/config');
 const { dbOnline } = require('../lib/db');
 const { hashPassword, verifyPassword, safeEqual, signToken, isLockedOut, recordFail, clearFails } = require('../lib/security');
-const { requireAuth, adminUser, publicUser } = require('../lib/auth');
+const { requireAuth, adminUser, publicUser, revokeToken } = require('../lib/auth');
 const { EMAIL_RE, cleanText, logActivity } = require('../lib/helpers');
 const User = require('../models/user');
 
@@ -106,6 +107,17 @@ router.get('/me', requireAuth, (req, res) => {
   const u = req.user;
   if (u.role === 'admin') return res.json({ user: u, state: null });
   res.json({ user: publicUser(u), state: { registered: u.registered || [], saved: u.saved || [] } });
+});
+
+// ---- Sign out: this token can never be used again ------------------------------
+router.post('/logout', requireAuth, async (req, res) => {
+  try {
+    await revokeToken(req.token, req.tokenExp);
+    res.json({ message: 'Signed out' });
+  } catch (err) {
+    console.error('Logout error:', err.message);
+    res.status(500).json({ message: 'Could not sign out on the server.' });
+  }
 });
 
 module.exports = router;
