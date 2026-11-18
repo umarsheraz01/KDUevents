@@ -179,8 +179,10 @@ async function handleAuthAction(e) {
     const name = document.getElementById("regFullName").value.trim();
     const studentId = document.getElementById("regStudentId").value.trim();
     const dept = document.getElementById("regDept").value;
+    const confirmPass = document.getElementById("authPassConfirm").value;
     if (!name) return showAuthError("Please enter your full name.");
     if (password.length < 6) return showAuthError("Password must be at least 6 characters.");
+    if (password !== confirmPass) return showAuthError("The two passwords don't match. Please type the same password in both boxes.");
     body = { name, email, password, studentId, dept };
   } else {
     body = { email, password, role: selectedRole };
@@ -199,8 +201,10 @@ async function handleAuthAction(e) {
 
     if (res.ok && data.user && data.token) {
       setToken(data.token);
-      const pass = document.getElementById("authPassInput");
-      if (pass) pass.value = "";
+      ["authPassInput", "authPassConfirm"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
       return goTo(portalUrlFor(data.user.role));   // keep the button disabled while leaving
     }
     // Wrong password, duplicate email, etc. -> do NOT let the user in
@@ -253,8 +257,10 @@ function clearLoginFields() {
   const wipe = () => {
     const email = document.getElementById("authEmailInput");
     const pass = document.getElementById("authPassInput");
+    const confirmPass = document.getElementById("authPassConfirm");
     if (email) email.value = "";
     if (pass) pass.value = "";
+    if (confirmPass) confirmPass.value = "";
   };
   wipe();
   setTimeout(wipe, 300);

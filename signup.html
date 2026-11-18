@@ -77,9 +77,15 @@
           <input type="email" id="authEmailInput" required placeholder="student@kdu.ac.kr" autocomplete="off">
         </div>
 
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="authPassInput" required placeholder="••••••••" autocomplete="off">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="authPassInput">Create password</label>
+            <input type="password" id="authPassInput" required minlength="6" placeholder="At least 6 characters" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label for="authPassConfirm">Confirm password</label>
+            <input type="password" id="authPassConfirm" required placeholder="Type it again" autocomplete="new-password">
+          </div>
         </div>
 
         <p id="authError" class="auth-error hidden" role="alert"></p>
