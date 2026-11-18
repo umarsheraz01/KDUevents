@@ -1,0 +1,104 @@
+/* =============================================================================
+   css/light-theme.css — WHITE BODY FOR THE 4 SERVICES PAGES
+   Used by: host-event.html · venue.html · campus-societies.html · event-guidelines.html
+   Loaded LAST so it overrides the dark page styles.
+   The navy header and footer stay as they are; only the page body turns white.
+   ============================================================================= */
+
+body {
+  background-color: #ffffff;
+  color: #0b192c;
+}
+
+/* Theme colors used inside the page body (header & footer keep the navy ones) */
+main,
+.host-hero,
+.hero {
+  --text-white: #0b192c;              /* main text: dark navy */
+  --text-muted: #5b6b82;              /* secondary text: grey */
+  --border-subtle: #e2e8f0;           /* light borders */
+  --bg-input: #f8fafc;                /* input & small card background */
+  --bg-card: #ffffff;                 /* big card background */
+  color: #0b192c;
+}
+
+/* ---------- Hero banner ---------- */
+.host-hero,
+.hero {
+  background: linear-gradient(180deg, #f3f6fb 0%, #ffffff 100%);
+  border-bottom: none;
+}
+
+.hero h1,
+.hero-title { color: #0b192c; }
+
+/* ---------- Main cards ---------- */
+.host-card-form,
+.info-card,
+.form-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 36px rgba(11, 25, 44, 0.08);
+  backdrop-filter: none;
+}
+
+.form-card h2,
+.form-header h2,
+.section-title { color: #0b192c; }
+
+/* ---------- Form fields ---------- */
+.form-group label { color: #334155; }
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #0b192c;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder { color: #94a3b8; }
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  background: #ffffff;
+  border-color: var(--primary-red);
+}
+
+.form-group select option {
+  background: #ffffff;
+  color: #0b192c;
+}
+
+/* Date & time pickers: dark icons on the light inputs */
+.form-group input[type="date"],
+.form-group input[type="time"] { color-scheme: light; }
+
+/* ---------- Logistics toggle cards (Host an Event) ---------- */
+.toggle-card:hover {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+}
+
+/* ---------- Society cards, filters & rules ---------- */
+.filter-btn:hover {
+  color: #0b192c;
+  border-color: #94a3b8;
+}
+
+.society-card:hover { box-shadow: 0 10px 24px rgba(11, 25, 44, 0.08); }
+
+.notice-box { background: #fff5f4; }
+
+.btn-outline {
+  color: #0b192c;
+  border-color: #cbd5e1;
+}
+
+.btn-outline:hover { border-color: #0b192c; }
+
+/* ---------- Form result messages (readable on white) ---------- */
+.form-status.is-success { color: #15803d; }
+.form-status.is-error { color: #dc2626; }
