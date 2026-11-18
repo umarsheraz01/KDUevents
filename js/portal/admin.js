@@ -485,7 +485,7 @@ async function handleDeleteUpdate(id) {
   }
 }
 
-// Close admin modal with Escape too
+// Close the participant list with the Escape key
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { closeAttendeesModal(); closeRegisterForm(); }
+  if (e.key === 'Escape') closeAttendeesModal();
 });

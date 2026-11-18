@@ -33,14 +33,18 @@ A web system for campus events at Kyungdong University: a public website, a **st
 Event Management/
 │
 ├── index.html              Homepage
-├── portal.html             Student portal + admin portal (one page, two modes)
+├── login.html              Portal sign-in (Student / Admin tabs)          — title "Login - KDU Events"
+├── signup.html             Create a student account                       — title "Sign Up - KDU Events"
+├── student-portal.html     The student portal (after signing in)          — title "KDU Events Portal"
+├── admin-portal.html       The admin portal (after signing in)            — title "KDU Events Portal"
+├── portal.html             Old address: forwards to login / the portal
 ├── featured-event.html     Full page for the featured event
 ├── venue.html              "Book a venue" form → emailed to admin@kduevents.co.kr
 ├── host-event.html         "Host an event" form → emailed to admin@kduevents.co.kr
 │
 ├── css/                    One stylesheet per page
 │   ├── style.css             → index.html
-│   ├── portal.css            → portal.html
+│   ├── portal.css            → login, signup, student-portal, admin-portal
 │   ├── featured-event.css    → featured-event.html (plus Tailwind classes in the HTML)
 │   ├── venue.css             → venue.html
 │   └── host-event.css        → host-event.html
@@ -50,12 +54,12 @@ Event Management/
 │   ├── home.js               Homepage: video slider, live events, filters, newsletter, menu
 │   ├── featured-event.js     Featured event page: menu, schedule, share, newsletter
 │   ├── requests.js           Sends the Host-an-event / Book-a-venue forms to the server
-│   └── portal/               The portal, split by feature (loaded in this order):
+│   └── portal/               The portal, split by feature (each page loads only what it needs):
 │       ├── core.js             1. settings, shared state, apiFetch(), helpers
 │       ├── auth.js             2. sign in / sign up / login session
 │       ├── navigation.js       3. sidebar, tabs, card buttons
-│       ├── student.js          4. student portal + EVENT REGISTRATION FORM + QR pass
-│       └── admin.js            5. admin portal + PARTICIPANT LIST + banner upload
+│       ├── student.js          4. student portal + EVENT REGISTRATION FORM + QR pass (student-portal.html)
+│       └── admin.js            5. admin portal + PARTICIPANT LIST + banner upload (admin-portal.html)
 │
 ├── server.js               SERVER START FILE — wires everything below together
 ├── lib/                    Server building blocks
@@ -68,7 +72,7 @@ Event Management/
 │   └── emails/               welcome-email.js (newsletter) · request-email.js (host/venue requests)
 ├── routes/                 The API — one file per area
 │   ├── events.js             GET /api/events · POST/DELETE /api/events/:id/register
-│   ├── auth.js               /api/auth/register · /api/auth/login · /api/auth/me
+│   ├── auth.js               /api/auth/register · /api/auth/login · /api/auth/me · /api/auth/logout
 │   ├── student.js            /api/me/state (saved events) · /api/announcements
 │   ├── admin.js              /api/admin/…  (dashboard, events, participant list, uploads, updates)
 │   ├── images.js             /api/images/:id (shows uploaded banners)
@@ -76,7 +80,7 @@ Event Management/
 │   └── requests.js           /api/requests/host-event · /api/requests/venue-booking (emails the admin)
 ├── models/                 What each database record looks like
 │   ├── event.js · user.js · registration.js · activity.js · request.js
-│   └── announcement.js · image.js · setting.js · subscriber.js
+│   └── announcement.js · image.js · setting.js · subscriber.js · revoked-token.js
 │
 ├── assets/                 Photos, videos and video poster images
 ├── logo.svg · kdu-login.jpg
@@ -93,10 +97,10 @@ Event Management/
 |---|---|---|
 | **Event listing** on the homepage | `js/home.js` → section 3 | `routes/events.js` → `GET /api/events` |
 | **Event listing** in the portal (Discover) | `js/portal/student.js` → section 1 | same |
-| **Event details** pop-up | `js/portal/student.js` → section 2 · HTML: `#eventDetailModal` in portal.html | — |
-| **Registration form** | `js/portal/student.js` → section 3 · HTML: `#registerFormModal` | `routes/events.js` → `POST /api/events/:id/register` |
-| **Participant list** + CSV | `js/portal/admin.js` → section 5 · HTML: `#attendeesModal` | `routes/admin.js` → `GET /api/admin/events/:id/attendees` |
-| Sign in / sign up | `js/portal/auth.js` | `routes/auth.js` |
+| **Event details** pop-up | `js/portal/student.js` → section 2 · HTML: `#eventDetailModal` in student-portal.html | — |
+| **Registration form** | `js/portal/student.js` → section 3 · HTML: `#registerFormModal` in student-portal.html | `routes/events.js` → `POST /api/events/:id/register` |
+| **Participant list** + CSV | `js/portal/admin.js` → section 5 · HTML: `#attendeesModal` in admin-portal.html | `routes/admin.js` → `GET /api/admin/events/:id/attendees` |
+| Sign in / sign up | `login.html` · `signup.html` · `js/portal/auth.js` | `routes/auth.js` |
 | Admin-only account | — | `.env` (`ADMIN_EMAIL`, `ADMIN_PASSWORD`) → `lib/config.js`, `routes/auth.js` |
 | Create / delete events | `js/portal/admin.js` → section 3 | `routes/admin.js` |
 | Banner upload | `js/portal/admin.js` → section 4 | `routes/admin.js` (upload) · `routes/images.js` (show) |

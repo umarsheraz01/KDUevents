@@ -51,6 +51,11 @@ function navigateTo(tabName) {
   refreshIcons();
 }
 
+// The bell in the top bar: students → Notifications, admin → Activity log
+function handleBellClick() {
+  navigateTo(isAdmin() ? 'admin-activity' : 'notifications');
+}
+
 // =============================================================================
 // 2. CARD BUTTONS (one click handler for the whole page)
 // =============================================================================

@@ -1,10 +1,11 @@
 // =============================================================================
 // js/portal/auth.js — SIGNING IN, SIGNING UP AND THE LOGIN SESSION
 // -----------------------------------------------------------------------------
-//   • login token kept in the browser + restoring it after a refresh
-//   • the student's saved/registered events (loaded at sign-in)
-//   • the sign-in / sign-up form (Student Portal and Admin Portal tabs)
-//   • opening the portal after sign-in, and signing out
+//   • login token kept in the browser
+//   • moving between the pages: login.html / signup.html → student-portal.html
+//     or admin-portal.html, and back to login.html after signing out
+//   • the student's saved/registered events (loaded when the portal opens)
+//   • the sign-in form (Student Portal / Admin Portal tabs) and sign-up form
 // =============================================================================
 
 // =============================================================================
@@ -20,23 +21,64 @@ function setToken(token) {
   try { token ? localStorage.setItem(TOKEN_KEY, token) : localStorage.removeItem(TOKEN_KEY); } catch (e) {}
 }
 
-// Re-open the portal after a page refresh if the saved session is still valid
-async function restoreSession() {
-  const token = getToken();
-  if (!token) return;
+// Go to another portal page (replace = the Back button won't bounce between them)
+function goTo(url) {
+  window.location.replace(url);
+}
+
+// The right portal for an account: admin → admin-portal.html, student → student-portal.html
+function portalUrlFor(role) {
+  return role === 'admin' ? PAGES.admin : PAGES.student + eventQuery();
+}
+
+// Asks the server who this token belongs to. Returns the { user, state } or null.
+// "invalid: true" means the server rejected the token (signed out / expired).
+async function checkToken(token) {
   try {
     const res = await fetch(`${API_BASE}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
-    if (!res.ok) { setToken(null); return; }
+    if (res.status === 401 || res.status === 403) return { invalid: true };
+    if (!res.ok) return null;
     const data = await res.json();
-    if (data.user) {
-      activeUser = data.user;
-      openMainPortal(data.state);
-    }
+    return data.user ? data : null;
   } catch (e) {
-    // Server unreachable: stay on the sign-in screen
-    console.error("Could not restore session:", e);
+    return null; // server unreachable
   }
 }
+
+// PORTAL PAGES: only open the portal for a valid login of the right kind
+async function restoreSession() {
+  const token = getToken();
+  if (!token) return goTo(PAGES.login + eventQuery());
+
+  const data = await checkToken(token);
+  if (!data || data.invalid) {
+    if (data && data.invalid) setToken(null);
+    return goTo(PAGES.login + eventQuery());
+  }
+
+  // Student on the admin page, or the admin on the student page → the right portal
+  const wanted = data.user.role === 'admin' ? 'admin' : 'student';
+  if (PAGE !== wanted) return goTo(portalUrlFor(data.user.role));
+
+  activeUser = data.user;
+  openMainPortal(data.state);
+}
+
+// SIGN-IN / SIGN-UP PAGES: already signed in? Go straight to the portal.
+async function initAuthPage() {
+  clearLoginFields();
+  const token = getToken();
+  if (!token) return;
+  const data = await checkToken(token);
+  if (data && data.user) return goTo(portalUrlFor(data.user.role));
+  if (data && data.invalid) setToken(null);
+}
+
+// Keep the "Create an account" / "Sign in" link pointing at the same event (if any)
+document.addEventListener("DOMContentLoaded", () => {
+  const link = document.getElementById("authSwitchLink");
+  if (link && eventQuery()) link.setAttribute("href", link.getAttribute("href") + eventQuery());
+});
 
 // =============================================================================
 // 2. THE STUDENT'S SAVED + REGISTERED EVENTS
@@ -89,7 +131,7 @@ async function saveUserState() {
 }
 
 // =============================================================================
-// 3. SIGN-IN / SIGN-UP FORM AND OPENING THE PORTAL
+// 3. SIGN-IN / SIGN-UP FORMS, OPENING THE PORTAL, SIGNING OUT
 // =============================================================================
 // AUTH MESSAGES
 function showAuthError(message) {
@@ -104,7 +146,7 @@ function clearAuthError() {
   if (el) el.classList.add("hidden");
 }
 
-// AUTHENTICATION ROLE TOGGLE (STUDENT / ADMIN)
+// SIGN-IN PAGE: STUDENT PORTAL / ADMIN PORTAL TABS
 function selectAuthRole(role) {
   selectedRole = role;
   clearAuthError();
@@ -122,37 +164,7 @@ function selectAuthRole(role) {
   refreshIcons();
 }
 
-// TOGGLE BETWEEN SIGN IN & SIGN UP
-function toggleAuthMode() {
-  authMode = authMode === 'login' ? 'signup' : 'login';
-  const isSignup = authMode === 'signup';
-  clearAuthError();
-
-  const titleEl = document.getElementById("authHeaderTitle");
-  const subtitleEl = document.getElementById("authHeaderSubtitle");
-  const signupFields = document.getElementById("signupFieldsGroup");
-  const questionEl = document.getElementById("authToggleQuestion");
-  const actionEl = document.getElementById("authToggleAction");
-  const roleToggleContainer = document.getElementById("roleToggleContainer");
-  const submitBtn = document.getElementById("authSubmitBtn");
-
-  if (titleEl) titleEl.innerText = isSignup ? "Create your account." : "Welcome back.";
-  if (subtitleEl) subtitleEl.innerText = isSignup ? "Register as a student to start discovering campus events." : "Choose your portal and sign in with your credentials.";
-  if (signupFields) signupFields.classList.toggle("hidden", !isSignup);
-  if (questionEl) questionEl.innerText = isSignup ? "Already have an account?" : "New to KDU Events?";
-  if (actionEl) actionEl.innerText = isSignup ? "Sign in" : "Create an account";
-  if (roleToggleContainer) roleToggleContainer.style.display = isSignup ? "none" : "flex";
-
-  if (isSignup) selectAuthRole('student');
-  if (submitBtn) {
-    submitBtn.innerHTML = isSignup
-      ? `<span>Create student account</span> <i data-lucide="arrow-right"></i>`
-      : `<span>Continue to ${selectedRole} portal</span> <i data-lucide="arrow-right"></i>`;
-  }
-  refreshIcons();
-}
-
-// HANDLE LOGIN & REGISTRATION FORM SUBMISSION
+// HANDLE THE SIGN-IN (login.html) AND SIGN-UP (signup.html) FORMS
 async function handleAuthAction(e) {
   if (e) e.preventDefault();
   clearAuthError();
@@ -161,24 +173,24 @@ async function handleAuthAction(e) {
   const password = document.getElementById("authPassInput").value;
   if (!email || !password) return showAuthError("Please enter both email and password.");
 
-  const isSignup = authMode === 'signup';
-  const name = document.getElementById("regFullName").value.trim();
-  const studentId = document.getElementById("regStudentId").value.trim();
-  const dept = document.getElementById("regDept").value;
-
-  if (isSignup && !name) return showAuthError("Please enter your full name.");
-  if (isSignup && password.length < 6) return showAuthError("Password must be at least 6 characters.");
+  const isSignup = PAGE === 'signup';
+  let body;
+  if (isSignup) {
+    const name = document.getElementById("regFullName").value.trim();
+    const studentId = document.getElementById("regStudentId").value.trim();
+    const dept = document.getElementById("regDept").value;
+    if (!name) return showAuthError("Please enter your full name.");
+    if (password.length < 6) return showAuthError("Password must be at least 6 characters.");
+    body = { name, email, password, studentId, dept };
+  } else {
+    body = { email, password, role: selectedRole };
+  }
 
   const submitBtn = document.getElementById("authSubmitBtn");
   if (submitBtn) submitBtn.disabled = true;
 
-  const endpoint = isSignup ? `${API_BASE}/auth/register` : `${API_BASE}/auth/login`;
-  const body = isSignup
-    ? { name, email, password, studentId, dept }
-    : { email, password, role: selectedRole };
-
   try {
-    const res = await fetch(endpoint, {
+    const res = await fetch(`${API_BASE}/auth/${isSignup ? 'register' : 'login'}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -186,28 +198,25 @@ async function handleAuthAction(e) {
     const data = await res.json().catch(() => ({}));
 
     if (res.ok && data.user && data.token) {
-      activeUser = data.user;
       setToken(data.token);
-      openMainPortal(data.state);
-    } else {
-      // Wrong password, duplicate email, etc. -> do NOT let the user in
-      showAuthError(data.message || "Sign in failed. Please check your details.");
+      const pass = document.getElementById("authPassInput");
+      if (pass) pass.value = "";
+      return goTo(portalUrlFor(data.user.role));   // keep the button disabled while leaving
     }
+    // Wrong password, duplicate email, etc. -> do NOT let the user in
+    showAuthError(data.message || "Sign in failed. Please check your details.");
   } catch (err) {
     // Server unreachable: never let anyone in without the server checking their details
     showAuthError("Can't reach the KDU Events server right now. Please check your connection and try again.");
-  } finally {
-    if (submitBtn) submitBtn.disabled = false;
   }
+  if (submitBtn) submitBtn.disabled = false;
 }
 
+// PORTAL PAGES: show the portal once the login has been checked
 function openMainPortal(serverState) {
-  document.getElementById("authScreen").classList.add("hidden");
+  document.getElementById("portalLoading")?.classList.add("hidden");
   document.getElementById("mainPortalApp").classList.remove("hidden");
-  document.getElementById("authPassInput").value = "";
   loadUserState(serverState);
-  document.getElementById("studentNav").classList.toggle("hidden", isAdmin());
-  document.getElementById("adminNav").classList.toggle("hidden", !isAdmin());
   updateUserUI();
   if (isAdmin()) {
     navigateTo('admin-overview');
@@ -219,26 +228,22 @@ function openMainPortal(serverState) {
   }
 }
 
-function handleSignOut() {
-  toggleSidebar(false);
-
-  // Tell the server to cancel this login, so the old token can never be reused
+// SIGN OUT: cancel the login on the server, forget it here, back to login.html
+let signingOut = false;
+async function handleSignOut() {
+  if (signingOut) return;
+  signingOut = true;
   const oldToken = getToken();
-  if (oldToken) {
-    fetch(`${API_BASE}/auth/logout`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${oldToken}` }
-    }).catch(() => {});
-  }
-
-  setToken(null);
+  setToken(null);   // other open portal tabs notice this and sign out too
   activeUser = null;
-  announcements = [];
-  adminData = { summary: null, events: [], students: [], activity: [], updates: [] };
-  userState = { registered: [], saved: [] };
-  clearLoginFields();
-  document.getElementById("mainPortalApp").classList.add("hidden");
-  document.getElementById("authScreen").classList.remove("hidden");
+  if (oldToken) {
+    // Wait (max 3 seconds) for the server to cancel the token before leaving the page
+    await Promise.race([
+      fetch(`${API_BASE}/auth/logout`, { method: 'POST', headers: { Authorization: `Bearer ${oldToken}` } }).catch(() => {}),
+      new Promise(resolve => setTimeout(resolve, 3000))
+    ]);
+  }
+  goTo(PAGES.login);
 }
 
 // Empty the email & password boxes (again a moment later, in case the browser refills them)
@@ -255,25 +260,16 @@ function clearLoginFields() {
   setTimeout(wipe, 300);
 }
 
-// Show the sign-in screen without contacting the server (the token is already gone)
-function showSignedOutScreen() {
-  if (!activeUser) return;
-  activeUser = null;
-  userState = { registered: [], saved: [] };
-  toggleSidebar(false);
-  clearLoginFields();
-  document.getElementById("mainPortalApp").classList.add("hidden");
-  document.getElementById("authScreen").classList.remove("hidden");
-}
-
-// Signed out in ANOTHER tab -> sign out in this tab too
+// Signed out in ANOTHER tab → leave the portal in this tab too
 window.addEventListener("storage", (e) => {
-  if (e.key === TOKEN_KEY && !e.newValue) showSignedOutScreen();
+  if (e.key === TOKEN_KEY && !e.newValue && !IS_AUTH_PAGE) goTo(PAGES.login);
 });
 
 // Page brought back with the browser's Back/Forward buttons: re-check the login
 window.addEventListener("pageshow", (e) => {
-  if (e.persisted && activeUser && !getToken()) showSignedOutScreen();
+  if (!e.persisted) return;
+  if (IS_AUTH_PAGE) clearLoginFields();
+  else if (!getToken()) goTo(PAGES.login);
 });
 
 function updateUserUI() {
@@ -286,7 +282,7 @@ function updateUserUI() {
   document.getElementById("userNameLabel").innerText = nameStr;
   document.getElementById("userAccountTypeLabel").innerText = adminAccount ? 'Admin Account' : 'Student Account';
   document.getElementById("sidebarRoleTag").innerText = adminAccount ? 'Admin Portal' : 'Student Portal';
-  if (isAdmin()) return;
+  if (adminAccount) return;
   document.getElementById("overviewDeptTag").innerText = activeUser.dept || "Smart Computing";
   document.getElementById("overviewWelcomeHeading").innerText = `Welcome back, ${nameStr.split(' ')[0]}.`;
   renderUserLists();

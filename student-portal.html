@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<!--
+  =============================================================================
+  student-portal.html — THE STUDENT PORTAL
+  -----------------------------------------------------------------------------
+  Tabs: Overview · Discover · My events · Passes · Saved · Notifications
+  Pop-ups: event details · registration form · QR pass
+  Not signed in → sent to login.html. The admin → sent to admin-portal.html.
+  Scripts: js/config.js → core.js → auth.js → navigation.js → student.js
+  Styles:  css/portal.css
+  =============================================================================
+-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KDU Events Portal</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="stylesheet" href="css/portal.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body data-page="student">
+  <!-- Shown while the login is checked (the server can take a moment to wake up) -->
+  <div id="portalLoading" class="portal-loading" role="status" aria-live="polite">
+    <img src="logo.svg" alt="KDU Logo" class="brand-logo">
+    <p>Loading your portal…</p>
+  </div>
+
+  <!-- ================= MAIN PORTAL APP ================= -->
+  <div id="mainPortalApp" class="app-layout hidden">
+    <!-- LEFT NAVY SIDEBAR -->
+    <aside class="sidebar" id="portalSidebar">
+      <div>
+        <a href="index.html" class="sidebar-brand" aria-label="KDU Events home">
+          <img src="logo.svg" alt="KDU Logo" class="brand-logo">
+          <span class="brand-title">KDU<span class="red-text">EVENTS</span></span>
+        </a>
+
+        <div class="role-badge-wrapper">
+          <span class="role-badge" id="sidebarRoleTag">Student Portal</span>
+        </div>
+
+        <!-- Student navigation -->
+        <nav class="nav-menu" id="studentNav">
+          <button type="button" onclick="navigateTo('overview')" id="nav-overview" class="active"><i data-lucide="layout-grid"></i> Overview</button>
+          <button type="button" onclick="navigateTo('discover')" id="nav-discover"><i data-lucide="search"></i> Discover events</button>
+          <button type="button" onclick="navigateTo('myevents')" id="nav-myevents"><i data-lucide="calendar"></i> My events</button>
+          <button type="button" onclick="navigateTo('passes')" id="nav-passes"><i data-lucide="qr-code"></i> Event passes</button>
+          <button type="button" onclick="navigateTo('saved')" id="nav-saved"><i data-lucide="heart"></i> Saved</button>
+          <button type="button" onclick="navigateTo('notifications')" id="nav-notifications"><i data-lucide="bell"></i> Notifications <span class="nav-count hidden" id="navNotifCount">0</span></button>
+        </nav>
+
+      </div>
+
+      <div class="sidebar-user">
+        <div class="user-info">
+          <div class="avatar" id="userAvatar">ST</div>
+          <div class="user-details">
+            <strong id="userNameLabel">Student</strong>
+            <span id="userAccountTypeLabel">Student Account</span>
+          </div>
+        </div>
+        <button type="button" onclick="handleSignOut()" class="btn-signout"><i data-lucide="log-out"></i> Sign out</button>
+      </div>
+    </aside>
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+      <header class="top-bar">
+        <div class="top-bar-left">
+          <button type="button" class="menu-btn" onclick="toggleSidebar()" aria-label="Open menu" aria-controls="portalSidebar"><i data-lucide="menu"></i></button>
+          <div>
+          <div class="breadcrumb" id="headerBreadcrumbTitle">Overview</div>
+          <span class="sub-text">KDU Event Management System</span>
+          </div>
+        </div>
+        <button type="button" onclick="handleBellClick()" class="bell-btn" id="bellBtn" aria-label="Notifications"><i data-lucide="bell"></i><span class="badge hidden" id="bellBadge">0</span></button>
+      </header>
+
+      <div class="content-body">
+        <!-- OVERVIEW TAB -->
+        <section id="tab-overview" class="tab-content">
+          <div class="hero-banner">
+            <span class="dept-tag" id="overviewDeptTag">Smart Computing</span>
+            <h2 id="overviewWelcomeHeading">Welcome back.</h2>
+            <p id="overviewSubText">You have 0 upcoming events and 0 campus updates.</p>
+            <button type="button" onclick="navigateTo('discover')" class="btn-red flex-center">Discover events <i data-lucide="arrow-right"></i></button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card"><strong id="statRegisteredCount">0</strong><span>Registered</span></div>
+            <div class="stat-card"><strong>0</strong><span>Attended</span></div>
+            <div class="stat-card"><strong id="statSavedCount">0</strong><span>Saved events</span></div>
+          </div>
+
+          <div class="section-block">
+            <div class="section-head">
+              <h3>Coming up for you</h3>
+              <button type="button" onclick="navigateTo('discover')" class="link-btn">View all</button>
+            </div>
+            <div id="overviewUpcomingContainer"></div>
+          </div>
+        </section>
+
+        <!-- DISCOVER TAB -->
+        <section id="tab-discover" class="tab-content hidden">
+          <div class="section-title">
+            <span class="sub-eyebrow">Find Your Community</span>
+            <h2>Discover events</h2>
+            <p>Search workshops, club activities, sports, festivals, and academic sessions.</p>
+          </div>
+
+          <div class="filter-bar">
+            <div class="search-box">
+              <i data-lucide="search"></i>
+              <input type="text" id="searchInput" oninput="applyDiscoverFilters()" placeholder="Search events or venues...">
+            </div>
+            <select id="categoryFilter" onchange="applyDiscoverFilters()">
+              <option value="all">All Categories</option>
+              <option value="Technology">Technology</option>
+              <option value="Arts & Culture">Arts & Culture</option>
+              <option value="Entrepreneurship">Entrepreneurship</option>
+              <option value="Sports">Sports</option>
+              <option value="Academic">Academic</option>
+            </select>
+            <select id="statusFilter" onchange="applyDiscoverFilters()">
+              <option value="all">All Availability</option>
+              <option value="available">Seats Available</option>
+            </select>
+          </div>
+
+          <div class="results-count" id="eventsFoundLabel">Loading events…</div>
+          <div class="events-grid" id="discoverGrid"></div>
+        </section>
+
+        <!-- MY EVENTS TAB -->
+        <section id="tab-myevents" class="tab-content hidden">
+          <div class="section-title">
+            <span class="sub-eyebrow">Your Schedule</span>
+            <h2>My events</h2>
+            <p>Manage upcoming registrations and review your attendance history.</p>
+          </div>
+          <h3>Upcoming registrations</h3>
+          <div id="myUpcomingContainer"></div>
+        </section>
+
+        <!-- PASSES TAB -->
+        <section id="tab-passes" class="tab-content hidden">
+          <div class="section-title">
+            <span class="sub-eyebrow">Fast Entry</span>
+            <h2>Digital event passes</h2>
+            <p>Present your unique pass code at the venue entrance.</p>
+          </div>
+          <div id="passesContainer"></div>
+        </section>
+
+        <!-- SAVED TAB -->
+        <section id="tab-saved" class="tab-content hidden">
+          <div class="section-title">
+            <span class="sub-eyebrow">Your Shortlist</span>
+            <h2>Saved events</h2>
+            <p>Keep interesting activities close until you are ready to register.</p>
+          </div>
+          <div id="savedEventsContainer"></div>
+        </section>
+
+        <!-- NOTIFICATIONS TAB -->
+        <section id="tab-notifications" class="tab-content hidden">
+          <div class="section-title">
+            <span class="sub-eyebrow">Stay Informed</span>
+            <h2>Notifications</h2>
+            <p>Important updates from organizers appear here.</p>
+          </div>
+          <div class="notification-list" id="studentNotificationsList"></div>
+          <div class="notification-card">
+            <div class="icon-box"><i data-lucide="sparkles"></i></div>
+            <div>
+              <h4>Welcome to the new KDU Events portal</h4>
+              <p>Explore upcoming campus activities, save your favorites, register in one click, and keep your digital passes ready for check-in.</p>
+              <span class="timestamp">KDU Events Team</span>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- EVENT DETAIL MODAL -->
+  <div id="eventDetailModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <button type="button" onclick="closeEventDetailModal()" class="close-btn"><i data-lucide="x"></i></button>
+      <h3 id="modalEventTitle">Event Title</h3>
+      <div class="modal-img-wrapper"><img id="modalEventImg" src="" alt="Event banner"></div>
+      <span class="pill-blue" id="modalEventCategory">Category</span>
+      <p id="modalEventDescription"></p>
+      
+      <div class="meta-box">
+        <div><span>Date:</span> <strong id="modalEventDate"></strong></div>
+        <div><span>Venue:</span> <strong id="modalEventVenue"></strong></div>
+        <div><span>Department:</span> <strong id="modalEventDept"></strong></div>
+        <div><span>Seats:</span> <strong id="modalEventSeats"></strong></div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" id="modalRegisterBtn" onclick="handleModalRegisterAction()" class="btn-blue-full">Register now</button>
+        <button type="button" id="modalHeartBtn" onclick="handleModalHeartToggle()" class="btn-icon" aria-label="Save event"><i data-lucide="heart"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR CODE MODAL -->
+  <div id="qrModal" class="modal-overlay hidden">
+    <div class="modal-card modal-sm text-center">
+      <button type="button" onclick="closeQrModal()" class="close-btn"><i data-lucide="x"></i></button>
+      <div class="pass-card-dark">
+        <span class="eyebrow-red">Official Event Pass</span>
+        <h4 id="qrEventTitle">Event Title</h4>
+        <p id="qrEventDate" class="sub-date"></p>
+        <div class="qr-container">
+          <img id="qrPassImg" src="" alt="Event pass QR code">
+        </div>
+        <div class="pass-footer">
+          <span>Holder: <strong id="qrHolderName"></strong></span>
+          <span>ID: <strong id="qrHolderId"></strong></span>
+        </div>
+      </div>
+      <button type="button" onclick="closeQrModal()" class="btn-gray-full">Close Pass</button>
+    </div>
+  </div>
+
+  <!-- STUDENT: EVENT REGISTRATION FORM -->
+  <div id="registerFormModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <button type="button" onclick="closeRegisterForm()" class="close-btn" aria-label="Close"><i data-lucide="x"></i></button>
+      <span class="eyebrow-red">Event registration</span>
+      <h3 id="regFormEventTitle">Event</h3>
+      <p class="attendees-sub" id="regFormEventMeta"></p>
+
+      <form id="eventRegisterForm" class="admin-form reg-form" onsubmit="handleEventRegistration(event)" novalidate>
+        <div class="form-group span-2">
+          <label for="erName">Full name</label>
+          <input type="text" id="erName" maxlength="100" required autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label for="erStudentId">Student ID</label>
+          <input type="text" id="erStudentId" maxlength="50" required placeholder="2417112">
+        </div>
+        <div class="form-group">
+          <label for="erDept">Department</label>
+          <select id="erDept" required>
+            <option value="">Choose…</option>
+            <option value="Smart Computing">Smart Computing</option>
+            <option value="IHM (International Hotel Management)">IHM (International Hotel Management)</option>
+            <option value="AI (Artificial Intelligence)">AI (Artificial Intelligence)</option>
+            <option value="IBA (International Business Administration)">IBA (International Business Administration)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="erEmail">University email</label>
+          <input type="email" id="erEmail" readonly class="input-readonly">
+        </div>
+        <div class="form-group">
+          <label for="erPhone">Phone number</label>
+          <input type="tel" id="erPhone" maxlength="25" required placeholder="010-1234-5678" autocomplete="tel">
+        </div>
+        <div class="form-group span-2">
+          <label for="erNote">Note for the organizer <span class="optional">(optional)</span></label>
+          <textarea id="erNote" rows="2" maxlength="300" placeholder="Dietary needs, accessibility requests or questions"></textarea>
+        </div>
+        <label class="check-row span-2" for="erAgree">
+          <input type="checkbox" id="erAgree" required>
+          <span>I will attend this event and agree to share these details with the organizer.</span>
+        </label>
+        <p id="regFormError" class="auth-error hidden span-2" role="alert"></p>
+        <div class="span-2 form-actions reg-actions">
+          <button type="button" class="btn-gray" onclick="closeRegisterForm()">Cancel</button>
+          <button type="submit" id="regFormSubmit" class="btn-primary flex-center"><i data-lucide="ticket"></i> <span>Confirm registration</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Small confirmation message -->
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <!-- JavaScript: server address, then the portal files (order matters) -->
+  <script src="js/config.js"></script>
+  <script src="js/portal/core.js"></script>        <!-- settings, shared state, helpers -->
+  <script src="js/portal/auth.js"></script>        <!-- sign in / sign up / session -->
+  <script src="js/portal/navigation.js"></script>  <!-- sidebar, tabs, card buttons -->
+  <script src="js/portal/student.js"></script>     <!-- student portal + registration form -->
+</body>
+</html>

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Publishes the student/admin portal to https://portal.kduevents.co.kr
 #
-# The portal is edited in this project (portal.html, css/portal.css, js/portal/).
+# The portal is edited in this project (login.html, signup.html, student-portal.html,
+# admin-portal.html, portal.html, css/portal.css, js/portal/).
 # This script copies those files into a small separate site and pushes it to
 # the "kdu-portal" GitHub repo, which GitHub Pages serves on the subdomain.
 #
@@ -26,10 +27,13 @@ cp "$ROOT/js/config.js" "$OUT/js/"
 cp "$ROOT"/js/portal/*.js "$OUT/js/portal/"
 cp "$ROOT/logo.svg" "$ROOT/kdu-login.jpg" "$OUT/"
 
-# The portal page becomes the home page of the subdomain.
-# Links back to "index.html" (the main site) must point to the main domain.
-sed 's#href="index.html"#href="'"$MAIN_SITE"'"#g' "$ROOT/portal.html" > "$OUT/index.html"
-cp "$OUT/index.html" "$OUT/404.html"
+# The portal pages. Links back to "index.html" (the main site) must point to the main domain.
+for page in login signup student-portal admin-portal; do
+  sed 's#href="index.html"#href="'"$MAIN_SITE"'"#g' "$ROOT/$page.html" > "$OUT/$page.html"
+done
+# portal.html (forwards to login / the portal) becomes the home page of the subdomain
+cp "$ROOT/portal.html" "$OUT/index.html"
+cp "$ROOT/portal.html" "$OUT/404.html"
 
 echo "$PORTAL_DOMAIN" > "$OUT/CNAME"
 touch "$OUT/.nojekyll"

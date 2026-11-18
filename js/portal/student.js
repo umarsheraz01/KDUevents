@@ -311,6 +311,10 @@ function markNotificationsSeen() {
   updateBell();
 }
 
-function handleBellClick() {
-  navigateTo(isAdmin() ? 'admin-activity' : 'notifications');
-}
+// Close the student pop-ups with the Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  closeRegisterForm();
+  closeQrModal();
+  closeEventDetailModal();
+});

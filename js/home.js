@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
                 <div class="card-footer-flex">
                     <span class="spots-left">${left > 0 ? left + ' spot' + (left === 1 ? '' : 's') + ' left' : 'Fully booked'}</span>
-                    <a href="portal.html?event=${encodeURIComponent(e._id)}" class="view-event-link">${left > 0 ? 'Register' : 'View'} <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="login.html?event=${encodeURIComponent(e._id)}" class="view-event-link">${left > 0 ? 'Register' : 'View'} <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>`;

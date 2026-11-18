@@ -6,11 +6,27 @@
 //   • shared state: who is signed in, the events list, saved/registered events
 //   • apiFetch(): talk to the server with the login token
 //   • small helpers: escapeHtml, showToast, formatDateTime, timeAgo…
-//   • page start-up: load events and restore the login session
+//   • page start-up: sign-in pages vs. portal pages
 //
-// Portal files load in this order (see the bottom of portal.html):
-//   core.js → auth.js → navigation.js → student.js → admin.js
+// The portal is split into 4 pages (each sets <body data-page="…">):
+//   login.html           data-page="login"    core.js → auth.js
+//   signup.html          data-page="signup"   core.js → auth.js
+//   student-portal.html  data-page="student"  core.js → auth.js → navigation.js → student.js
+//   admin-portal.html    data-page="admin"    core.js → auth.js → navigation.js → admin.js
+// (portal.html only forwards old links to the right page)
 // =============================================================================
+
+// Which page is this? ('login' | 'signup' | 'student' | 'admin')
+const PAGE = (document.body && document.body.dataset.page) || 'login';
+const IS_AUTH_PAGE = PAGE === 'login' || PAGE === 'signup';
+
+// The 4 portal pages
+const PAGES = {
+  login: 'login.html',
+  signup: 'signup.html',
+  student: 'student-portal.html',
+  admin: 'admin-portal.html'
+};
 
 // =============================================================================
 // 1. SETTINGS, SHARED STATE AND SERVER CALLS
@@ -25,7 +41,7 @@ const DEFAULT_EVENTS = [
   { _id: "3", title: "Campus Founders Meetup", category: "Entrepreneurship", date: "Jan 8, 2027, 5:30 PM", venue: "Student Commons", dept: "School of Business", seats: 27, description: "Startup founders networking session.", image: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=800&q=80" }
 ];
 
-// Tab id -> title shown in the top bar. Each tab is a <section id="tab-…"> in portal.html
+// Tab id -> title shown in the top bar. Each tab is a <section id="tab-…"> in student-portal.html / admin-portal.html
 const STUDENT_TABS = {
   overview: 'Overview', discover: 'Discover events', myevents: 'My events',
   passes: 'Event passes', saved: 'Saved', notifications: 'Notifications'
@@ -64,18 +80,23 @@ function imageUrl(src) {
 
 let eventsData = DEFAULT_EVENTS.slice();     // every event (loaded from the server)
 let activeUser = null;                        // who is signed in: { name, email, role, studentId, dept, phone }
-let authMode = 'login';                       // login form mode: 'login' or 'signup'
-let selectedRole = 'student';                 // login tab: 'student' or 'admin'
+let selectedRole = 'student';                 // login.html tab: 'student' or 'admin'
 let activeSelectedEventId = null;             // event open in the details pop-up
 let userState = { registered: [], saved: [] };  // the student's registered + saved event ids
 
-// ---- Page start-up: draw icons, load events, re-open the portal if still signed in ----
+// ---- Page start-up ----
+// Sign-in / sign-up pages: show the form (or skip it if already signed in).
+// Portal pages: check the login, then load events and open the portal.
 document.addEventListener("DOMContentLoaded", () => {
   refreshIcons();
+  if (IS_AUTH_PAGE) {
+    initAuthPage();
+    // The form already calls handleAuthAction via its onsubmit attribute,
+    // so no extra submit listener is added here (that caused double submissions).
+    return;
+  }
   fetchEvents();
   restoreSession();
-  // The form already calls handleAuthAction via its onsubmit attribute,
-  // so no extra submit listener is added here (that caused double submissions).
 });
 
 function refreshIcons() {
@@ -105,15 +126,20 @@ async function fetchEvents() {
   } catch (err) {
     console.log("Backend unreachable - using local default events data.");
   }
+  // Student page only (the admin page draws its own lists in admin.js)
+  if (PAGE !== 'student') return;
   renderDiscoverGrid(eventsData);
-  if (activeUser && !isAdmin()) renderUserLists();
+  if (activeUser) renderUserLists();
   openPendingEvent();
 }
 
-// Links like portal.html?event=<id> (from the homepage) open that event once signed in
+// Links like login.html?event=<id> (from the homepage) open that event once signed in
 let pendingEventId = new URLSearchParams(window.location.search).get('event');
+function eventQuery() {
+  return pendingEventId ? `?event=${encodeURIComponent(pendingEventId)}` : '';
+}
 function openPendingEvent() {
-  if (!pendingEventId || !activeUser || isAdmin() || !findEvent(pendingEventId)) return;
+  if (PAGE !== 'student' || !pendingEventId || !activeUser || isAdmin() || !findEvent(pendingEventId)) return;
   const id = pendingEventId;
   pendingEventId = null;
   navigateTo('discover');

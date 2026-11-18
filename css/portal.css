@@ -267,13 +267,38 @@ body {
   color: #64748b;
 }
 
-.auth-toggle button {
+.auth-toggle button,
+.auth-toggle a {
   background: none;
   border: none;
   color: #0056b3;
   font-weight: 700;
   cursor: pointer;
   margin-left: 4px;
+  text-decoration: none;
+}
+.auth-toggle a:hover { text-decoration: underline; }
+
+/* Portal pages: shown while the login is being checked */
+.portal-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+}
+.portal-loading .brand-logo {
+  width: 56px;
+  height: auto;
+  animation: portal-pulse 1.4s ease-in-out infinite;
+}
+@keyframes portal-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
 }
 
 /* =============================================================================
