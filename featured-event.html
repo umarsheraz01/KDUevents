@@ -50,11 +50,11 @@
         <a href="index.html#past-events" class="text-slate-300 hover:text-white transition-colors">Past events</a>
         <a href="index.html#about" class="text-slate-300 hover:text-white transition-colors">About us</a>
         <div class="relative group cursor-pointer py-2">
-          <span class="text-slate-300 group-hover:text-white flex items-center space-x-1 transition-colors">
+          <span tabindex="0" role="button" aria-haspopup="true" class="text-slate-300 group-hover:text-white flex items-center space-x-1 transition-colors outline-none">
             <span>Services</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
           </span>
-          <div class="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl py-2 hidden group-hover:block transition-all">
+          <div class="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl py-2 hidden group-hover:block group-focus-within:block transition-all">
             <a href="host-event.html" class="block px-4 py-2 text-xs text-slate-300 hover:bg-slate-800 hover:text-white">Host an Event</a>
             <a href="venue.html" class="block px-4 py-2 text-xs text-slate-300 hover:bg-slate-800 hover:text-white">Book a Venue</a>
             <a href="campus-societies.html" class="block px-4 py-2 text-xs text-slate-300 hover:bg-slate-800 hover:text-white">Campus Societies</a>

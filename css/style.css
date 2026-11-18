@@ -159,7 +159,7 @@ nav ul li a.active {
 .dropdown-menu {
     display: none;
     position: absolute;
-    top: 120%;
+    top: calc(100% + 10px);
     left: 0;
     min-width: 170px;
     background-color: #0b192c;
@@ -174,10 +174,29 @@ nav ul li a.active {
     z-index: 1000;
 }
 
-.nav-dropdown:hover .dropdown-menu {
+/* Invisible bridge over the 10px gap, so the menu stays open while the mouse moves down to it */
+.dropdown-menu::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -12px;
+    height: 12px;
+}
+
+/* Open the menu: on hover (mouse only) or when clicked/tapped (js/home.js adds .open) */
+@media (hover: hover) {
+    .nav-dropdown:hover .dropdown-menu {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+}
+.nav-dropdown.open .dropdown-menu {
     display: flex !important;
     flex-direction: column !important;
 }
+.dropdown-trigger i { transition: transform 0.2s ease; }
+.nav-dropdown.open .dropdown-trigger i { transform: rotate(180deg); }
 
 .dropdown-menu li {
     margin: 0 !important;
@@ -1442,6 +1461,14 @@ nav ul li a.active {
         padding: 8px 0;
         text-decoration: none;
     }
+
+    /* In the phone menu the Services list opens inside the menu, under the button */
+    header nav .dropdown-menu {
+        position: static;
+        margin-top: 8px !important;
+        box-shadow: none;
+    }
+    header nav .dropdown-menu::before { display: none; }
 
     header nav ul li .dropdown-trigger {
         color: #ffffff !important;

@@ -249,6 +249,40 @@ document.querySelectorAll('.coming-soon').forEach(link => {
 
 
 // =============================================================================
+// 5b. SERVICES DROPDOWN — opens/closes on click or tap (hover also works on desktop)
+// =============================================================================
+document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+  const trigger = dropdown.querySelector('.dropdown-trigger');
+  if (!trigger) return;
+  trigger.setAttribute('role', 'button');
+  trigger.setAttribute('aria-haspopup', 'true');
+  trigger.setAttribute('aria-expanded', 'false');
+
+  trigger.addEventListener('click', e => {
+    e.preventDefault();               // the trigger is href="#": don't jump to the top
+    e.stopPropagation();
+    const isOpen = dropdown.classList.toggle('open');
+    trigger.setAttribute('aria-expanded', String(isOpen));
+  });
+});
+
+// Close any open dropdown when clicking elsewhere or pressing Esc
+function closeDropdowns() {
+  document.querySelectorAll('.nav-dropdown.open').forEach(d => {
+    d.classList.remove('open');
+    const t = d.querySelector('.dropdown-trigger');
+    if (t) t.setAttribute('aria-expanded', 'false');
+  });
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.nav-dropdown')) closeDropdowns();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDropdowns();
+});
+
+
+// =============================================================================
 // 6. MOBILE MENU BUTTON (☰ opens the menu, ✕ closes it)
 // =============================================================================
 document.addEventListener('DOMContentLoaded', () => {
