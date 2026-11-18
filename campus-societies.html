@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<!--
+  =============================================================================
+  campus-societies.html — "CAMPUS SOCIETIES" PAGE
+  A list of student clubs & communities at KDU, with filter buttons.
+  To add a society: copy one <article class="society-card"> block and edit it.
+  data-type must be one of: academic · culture · sports · community
+  Styles: css/host-event.css + css/info-pages.css
+  =============================================================================
+-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Societies - KDU Events</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="stylesheet" href="css/host-event.css">
+  <link rel="stylesheet" href="css/info-pages.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="navbar-header">
+    <div class="nav-container">
+      <a href="index.html" class="brand-logo">
+        <img src="logo.svg" alt="KDU Logo" class="logo-img">
+        <span class="logo-text">KDU <span class="logo-highlight">EVENTS</span></span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html">Discover</a>
+        <a href="index.html#upcoming">Upcoming</a>
+        <a href="index.html#past-events">Past events</a>
+        <a href="index.html#about">About us</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="host-event.html" class="btn-register-header">Host Event &rarr;</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="host-hero">
+    <span class="badge-tag">University Communities</span>
+    <h1 class="hero-title">Find Your <span class="text-red">Crew</span> at KDU</h1>
+    <p class="hero-subtitle">Explore student societies, academic clubs, and cultural communities across Kyungdong University. Join one, or start your own.</p>
+  </section>
+
+  <main class="info-container">
+    <div class="info-card">
+
+      <div class="form-header">
+        <h2>Campus Societies &amp; Communities</h2>
+        <p>Browse by type, then contact a society to join or ask about their next meetup.</p>
+      </div>
+
+      <!-- Filter buttons -->
+      <div class="filter-bar" role="group" aria-label="Filter societies">
+        <button type="button" class="filter-btn active" data-filter="all">All</button>
+        <button type="button" class="filter-btn" data-filter="academic">Academic</button>
+        <button type="button" class="filter-btn" data-filter="culture">Arts &amp; Culture</button>
+        <button type="button" class="filter-btn" data-filter="sports">Sports</button>
+        <button type="button" class="filter-btn" data-filter="community">Community</button>
+      </div>
+
+      <!-- Society cards -->
+      <div class="society-grid">
+
+        <article class="society-card" data-type="academic">
+          <div class="society-icon">💻</div>
+          <span class="society-tag">Academic · Smart Computing</span>
+          <h3>Smart Computing Club</h3>
+          <p>Coding nights, hackathons, and peer study sessions for anyone who loves building software.</p>
+          <div class="society-meta">
+            <span>Meets weekly</span>
+            <a class="society-join" href="mailto:admin@kduevents.co.kr?subject=Join%20Smart%20Computing%20Club">Join</a>
+          </div>
+        </article>
+
+        <article class="society-card" data-type="academic">
+          <div class="society-icon">🤖</div>
+          <span class="society-tag">Academic · AI</span>
+          <h3>AI &amp; Data Society</h3>
+          <p>Hands-on workshops in machine learning, data science, and AI projects, plus talks from industry guests.</p>
+          <div class="society-meta">
+            <span>Meets bi-weekly</span>
+            <a class="society-join" href="mailto:admin@kduevents.co.kr?subject=Join%20AI%20%26%20Data%20Society">Join</a>
+          </div>
+        </article>
+
+        <article class="society-card" data-type="academic">
+          <div class="society-icon">📈</div>
+          <span class="society-tag">Academic · IBA</span>
+          <h3>Business &amp; Startup Network</h3>
+          <p>Case competitions, founder meetups, and career prep for future entrepreneurs and business leaders.</p>
+          <div class="society-meta">
+            <span>Meets monthly</span>
+            <a class="society-join" href="mailto:admin@kduevents.co.kr?subject=Join%20Business%20%26%20Startup%20Network">Join</a>
+          </div>
+        </article>
+
+        <article class="society-card" data-type="academic">
+          <div class="society-icon">🏨</div>
+          <span class="society-tag">Academic · IHM</span>
+          <h3>Hospitality &amp; Tourism Society</h3>
+          <p>Hotel visits, service workshops, and event-planning practice for hospitality management students.</p>
+          <div class="society-meta">
+            <span>Meets monthly</span>
+            <a class="society-join" href="mailto:admin@kduevents.co.kr?subject=Join%20Hospitality%20%26%20Tourism%20Society">Join</a>
+          </div>
+        </article>
+
+        <article class="society-card" data-type="culture">
+          <div class="society-icon">🌏</div>
+          <span class="society-tag">Arts &amp; Culture</span>
+          <h3>International Students Association</h3>
+          <p>Culture nights, language exchanges, and festivals that bring students from every country together.</p>
+          <div class="society-meta">
+            <span>Open to all</span>
+            <a class="society-join" href="mailto:admin@kduevents.co.kr?subject=Join%20International%20Students%20Association">Join</a>
+          </div>
+        </article>
+
+        <article class="society-card" data-type="culture">
+          <div class="society-icon">🎵</div>
+          <span class="society-tag">Arts &amp; Culture</span>
+          <h3>Music &amp; Performing Arts Club</h3>
+          <p>Bands, K-pop dance crews, and open-mic nights. Perform at campus showcases throughout the year.</p>
+          <div class="society-meta">
+            <span>Meets weekly</span>
+            <a class="society-join" href="mailto:admin@kduevents.co.kr?subject=Join%20Music%20%26%20Performing%20Arts%20Club">Join</a>
+          </div>
+        </article>
+
+        <article class="society-card" data-type="culture">
+          <div class="society-icon">📸</div>
+          <span class="society-tag">Arts &amp; Culture</span>
+          <h3>Photography &amp; Media Club</h3>
+          <p>Photo walks, video editing sessions, and coverage of campus events for KDU Events.</p>
+          <div class="society-meta">
+            <span>Meets bi-weekly</span>
+            <a class="society-join" href="mailto:admin@kduevents.co.kr?subject=Join%20Photography%20%26%20Media%20Club">Join</a>
+          </div>
+        </article>
+
+        <article class="society-card" data-type="sports">
+          <div class="society-icon">⚽</div>
+          <span class="society-tag">Sports</span>
+          <h3>Football &amp; Futsal Club</h3>
+          <p>Friendly matches, inter-department tournaments, and training sessions for every skill level.</p>
+          <div class="society-meta">
+            <span>Meets weekly</span>
+            <a class="society-join" href="mailto:admin@kduevents.co.kr?subject=Join%20Football%20%26%20Futsal%20Club">Join</a>
+          </div>
+        </article>
+
+        <article class="society-card" data-type="sports">
+          <div class="society-icon">🏸</div>
+          <span class="society-tag">Sports</span>
+          <h3>Badminton &amp; Fitness Club</h3>
+          <p>Casual games, fitness challenges, and beginner coaching in the campus sports hall.</p>
+          <div class="society-meta">
+            <span>Meets weekly</span>
+            <a class="society-join" href="mailto:admin@kduevents.co.kr?subject=Join%20Badminton%20%26%20Fitness%20Club">Join</a>
+          </div>
+        </article>
+
+        <article class="society-card" data-type="community">
+          <div class="society-icon">🤝</div>
+          <span class="society-tag">Community</span>
+          <h3>Volunteer &amp; Social Impact Group</h3>
+          <p>Local volunteering, charity drives, and environmental projects in the Goseong community.</p>
+          <div class="society-meta">
+            <span>Monthly projects</span>
+            <a class="society-join" href="mailto:admin@kduevents.co.kr?subject=Join%20Volunteer%20%26%20Social%20Impact%20Group">Join</a>
+          </div>
+        </article>
+
+        <article class="society-card" data-type="community">
+          <div class="society-icon">🗣️</div>
+          <span class="society-tag">Community</span>
+          <h3>Student Council</h3>
+          <p>The voice of KDU students. Shapes campus policy, runs festivals, and supports every society.</p>
+          <div class="society-meta">
+            <span>Open meetings</span>
+            <a class="society-join" href="mailto:admin@kduevents.co.kr?subject=Student%20Council%20enquiry">Contact</a>
+          </div>
+        </article>
+
+        <article class="society-card" data-type="community">
+          <div class="society-icon">✨</div>
+          <span class="society-tag">Start Something New</span>
+          <h3>Start Your Own Society</h3>
+          <p>Have an idea for a new club? Gather at least 5 members, then send us your proposal for approval.</p>
+          <div class="society-meta">
+            <span>5+ members</span>
+            <a class="society-join" href="mailto:admin@kduevents.co.kr?subject=New%20society%20proposal">Apply</a>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- Call to action -->
+      <div class="cta-strip">
+        <p>Running a society? Host your next meetup or book a room in minutes.</p>
+        <div class="cta-buttons">
+          <a href="event-guidelines.html" class="btn-outline">Event Guidelines</a>
+          <a href="host-event.html" class="btn-register-header">Host an Event &rarr;</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <a href="index.html" class="brand-logo" aria-label="KDU Events home">
+          <img src="logo.svg" alt="KDU Logo" class="logo-img">
+          <span class="logo-text">KDU <span class="logo-highlight">EVENTS</span></span>
+        </a>
+        <p class="footer-desc">Your central hub for campus life, workshops, socials, and showcases at KDU.</p>
+      </div>
+
+      <div class="footer-column">
+        <h3>Navigation</h3>
+        <ul>
+          <li><a href="index.html">Discover</a></li>
+          <li><a href="index.html#upcoming">Upcoming Events</a></li>
+          <li><a href="index.html#past-events">Past Events</a></li>
+          <li><a href="index.html#about">About Us</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h3>Services</h3>
+        <ul>
+          <li><a href="host-event.html">Host an Event</a></li>
+          <li><a href="venue.html">Book a Venue</a></li>
+          <li><a href="campus-societies.html">Campus Societies</a></li>
+          <li><a href="event-guidelines.html">Event Guidelines</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h3>Contact Us</h3>
+        <ul>
+          <li>📍 Innovation Hall, Main Campus</li>
+          <li>✉️ <a href="mailto:admin@kduevents.co.kr">admin@kduevents.co.kr</a></li>
+          <li>📞 <a href="tel:+82336312000">+82 (033) 631-2000</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 KDU Events. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Filter buttons: show only the societies of the chosen type -->
+  <script>
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const type = btn.dataset.filter;
+        document.querySelectorAll('.society-card').forEach(card => {
+          card.hidden = type !== 'all' && card.dataset.type !== type;
+        });
+      });
+    });
+  </script>
+</body>
+</html>

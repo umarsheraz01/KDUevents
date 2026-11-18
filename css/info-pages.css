@@ -1,0 +1,202 @@
+/* =============================================================================
+   css/info-pages.css — EXTRA STYLES FOR THE INFORMATION PAGES
+   Used by: campus-societies.html · event-guidelines.html
+   Loaded AFTER css/host-event.css (which gives the header, hero, card & footer)
+   Sections: filter buttons · society cards · guideline rules · call-to-action
+   ============================================================================= */
+
+/* Wider main area than the form page */
+.info-container {
+  max-width: 1100px;
+  margin: -40px auto 80px auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.info-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  padding: 44px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+}
+
+/* ---------- Filter buttons (Campus Societies) ---------- */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.filter-btn {
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover { color: var(--text-white); border-color: rgba(255, 255, 255, 0.3); }
+
+.filter-btn.active {
+  background: var(--primary-red);
+  border-color: var(--primary-red);
+  color: #ffffff;
+}
+
+/* ---------- Society cards ---------- */
+.society-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.society-card {
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.society-card:hover {
+  border-color: rgba(255, 59, 48, 0.5);
+  transform: translateY(-3px);
+}
+
+.society-card[hidden] { display: none; }
+
+.society-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255, 59, 48, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.society-tag {
+  color: var(--primary-red);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.society-card h3 { font-size: 1.1rem; font-weight: 700; }
+
+.society-card p {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  flex-grow: 1;
+}
+
+.society-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.society-join {
+  color: #ffffff;
+  background: var(--primary-red);
+  padding: 6px 14px;
+  border-radius: 16px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.society-join:hover { background: var(--primary-red-hover); }
+
+/* ---------- Guideline rules (Event Guidelines) ---------- */
+.rules-section { margin-bottom: 36px; }
+.rules-section:last-of-type { margin-bottom: 0; }
+
+.rules-list {
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.rules-list li {
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--primary-red);
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+.rules-list li strong { color: var(--text-white); }
+
+.notice-box {
+  background: rgba(255, 59, 48, 0.08);
+  border: 1px solid rgba(255, 59, 48, 0.35);
+  border-radius: 12px;
+  padding: 18px 20px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+
+.notice-box strong { color: var(--text-white); }
+
+/* ---------- Call-to-action strip at the bottom ---------- */
+.cta-strip {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cta-strip p { color: var(--text-muted); font-size: 0.95rem; }
+
+.cta-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.btn-outline {
+  border: 1px solid var(--border-subtle);
+  color: #ffffff;
+  padding: 10px 22px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.btn-outline:hover { border-color: #ffffff; }
+
+/* ---------- Phones & tablets ---------- */
+@media (max-width: 960px) {
+  .society-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .society-grid { grid-template-columns: 1fr; }
+  .info-card { padding: 24px; }
+  .hero-title { font-size: 2rem; }
+  .nav-links { display: none; }
+}
