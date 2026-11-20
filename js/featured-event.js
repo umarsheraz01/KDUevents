@@ -79,6 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
     subscribeForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = subscribeForm.querySelector('input[type="email"]').value.trim();
+      const btn = subscribeForm.querySelector('button[type="submit"], button');
+      if (btn && btn.disabled) return; // already sending
+      const btnHtml = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.textContent = 'Subscribing…'; }
       try {
         const res = await fetch(`${window.KDU_API_BASE}/subscribe`, {
           method: 'POST',
@@ -94,6 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (err) {
         showToast('Subscriptions are unavailable right now. Please try again later.');
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = btnHtml; }
       }
     });
   }

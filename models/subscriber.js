@@ -14,6 +14,11 @@ const subscriberSchema = new mongoose.Schema({
     lowercase: true,
     trim: true
   },
+  // false until the welcome email actually went out (older records have no
+  // value and count as sent)
+  welcomeSent: {
+    type: Boolean
+  },
   subscribedAt: {
     type: Date,
     default: Date.now

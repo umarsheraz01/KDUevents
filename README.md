@@ -123,7 +123,7 @@ Every code file starts with a short header explaining what it does, and long fil
 2. Start the server: `npm start` → you'll see `KDU Events Server running on port 5050` and `MongoDB Database Connected Successfully`
 3. Open `index.html` with VS Code **Live Server** (or open the file directly). Keep the server terminal open while you use the portal.
 
-The `.env` file must contain: `PORT`, `MONGO_URI`, `EMAIL_USER`, `EMAIL_PASS`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SESSION_SECRET`. Optional: `REQUESTS_EMAIL` (inbox for host/venue requests, default admin@kduevents.co.kr).
+The `.env` file must contain: `PORT`, `MONGO_URI`, `EMAIL_USER`, `EMAIL_PASS`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SESSION_SECRET`. Optional: `REQUESTS_EMAIL` (inbox for host/venue requests, default admin@kduevents.co.kr). On Render also set `BREVO_API_KEY` and `MAIL_FROM` (a sender verified in Brevo): Render's free plan blocks Gmail's SMTP ports, so emails go through Brevo's web API whenever `BREVO_API_KEY` is set; without it the server falls back to Gmail.
 
 ## 5. Publishing changes
 

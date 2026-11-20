@@ -217,6 +217,11 @@ document.addEventListener('DOMContentLoaded', () => {
     subscribeForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = emailInput.value;
+      const btn = subscribeForm.querySelector('button[type="submit"]');
+      if (btn.disabled) return; // already sending
+      const btnHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.textContent = 'Subscribing…';
 
       try {
         const response = await fetch(`${window.KDU_API_BASE}/subscribe`, {
@@ -234,6 +239,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (err) {
         showModal('Connection Error', 'Subscriptions are unavailable right now. Please try again later.', true);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = btnHtml;
       }
     });
   }
