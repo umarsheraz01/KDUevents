@@ -102,3 +102,4 @@ main,
 /* ---------- Form result messages (readable on white) ---------- */
 .form-status.is-success { color: #15803d; }
 .form-status.is-error { color: #dc2626; }
+.form-status.is-pending { color: #64748b; }

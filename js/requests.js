@@ -25,6 +25,7 @@
     if (!el) return;
     el.textContent = text;
     el.className = 'form-status' + (kind ? ' is-' + kind : '');
+    if (text) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   document.querySelectorAll('form[data-endpoint]').forEach(form => {
@@ -37,23 +38,32 @@
       if (!form.checkValidity()) { form.reportValidity(); return; }
 
       if (button) { button.disabled = true; button.textContent = 'Sending…'; }
-      setStatus(form, '', '');
+      setStatus(form, 'Sending your request…', 'pending');
+      // The free server sleeps when idle and can take up to a minute to wake up
+      const slowNote = setTimeout(() => setStatus(form, 'Still sending… the server is waking up, this can take up to a minute. Please keep this page open.', 'pending'), 5000);
+      const controller = new AbortController();
+      const giveUp = setTimeout(() => controller.abort(), 90000);
       try {
         const res = await fetch(`${window.KDU_API_BASE}/requests/${form.dataset.endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formToJson(form))
+          body: JSON.stringify(formToJson(form)),
+          signal: controller.signal
         });
         const out = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(out.message || 'Could not send your request. Please try again.');
         form.reset();
         setStatus(form, out.message || 'Your request was sent.', 'success');
       } catch (err) {
-        const msg = err instanceof TypeError
-          ? 'Could not reach the server. Please try again in a minute (it may be waking up).'
-          : err.message;
+        const msg = err.name === 'AbortError'
+          ? 'The server took too long to answer. Please try again, or email admin@kduevents.co.kr.'
+          : err instanceof TypeError
+            ? 'Could not reach the server. Please try again in a minute (it may be waking up).'
+            : err.message;
         setStatus(form, msg, 'error');
       } finally {
+        clearTimeout(slowNote);
+        clearTimeout(giveUp);
         if (button) { button.disabled = false; button.innerHTML = buttonHtml; }
       }
     });

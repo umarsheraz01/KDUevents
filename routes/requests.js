@@ -50,7 +50,20 @@ function contactError(c, { needStudentId }) {
   return null;
 }
 
-// Save (best effort), then email the admin. Fails only if the email fails.
+// Save the request, then email the admin.
+// If the request is saved in the database, the visitor gets an answer straight
+// away and the email is sent in the background (email can be slow, and must
+// never keep the visitor waiting). If it could not be saved, the email is the
+// only copy, so we wait for it (with a time limit) before answering.
+const EMAIL_TIMEOUT_MS = 20 * 1000;
+
+function sendWithTimeout(mail) {
+  return Promise.race([
+    sendMail(mail),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Email timed out')), EMAIL_TIMEOUT_MS))
+  ]);
+}
+
 async function saveAndEmail(type, contact, details, title, rows) {
   let doc = null;
   if (dbOnline()) {
@@ -59,13 +72,19 @@ async function saveAndEmail(type, contact, details, title, rows) {
       return null;
     });
   }
-  const mail = requestEmail(title, rows, contact.email);
-  await sendMail({ to: REQUESTS_EMAIL, replyTo: `"${contact.name.replace(/"/g, '')}" <${contact.email}>`, ...mail });
-  if (doc) Request.updateOne({ _id: doc._id }, { emailed: true }).catch(() => {});
+  const mail = { to: REQUESTS_EMAIL, replyTo: `"${contact.name.replace(/"/g, '')}" <${contact.email}>`, ...requestEmail(title, rows, contact.email) };
+
+  if (!doc) {
+    await sendWithTimeout(mail); // no saved copy: the email must succeed
+    return;
+  }
+  sendWithTimeout(mail)
+    .then(() => Request.updateOne({ _id: doc._id }, { emailed: true }))
+    .catch(err => console.error(`Request email error (saved as ${doc._id}):`, err.message));
 }
 
 function guard(req, res) {
-  if (!mailerReady()) {
+  if (!mailerReady() && !dbOnline()) {
     res.status(503).json({ message: 'Requests are temporarily unavailable. Please email admin@kduevents.co.kr directly.' });
     return false;
   }
