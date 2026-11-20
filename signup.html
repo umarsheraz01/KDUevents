@@ -80,11 +80,17 @@
         <div class="form-row">
           <div class="form-group">
             <label for="authPassInput">Create password</label>
-            <input type="password" id="authPassInput" required minlength="6" placeholder="At least 6 characters" autocomplete="new-password">
+            <div class="pass-field">
+              <input type="password" id="authPassInput" required minlength="6" placeholder="At least 6 characters" autocomplete="new-password">
+              <button type="button" class="pass-toggle" onclick="togglePassword(this)" aria-label="Show password" title="Show password"><i data-lucide="eye"></i></button>
+            </div>
           </div>
           <div class="form-group">
             <label for="authPassConfirm">Confirm password</label>
-            <input type="password" id="authPassConfirm" required placeholder="Type it again" autocomplete="new-password">
+            <div class="pass-field">
+              <input type="password" id="authPassConfirm" required placeholder="Type it again" autocomplete="new-password">
+              <button type="button" class="pass-toggle" onclick="togglePassword(this)" aria-label="Show password" title="Show password"><i data-lucide="eye"></i></button>
+            </div>
           </div>
         </div>
 

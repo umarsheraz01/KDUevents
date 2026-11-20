@@ -1624,3 +1624,27 @@ a.sidebar-brand:hover .brand-title { opacity: 0.85; }
   .reg-actions { flex-direction: column-reverse; }
   .reg-actions .btn-gray, .reg-actions .btn-primary { width: 100%; }
 }
+
+/* ---- Show / hide password button ---- */
+.pass-field { position: relative; }
+.form-group .pass-field input { padding-right: 46px; }
+.pass-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+.pass-toggle:hover { color: #0056b3; background: rgba(0, 86, 179, 0.08); }
+.pass-toggle:focus-visible { outline: 2px solid #0056b3; outline-offset: 1px; }
+.pass-toggle svg { width: 18px; height: 18px; }

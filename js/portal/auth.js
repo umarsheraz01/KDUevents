@@ -293,3 +293,16 @@ function updateUserUI() {
   document.getElementById("overviewWelcomeHeading").innerText = `Welcome back, ${nameStr.split(' ')[0]}.`;
   renderUserLists();
 }
+
+// Show / hide the password in the field next to the eye button
+function togglePassword(btn) {
+  const input = btn.parentElement.querySelector("input");
+  if (!input) return;
+  const show = input.type === "password";
+  input.type = show ? "text" : "password";
+  const label = show ? "Hide password" : "Show password";
+  btn.setAttribute("aria-label", label);
+  btn.title = label;
+  btn.innerHTML = `<i data-lucide="${show ? "eye-off" : "eye"}"></i>`;
+  refreshIcons();
+}
