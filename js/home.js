@@ -321,6 +321,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // The arrow on the featured event banner opens a pop-up with the event's
 // details. "Register for this event" takes the visitor to the portal sign-in.
 // Closes with the ✕ button, the Escape key, or a click on the dark background.
+// It also opens by itself when the address ends in #featured-details (old
+// links to featured-event.html redirect there).
 // =============================================================================
 document.addEventListener('DOMContentLoaded', () => {
   const openBtn = document.getElementById('featuredOpenBtn');
@@ -340,6 +342,10 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.classList.remove('active');
     overlay.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    // Drop #featured-details from the address so a reload doesn't reopen it
+    if (window.location.hash === '#featured-details') {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
     openBtn.focus();
   }
 
@@ -351,4 +357,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && overlay.classList.contains('active')) closePopup();
   });
+
+  if (window.location.hash === '#featured-details') openPopup({ preventDefault() {} });
 });
