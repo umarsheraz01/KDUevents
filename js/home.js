@@ -7,6 +7,7 @@
 // 4. Newsletter sign-up          (email box + "subscribed" pop-up)
 // 5. "Coming soon" links         (menu links for pages that don't exist yet)
 // 6. Mobile menu button          (☰ / ✕ on phones)
+// 7. Featured event pop-up       (arrow on the featured banner → details + Register)
 //
 // Needs js/config.js first (it sets window.KDU_API_BASE = the server address).
 // =============================================================================
@@ -312,4 +313,42 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+});
+
+
+// =============================================================================
+// 7. FEATURED EVENT POP-UP
+// The arrow on the featured event banner opens a pop-up with the event's
+// details. "Register for this event" takes the visitor to the portal sign-in.
+// Closes with the ✕ button, the Escape key, or a click on the dark background.
+// =============================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  const openBtn = document.getElementById('featuredOpenBtn');
+  const overlay = document.getElementById('featured-modal-overlay');
+  const closeBtn = document.getElementById('featuredCloseBtn');
+  if (!openBtn || !overlay) return;
+
+  function openPopup(e) {
+    e.preventDefault();
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden'; // stop the page scrolling behind it
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function closePopup() {
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    openBtn.focus();
+  }
+
+  openBtn.addEventListener('click', openPopup);
+  if (closeBtn) closeBtn.addEventListener('click', closePopup);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closePopup();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('active')) closePopup();
+  });
 });

@@ -58,7 +58,7 @@
       <ul>
         <li><a href="#" class="active">Discover</a></li>
         <li><a href="#upcoming">Upcoming</a></li>
-        <li><a href="#past-events">Past events</a></li>
+        <li><a href="#past-events">Past Event</a></li>
         <li><a href="#about">About us</a></li>
         
         <li class="nav-dropdown">
@@ -81,6 +81,7 @@
 </header>
 
     <!-- Hero Section with Background Slider -->
+
     <section class="hero">
       <!-- Background Slider Container -->
       <div class="hero-slider">
@@ -144,7 +145,7 @@
                 </div>
                 <h2 class="featured-title">Future Forward:<br>Research Summit</h2>
             </div>
-            <a href="featured-event.html" class="floating-arrow-btn" aria-label="View featured event"><i class="fa-solid fa-arrow-right"></i></a>
+            <a href="#featured-event" class="floating-arrow-btn" id="featuredOpenBtn" role="button" aria-haspopup="dialog" aria-controls="featured-modal-overlay" aria-label="View featured event details"><i class="fa-solid fa-arrow-right"></i></a>
         </div> 
     </div>
 
@@ -276,7 +277,7 @@
         <div class="archive-grid">
             <div class="archive-card">
                 <div class="archive-img">
-                    <img src="sports.jpeg" alt="Matriculation Ceremony 2026">
+                    <img src="sports.jpeg" alt="Sports">
                 </div>
                 <h3 class="archive-title">Sports Day 2026</h3>
                 <p class="archive-meta">May 08 &bull; 150 attendees</p>
@@ -314,6 +315,27 @@
         </form>
     </div>
   </section>
+
+  <!-- Featured Event Pop-up (opened by the arrow on the featured event banner) -->
+<div id="featured-modal-overlay" class="modal-overlay featured-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="featured-modal-title" aria-hidden="true">
+  <div class="featured-modal-card">
+    <button type="button" class="featured-modal-close" id="featuredCloseBtn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    <img class="featured-modal-img" src="assets/WhatsApp Image 2026-10-12 at 11.01.35.jpeg" alt="Future Forward Research Summit">
+    <div class="featured-modal-body">
+      <span class="badge-pill">Featured Event &middot; Technology</span>
+      <h3 id="featured-modal-title" class="featured-modal-title">Future Forward: Research Summit</h3>
+      <p class="featured-modal-desc">Discover bold ideas, emerging technologies, and the student innovators shaping what comes next.</p>
+      <ul class="featured-modal-facts">
+        <li><i class="fa-regular fa-calendar"></i> Saturday, December 12, 2026</li>
+        <li><i class="fa-regular fa-clock"></i> 10:00 AM &ndash; 4:00 PM</li>
+        <li><i class="fa-solid fa-location-dot"></i> Innovation Hall, KDU Main Campus</li>
+        <li><i class="fa-solid fa-microphone"></i> Prof. Absi Mohammed, Prof. Mohammed and more</li>
+      </ul>
+      <a href="login.html" target="_blank" rel="noopener noreferrer" class="modal-btn featured-modal-register">Register for this event <i class="fa-solid fa-arrow-right"></i></a>
+      <p class="featured-modal-note">You'll sign in to the KDU Events portal to complete your registration.</p>
+    </div>
+  </div>
+</div>
 
   <!-- Custom Subscription Modal -->
 <div id="sub-modal-overlay" class="modal-overlay">

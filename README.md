@@ -38,21 +38,18 @@ Event Management/
 ├── student-portal.html     The student portal (after signing in)          — title "KDU Events Portal"
 ├── admin-portal.html       The admin portal (after signing in)            — title "KDU Events Portal"
 ├── portal.html             Old address: forwards to login / the portal
-├── featured-event.html     Full page for the featured event
 ├── venue.html              "Book a venue" form → emailed to admin@kduevents.co.kr
 ├── host-event.html         "Host an event" form → emailed to admin@kduevents.co.kr
 │
 ├── css/                    One stylesheet per page
 │   ├── style.css             → index.html
 │   ├── portal.css            → login, signup, student-portal, admin-portal
-│   ├── featured-event.css    → featured-event.html (plus Tailwind classes in the HTML)
 │   ├── venue.css             → venue.html
 │   └── host-event.css        → host-event.html
 │
 ├── js/                     Website JavaScript (runs in the browser)
 │   ├── config.js             Server address (loaded first on every page)
 │   ├── home.js               Homepage: video slider, live events, filters, newsletter, menu
-│   ├── featured-event.js     Featured event page: menu, schedule, share, newsletter
 │   ├── requests.js           Sends the Host-an-event / Book-a-venue forms to the server
 │   └── portal/               The portal, split by feature (each page loads only what it needs):
 │       ├── core.js             1. settings, shared state, apiFetch(), helpers
@@ -111,6 +108,7 @@ Event Management/
 | Newsletter + welcome email | `js/home.js` → section 4 | `routes/newsletter.js` · `lib/emails/welcome-email.js` |
 | Host an event / Book a venue → email to admin | `js/requests.js` | `routes/requests.js` · `lib/emails/request-email.js` |
 | Homepage video slider | `js/home.js` → section 1 | — |
+| Featured event pop-up (arrow on the banner → details + Register) | `js/home.js` → section 7 · HTML: `#featured-modal-overlay` in index.html | — |
 | Phone / tablet layouts | the `@media` sections at the end of each CSS file | — |
 
 Every code file starts with a short header explaining what it does, and long files are split into **numbered sections** (`// 1. …`, `/* 1. … */`) that match the list at the top of the file.
