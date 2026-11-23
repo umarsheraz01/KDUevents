@@ -115,11 +115,41 @@ Every code file starts with a short header explaining what it does, and long fil
 
 ---
 
-## 4. Running it on your computer
+## 4. Running it on your computer (no live site needed)
 
-1. Install the server's packages once: `npm install`
-2. Start the server: `npm start` → you'll see `KDU Events Server running on port 5050` and `MongoDB Database Connected Successfully`
-3. Open `index.html` with VS Code **Live Server** (or open the file directly). Keep the server terminal open while you use the portal.
+The whole project, website and server, can run on one computer from VS Code. Nothing has to be online except the database (MongoDB Atlas). When the pages are opened from your own computer, `js/config.js` automatically sends every request to the local server at `http://localhost:5050` instead of Render.
+
+**You need:**
+- [VS Code](https://code.visualstudio.com/)
+- [Node.js](https://nodejs.org/) (the LTS version; it includes `npm`)
+- The **Live Server** extension in VS Code (Extensions panel → search "Live Server" → Install)
+- An internet connection (for the MongoDB Atlas database)
+
+**Steps:**
+1. Open the project folder in VS Code (**File → Open Folder…**).
+2. Check that the hidden **`.env`** file is in the folder (it isn't on GitHub, so it comes with the zipped project). Without it the server starts on the wrong port and can't reach the database.
+3. Open a terminal (**Terminal → New Terminal**) and install the server's packages (only needed once):
+   ```
+   npm install
+   ```
+4. Start the server:
+   ```
+   npm start
+   ```
+   You should see `KDU Events Server running on port 5050` and `MongoDB Database Connected Successfully`. **Leave this terminal open**, because closing it stops the server.
+5. In the file list, right-click **`index.html` → Open with Live Server**. The site opens at `http://127.0.0.1:5500` and uses the local server.
+6. Student portal: create an account on the Sign Up page. Admin portal: sign in on the Admin tab of the login page using `ADMIN_EMAIL` / `ADMIN_PASSWORD` from `.env`.
+
+To stop the server, click in the terminal and press **Ctrl + C**.
+
+**If something doesn't work:**
+| Problem | Fix |
+|---|---|
+| "Can't reach server" on the website | The server isn't running, or it isn't on port 5050. Run `npm start` and check that `.env` has `PORT=5050`. |
+| MongoDB connection error in the terminal | Check the internet connection. In MongoDB Atlas → **Network Access**, this computer's IP (or `0.0.0.0/0`) must be allowed. |
+| `npm` is not recognised | Node.js isn't installed. Install it, then close and reopen VS Code. |
+| Port 5050 already in use | Another copy of the server is running. Close the other terminal, or press Ctrl + C in it. |
+| Emails aren't sent | Only email needs the Gmail details (`EMAIL_USER` / `EMAIL_PASS`) in `.env`. Everything else works without them. |
 
 The `.env` file must contain: `PORT`, `MONGO_URI`, `EMAIL_USER`, `EMAIL_PASS`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SESSION_SECRET`. Optional: `REQUESTS_EMAIL` (inbox for host/venue requests, default admin@kduevents.co.kr). On Render also set `BREVO_API_KEY` and `MAIL_FROM` (a sender verified in Brevo): Render's free plan blocks Gmail's SMTP ports, so emails go through Brevo's web API whenever `BREVO_API_KEY` is set; without it the server falls back to Gmail.
 
