@@ -8,6 +8,7 @@
   -----------------------------------------------------------------------------
   After signing in, students go to student-portal.html and the admin goes to
   admin-portal.html. "Create an account" links to signup.html.
+  "Forgot password?" (students only) links to reset-password.html.
   Scripts: js/config.js → js/portal/core.js → js/portal/auth.js
   Styles:  css/portal.css
   =============================================================================
@@ -68,6 +69,10 @@
             <input type="password" id="authPassInput" required placeholder="••••••••" autocomplete="off">
             <button type="button" class="pass-toggle" onclick="togglePassword(this)" aria-label="Show password" title="Show password"><i data-lucide="eye"></i></button>
           </div>
+        </div>
+
+        <div class="forgot-row" id="forgotRow">
+          <a href="reset-password.html" id="forgotLink">Forgot password?</a>
         </div>
 
         <p id="authError" class="auth-error hidden" role="alert"></p>

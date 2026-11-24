@@ -49,6 +49,7 @@ function renderAdminAll() {
 
 const ACTIVITY_ICONS = {
   signup: 'user-plus', login: 'log-in', admin_login: 'shield-check', register: 'ticket',
+  password_reset_requested: 'mail', password_reset: 'key-round',
   cancel: 'x-circle', save: 'heart', event_created: 'calendar-plus', event_deleted: 'trash-2',
   update_posted: 'megaphone', update_deleted: 'trash-2'
 };

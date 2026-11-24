@@ -161,6 +161,9 @@ function selectAuthRole(role) {
   const emailInput = document.getElementById("authEmailInput");
   if (emailInput) emailInput.placeholder = role === 'admin' ? "admin@kduevents.co.kr" : "student@kdu.ac.kr";
   if (submitBtn) submitBtn.innerHTML = `<span>Continue to ${role} portal</span> <i data-lucide="arrow-right"></i>`;
+  // The admin password lives on the server (.env), so only students can reset theirs
+  const forgotRow = document.getElementById("forgotRow");
+  if (forgotRow) forgotRow.classList.toggle("hidden", role === 'admin');
   refreshIcons();
 }
 
@@ -268,14 +271,14 @@ function clearLoginFields() {
 
 // Signed out in ANOTHER tab → leave the portal in this tab too
 window.addEventListener("storage", (e) => {
-  if (e.key === TOKEN_KEY && !e.newValue && !IS_AUTH_PAGE) goTo(PAGES.login);
+  if (e.key === TOKEN_KEY && !e.newValue && IS_PORTAL_PAGE) goTo(PAGES.login);
 });
 
 // Page brought back with the browser's Back/Forward buttons: re-check the login
 window.addEventListener("pageshow", (e) => {
   if (!e.persisted) return;
   if (IS_AUTH_PAGE) clearLoginFields();
-  else if (!getToken()) goTo(PAGES.login);
+  else if (IS_PORTAL_PAGE && !getToken()) goTo(PAGES.login);
 });
 
 function updateUserUI() {

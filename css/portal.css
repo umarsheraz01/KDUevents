@@ -786,6 +786,31 @@ body {
   margin-bottom: 16px;
 }
 
+/* "Forgot password?" link under the password box (login.html) */
+.forgot-row {
+  text-align: right;
+  margin: -6px 0 14px;
+  font-size: 12px;
+}
+.forgot-row a {
+  color: #0056b3;
+  font-weight: 700;
+  text-decoration: none;
+}
+.forgot-row a:hover { text-decoration: underline; }
+
+/* Green confirmation message (reset-password.html) */
+.auth-success {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;

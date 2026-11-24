@@ -151,7 +151,7 @@ To stop the server, click in the terminal and press **Ctrl + C**.
 | Port 5050 already in use | Another copy of the server is running. Close the other terminal, or press Ctrl + C in it. |
 | Emails aren't sent | Only email needs the Gmail details (`EMAIL_USER` / `EMAIL_PASS`) in `.env`. Everything else works without them. |
 
-The `.env` file must contain: `PORT`, `MONGO_URI`, `EMAIL_USER`, `EMAIL_PASS`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SESSION_SECRET`. Optional: `REQUESTS_EMAIL` (inbox for host/venue requests, default admin@kduevents.co.kr). On Render also set `BREVO_API_KEY` and `MAIL_FROM` (a sender verified in Brevo): Render's free plan blocks Gmail's SMTP ports, so emails go through Brevo's web API whenever `BREVO_API_KEY` is set; without it the server falls back to Gmail.
+The `.env` file must contain: `PORT`, `MONGO_URI`, `EMAIL_USER`, `EMAIL_PASS`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SESSION_SECRET`. Optional: `REQUESTS_EMAIL` (inbox for host/venue requests, default admin@kduevents.co.kr), `SITE_URL` (website address used in "reset password" email links, default https://kduevents.co.kr; links from the live site or a local Live Server copy open where the student came from). On Render also set `BREVO_API_KEY` and `MAIL_FROM` (a sender verified in Brevo): Render's free plan blocks Gmail's SMTP ports, so emails go through Brevo's web API whenever `BREVO_API_KEY` is set; without it the server falls back to Gmail.
 
 ## 5. Publishing changes
 

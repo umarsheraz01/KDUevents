@@ -5,11 +5,16 @@
 // POST /api/auth/login      sign in as a student or as the admin
 // GET  /api/auth/me         restore the session after a page refresh
 // POST /api/auth/logout     sign out: the token stops working on the server
+// POST /api/auth/forgot-password   email a student a one-time "reset password" link
+// POST /api/auth/reset-password    set a new password using that link
 // =============================================================================
+const crypto = require('crypto');
 const express = require('express');
 const router = express.Router();
 
-const { ADMIN_EMAIL, ADMIN_PASSWORD } = require('../lib/config');
+const { ADMIN_EMAIL, ADMIN_PASSWORD, SITE_URL } = require('../lib/config');
+const { sendMail } = require('../lib/mailer');
+const resetEmail = require('../lib/emails/reset-email');
 const { dbOnline } = require('../lib/db');
 const { hashPassword, verifyPassword, safeEqual, signToken, isLockedOut, recordFail, clearFails } = require('../lib/security');
 const { requireAuth, adminUser, publicUser, revokeToken } = require('../lib/auth');
@@ -117,6 +122,102 @@ router.post('/logout', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('Logout error:', err.message);
     res.status(500).json({ message: 'Could not sign out on the server.' });
+  }
+});
+
+// =============================================================================
+// FORGOT PASSWORD (students only - the admin password lives in .env)
+// =============================================================================
+// 1. login.html → "Forgot password?" → reset-password.html asks for the email
+// 2. POST /forgot-password emails a link: reset-password.html?token=<random code>
+//    (only a SHA-256 hash of the code is saved, so a database leak can't be used)
+// 3. The student opens the link, types a new password → POST /reset-password
+//    The code works once, for 30 minutes, and old logins stop working.
+const RESET_TTL_MIN = 30;
+const RESET_COOLDOWN_MS = 60 * 1000;              // one email per account per minute
+const hashResetToken = (t) => crypto.createHash('sha256').update(String(t)).digest('hex');
+
+// Max 5 reset emails per connection every 15 minutes
+const resetRequests = new Map();                  // ip -> { count, first }
+function tooManyResetRequests(ip) {
+  const now = Date.now();
+  const entry = resetRequests.get(ip);
+  if (!entry || now - entry.first > 15 * 60 * 1000) { resetRequests.set(ip, { count: 1, first: now }); return false; }
+  entry.count++;
+  return entry.count > 5;
+}
+
+// The link opens on the site the student came from, but only if it's ours
+// (the live site or a local copy) - never an address someone else sent us.
+function siteFor(req) {
+  const origin = String(req.headers.origin || '');
+  const ok = /^https:\/\/(www\.)?kduevents\.co\.kr$/.test(origin)
+    || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+  return ok ? origin : SITE_URL;
+}
+
+const RESET_SENT = 'If a student account uses that email, a reset link is on its way. Check your inbox (and spam folder).';
+
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const email = cleanText(req.body.email, 200).toLowerCase();
+    if (!EMAIL_RE.test(email)) return res.status(400).json({ message: 'Please enter a valid email address.' });
+    if (email === ADMIN_EMAIL) return res.status(400).json({ message: 'The admin password is set on the server and cannot be reset here.' });
+    if (tooManyResetRequests(req.ip)) return res.status(429).json({ message: 'Too many reset requests. Please wait 15 minutes and try again.' });
+    if (!dbOnline()) return res.status(503).json({ message: 'Password reset is temporarily unavailable. Please try again shortly.' });
+
+    // Same answer whether or not the account exists, so nobody can test which emails are registered
+    const user = await User.findOne({ email });
+    if (!user) return res.json({ message: RESET_SENT });
+    if (user.resetRequestedAt && Date.now() - user.resetRequestedAt.getTime() < RESET_COOLDOWN_MS) {
+      return res.json({ message: RESET_SENT });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    user.resetTokenHash = hashResetToken(token);
+    user.resetTokenExpires = new Date(Date.now() + RESET_TTL_MIN * 60 * 1000);
+    user.resetRequestedAt = new Date();
+    await user.save();
+
+    const link = `${siteFor(req)}/reset-password.html?token=${token}`;
+    try {
+      await sendMail({ to: user.email, ...resetEmail(user.name, link, RESET_TTL_MIN) });
+    } catch (mailErr) {
+      console.error('Reset email error:', mailErr.message);
+      user.resetRequestedAt = undefined;   // let them try again straight away
+      await user.save().catch(() => {});
+      return res.status(502).json({ message: "We couldn't send the reset email right now. Please try again in a few minutes." });
+    }
+    logActivity('password_reset_requested', user, `${user.name || user.email} asked for a password reset email`);
+    res.json({ message: RESET_SENT });
+  } catch (err) {
+    console.error('Forgot password error:', err.message);
+    res.status(500).json({ message: 'Something went wrong. Please try again.' });
+  }
+});
+
+router.post('/reset-password', async (req, res) => {
+  try {
+    const token = String(req.body.token || '');
+    const password = String(req.body.password || '');
+    if (!/^[a-f0-9]{64}$/.test(token)) return res.status(400).json({ message: 'This reset link is not valid. Please ask for a new one.' });
+    if (password.length < 6) return res.status(400).json({ message: 'Password must be at least 6 characters.' });
+    if (!dbOnline()) return res.status(503).json({ message: 'Password reset is temporarily unavailable. Please try again shortly.' });
+
+    const user = await User.findOne({ resetTokenHash: hashResetToken(token), resetTokenExpires: { $gt: new Date() } });
+    if (!user) return res.status(400).json({ message: 'This reset link has expired or was already used. Please ask for a new one.' });
+
+    user.password = hashPassword(password);
+    user.passwordChangedAt = new Date();    // signs the account out everywhere (see lib/auth.js)
+    user.resetTokenHash = undefined;
+    user.resetTokenExpires = undefined;
+    user.resetRequestedAt = undefined;
+    await user.save();
+    logActivity('password_reset', user, `${user.name || user.email} reset their password`);
+    res.json({ message: 'Your password has been changed. You can now sign in with your new password.' });
+  } catch (err) {
+    console.error('Reset password error:', err.message);
+    res.status(500).json({ message: 'Something went wrong. Please try again.' });
   }
 });
 

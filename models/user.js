@@ -16,7 +16,12 @@ const userSchema = new mongoose.Schema({
   registered: { type: [String], default: [] },          // ids of events the student registered for
   saved: { type: [String], default: [] },               // ids of events the student saved (favorites)
   phone: { type: String, trim: true },                  // remembered from the last registration form
-  lastLoginAt: Date
+  lastLoginAt: Date,
+  // "Forgot password": only a hash of the emailed reset code is stored, never the code itself
+  resetTokenHash: String,
+  resetTokenExpires: Date,
+  resetRequestedAt: Date,                               // last reset email (stops repeated sends)
+  passwordChangedAt: Date                               // logins from before this time stop working
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

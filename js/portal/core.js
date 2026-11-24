@@ -13,12 +13,14 @@
 //   signup.html          data-page="signup"   core.js → auth.js
 //   student-portal.html  data-page="student"  core.js → auth.js → navigation.js → student.js
 //   admin-portal.html    data-page="admin"    core.js → auth.js → navigation.js → admin.js
+//   reset-password.html  data-page="reset"    core.js → auth.js → reset.js  (forgot password)
 // (portal.html only forwards old links to the right page)
 // =============================================================================
 
 // Which page is this? ('login' | 'signup' | 'student' | 'admin')
 const PAGE = (document.body && document.body.dataset.page) || 'login';
 const IS_AUTH_PAGE = PAGE === 'login' || PAGE === 'signup';
+const IS_PORTAL_PAGE = PAGE === 'student' || PAGE === 'admin';   // pages that need a login
 
 // The 4 portal pages
 const PAGES = {
@@ -89,6 +91,7 @@ let userState = { registered: [], saved: [] };  // the student's registered + sa
 // Portal pages: check the login, then load events and open the portal.
 document.addEventListener("DOMContentLoaded", () => {
   refreshIcons();
+  if (PAGE === 'reset') return initResetPage();   // reset-password.html (js/portal/reset.js)
   if (IS_AUTH_PAGE) {
     initAuthPage();
     // The form already calls handleAuthAction via its onsubmit attribute,
