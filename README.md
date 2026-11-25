@@ -79,8 +79,7 @@ Event Management/
 │   ├── event.js · user.js · registration.js · activity.js · request.js
 │   └── announcement.js · image.js · setting.js · subscriber.js · revoked-token.js
 │
-├── assets/                 Photos, videos and video poster images
-├── logo.svg · kdu-login.jpg
+├── assets/                 Logo, photos, videos and video poster images
 ├── .env                    SECRETS (database, Gmail, admin password) — never uploaded to GitHub
 ├── package.json            Server dependencies + "npm start"
 └── scripts/deploy-portal.sh   (optional) publish the portal to a subdomain — not used now

@@ -115,8 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // =============================================================================
 // 3. UPCOMING EVENTS FROM THE DATABASE
-// The same events the admin manages in the portal. If the server can't be
-// reached, the 3 cards written in index.html stay on the page instead.
+// The cards written in index.html are always shown (change their text/images
+// there). Events the admin adds in the portal are shown after them.
 // =============================================================================
 document.addEventListener('DOMContentLoaded', async () => {
   const grid = document.getElementById('homeEventsGrid');
@@ -142,8 +142,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const upcoming = events.filter(e => !(time(e) < now));
     events = (upcoming.length ? upcoming : events).sort((a, b) => (time(a) || 0) - (time(b) || 0)).slice(0, 6);
 
+    // The cards written by hand in index.html always stay (edit them there).
+    // Events from the database are added AFTER them, skipping any whose title
+    // already matches a hand-written card so nothing shows twice.
+    const htmlTitles = new Set(
+      [...grid.querySelectorAll('.card-title')].map(t => t.textContent.trim().toLowerCase())
+    );
+    events = events.filter(e => !htmlTitles.has(String(e.title || '').trim().toLowerCase()));
+    if (!events.length) return;
+
     // One card per event (same design as the cards written in index.html)
-    grid.innerHTML = events.map(e => {
+    grid.insertAdjacentHTML('beforeend', events.map(e => {
       const d = new Date(e.startsAt || e.date);
       const valid = !isNaN(d.getTime());
       const day = valid ? String(d.getDate()).padStart(2, '0') : '--';
@@ -170,13 +179,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             </div>
         </div>`;
-    }).join('');
+    }).join(''));
 
     // Re-apply the selected filter tab to the new cards
     const active = document.querySelector('.filter-tab.active');
     if (active) active.click();
   } catch (err) {
-    // Server unreachable: keep the built-in cards
+    // Server unreachable: only the hand-written cards are shown
   }
 });
 
@@ -351,4 +360,43 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && overlay.classList.contains('active')) closePopup();
   });
+});
+
+
+// =============================================================================
+// 8. SMOOTH SCROLL FOR NAV LINKS
+// Clicking "Upcoming", "Past Event", "About us" (navbar, footer, buttons) glides
+// down to the section instead of jumping, stopping just below the sticky header.
+// =============================================================================
+document.addEventListener('click', (e) => {
+  const link = e.target.closest('a[href^="#"]');
+  if (!link || e.defaultPrevented) return;
+  // Links that open a dropdown or pop-up handle themselves
+  if (link.classList.contains('dropdown-trigger') || link.getAttribute('role') === 'button') return;
+
+  const id = link.getAttribute('href').slice(1);
+  const target = id ? document.getElementById(id) : null;
+  if (id && !target) return;
+  e.preventDefault();
+
+  const header = document.querySelector('header');
+  const offset = header ? header.offsetHeight + 16 : 0;
+  const top = target ? target.getBoundingClientRect().top + window.scrollY - offset : 0;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({ top, behavior: reduceMotion ? 'auto' : 'smooth' });
+  history.replaceState(null, '', id ? '#' + id : location.pathname + location.search);
+
+  // Highlight the clicked navbar item
+  if (link.closest('#mainNav')) {
+    document.querySelectorAll('#mainNav a.active').forEach(a => a.classList.remove('active'));
+    link.classList.add('active');
+  }
+
+  // On phones, close the menu after choosing a section
+  const mainNav = document.getElementById('mainNav');
+  const icon = document.getElementById('hamburgerIcon');
+  if (mainNav && mainNav.classList.contains('active') && link.closest('#mainNav')) {
+    mainNav.classList.remove('active');
+    if (icon) { icon.classList.remove('fa-xmark'); icon.classList.add('fa-bars'); }
+  }
 });

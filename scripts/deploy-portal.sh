@@ -25,7 +25,8 @@ mkdir -p "$OUT/css" "$OUT/js/portal"
 cp "$ROOT/css/portal.css" "$OUT/css/"
 cp "$ROOT/js/config.js" "$OUT/js/"
 cp "$ROOT"/js/portal/*.js "$OUT/js/portal/"
-cp "$ROOT/logo.svg" "$ROOT/kdu-login.jpg" "$OUT/"
+mkdir -p "$OUT/assets"
+cp "$ROOT/assets/logo.svg" "$ROOT/assets/kdu-login.jpg" "$OUT/assets/"
 
 # The portal pages. Links back to "index.html" (the main site) must point to the main domain.
 for page in login signup student-portal admin-portal; do

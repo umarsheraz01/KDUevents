@@ -7,7 +7,7 @@
   index.html — HOMEPAGE (kduevents.co.kr)
 
   Sections (top to bottom): header & menu · hero video slider · featured event ·
-  upcoming events (loaded from the database) · stats · previously on campus ·
+  upcoming events (cards in this file + events from the database) · stats · previously on campus ·
   newsletter · footer
   Styles:  css/style.css
   Scripts: js/config.js (server address) → js/home.js (all homepage behavior)
@@ -36,7 +36,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -44,7 +44,7 @@
    <!-- Header Navigation -->
 <header>
     <a href="index.html" class="logo-container" aria-label="KDU Events home">
-        <div class="logo-badge"><img src="logo.svg" alt="kdu"></div>
+        <div class="logo-badge"><img src="assets/logo.svg" alt="kdu"></div>
         <div class="logo-text">KDU <span>EVENTS</span></div>
     </a>
 
@@ -174,7 +174,8 @@
         </div>
     </div>
 
-    <!-- 1. Events Grid Container (filled from the database; these cards are the offline fallback) -->
+    <!-- 1. Events Grid: edit these cards here (image = src, title, date, time, place, spots).
+         They always show. Events added by the admin in the portal appear after them. -->
     <div class="events-grid" id="homeEventsGrid">
         <!-- Event Card 1 -->
         <div class="event-card" data-category="technology">
@@ -287,7 +288,7 @@
         <div class="archive-grid">
             <div class="archive-card">
                 <div class="archive-img">
-                    <img src="sports.jpeg" alt="Sports">
+                    <img src="assets/sports.jpeg" alt="Sports">
                 </div>
                 <h3 class="archive-title">Sports Day 2026</h3>
                 <p class="archive-meta">May 08 &bull; 150 attendees</p>
@@ -366,7 +367,7 @@
         <!-- Column 1: Brand Info -->
         <div class="footer-col brand-col">
           <a href="index.html" class="footer-logo" aria-label="KDU Events home">
-            <img src="logo.svg" alt="KDU Logo" class="footer-logo-img">
+            <img src="assets/logo.svg" alt="KDU Logo" class="footer-logo-img">
             <span class="footer-logo-text">KDU <span>EVENTS</span></span>
           </a>
           <p class="footer-desc">
@@ -425,6 +426,6 @@
 
     <!-- JavaScript: server address first, then the homepage logic (js/home.js) -->
     <script src="js/config.js"></script>
-    <script src="js/home.js"></script>
+    <script src="js/home.js?v=2"></script>
 </body>
 </html>
