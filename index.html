@@ -175,8 +175,9 @@
     </div>
 
     <!-- 1. Events Grid: edit these cards here (image = src, title, date, time, place, spots).
-         They always show. Events added by the admin in the portal appear after them. -->
-    <div class="events-grid" id="homeEventsGrid">
+         They always show. Events added by the admin in the portal appear after them.
+         Only the first 3 are shown here (data-limit); "See all events" opens events.html with all of them. -->
+    <div class="events-grid" id="homeEventsGrid" data-limit="3">
         <!-- Event Card 1 -->
         <div class="event-card" data-category="technology">
             <div class="event-card-img-container">
@@ -249,6 +250,11 @@
             </div>
         </div>
     </div>
+
+    <!-- Shown by js/home.js only when there are more than 3 upcoming events -->
+    <div class="see-all-wrap">
+        <a href="events.html" class="see-all-btn" id="seeAllEvents" hidden>See all events <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
 </section>
 
     <!-- Stats Banner Section -->
@@ -275,7 +281,8 @@
         </div>
     </section>
 
-    <!-- Previously on Campus Section -->
+    <!-- Previously on Campus Section: the 3 newest past events from the database (js/home.js).
+         The cards below are only shown if the server cannot be reached. -->
     <section class="archive-section" id="past-events">
         <div class="archive-header">
             <div>
@@ -285,7 +292,7 @@
             <a href="past-events.html" class="view-archive-link">View archive <i class="fa-solid fa-arrow-right"></i></a>
         </div>
 
-        <div class="archive-grid">
+        <div class="archive-grid" id="homeArchiveGrid">
             <div class="archive-card">
                 <div class="archive-img">
                     <img src="assets/sports.jpeg" alt="Sports">
@@ -426,6 +433,6 @@
 
     <!-- JavaScript: server address first, then the homepage logic (js/home.js) -->
     <script src="js/config.js"></script>
-    <script src="js/home.js?v=2"></script>
+    <script src="js/home.js?v=4"></script>
 </body>
 </html>

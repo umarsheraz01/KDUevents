@@ -631,6 +631,47 @@ nav ul li a.active {
     display: none !important;
 }
 
+/* "See all events" button under the homepage grid (only shown when there are more than 3) */
+.see-all-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.see-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--primary-navy);
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 14px 32px;
+    border-radius: 50px;
+    box-shadow: 0 4px 12px rgba(11,25,44,0.15);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.see-all-btn:hover {
+    background: var(--accent-blue);
+    transform: translateY(-2px);
+}
+
+.see-all-btn[hidden] {
+    display: none;
+}
+
+/* events.html: the full list of upcoming events */
+.all-events-page {
+    padding-top: 60px;
+}
+
+.events-empty {
+    color: var(--text-muted);
+    text-align: center;
+    padding: 40px 0;
+}
+
 .event-card-img-container {
     position: relative;
     height: 220px;

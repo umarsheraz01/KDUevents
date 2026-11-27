@@ -6,9 +6,9 @@
   =============================================================================
   past-events.html — "EVENT ARCHIVE" PAGE (opened by "View archive" on the homepage)
   Every event that has already happened, with its photos.
-  To add a past event: copy one <article class="archive-item"> block below and
-  change the date, title, text, category (data-type) and photos (data-photos).
-  Events from the database whose date has passed are added automatically.
+  The list comes from the database (GET /api/events/past): every event whose
+  date has passed shows up here automatically, newest first.
+  The cards written below are only shown if the server cannot be reached.
   Styles: css/host-event.css + css/info-pages.css
   =============================================================================
 -->
@@ -260,12 +260,14 @@
       if (e.key === 'ArrowRight') step(1);
     });
 
-    // ---- Past events from the database (events whose date has passed) ----
+    // ---- All past events from the database (GET /api/events/past) ----
+    // Replaces the cards written above; they stay only if the server is unreachable.
     (async () => {
       if (!window.KDU_API_BASE) return;
       const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
       const origin = window.KDU_API_BASE.replace(/\/api\/?$/, '');
       const imageUrl = (src) => !src ? 'assets/logo.svg' : (String(src).startsWith('/api/images/') ? origin + src : src);
+      // Category name -> filter button (data-filter="…")
       const typeKey = (c) => {
         const s = String(c || '').toLowerCase();
         if (s.includes('sport')) return 'sports';
@@ -274,43 +276,39 @@
         return 'academic';
       };
       try {
-        const res = await fetch(`${window.KDU_API_BASE}/events`);
+        const res = await fetch(`${window.KDU_API_BASE}/events/past`);
         if (!res.ok) return;
         const events = await res.json();
         if (!Array.isArray(events)) return;
-        const now = Date.now();
-        const time = (e) => new Date(e.startsAt || e.date).getTime();
-        const known = new Set([...list.querySelectorAll('h3')].map(h => h.textContent.trim().toLowerCase()));
-        const past = events
-          .filter(e => time(e) < now && !known.has(String(e.title || '').trim().toLowerCase()))
-          .sort((a, b) => time(b) - time(a));
-        if (!past.length) return;
 
-        list.insertAdjacentHTML('afterbegin', past.map(e => {
-          const d = new Date(time(e));
-          const when = d.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
-          const img = esc(imageUrl(e.image));
-          const count = Number(e.registeredCount) || 0;
+        list.innerHTML = events.map(e => {
+          const d = new Date(e.startsAt || e.date);
+          const when = isNaN(d.getTime()) ? esc(e.date) : d.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
+          const photos = [...new Set([e.image, ...(Array.isArray(e.photos) ? e.photos : [])].filter(Boolean))].map(imageUrl);
+          const people = Number(e.attendees) || Number(e.registeredCount) || 0;
+          const count = photos.length > 1 ? `<span class="photo-count">${photos.length} photos</span>` : '';
           return `
-            <article class="archive-item" data-type="${typeKey(e.category)}" data-photos="${img}">
-              <button type="button" class="archive-thumb" aria-label="Open ${esc(e.title)} photo">
-                <img src="${img}" alt="${esc(e.title)}" loading="lazy">
+            <article class="archive-item" data-type="${typeKey(e.category)}" data-photos="${esc(photos.join('|'))}">
+              <button type="button" class="archive-thumb" aria-label="Open ${esc(e.title)} photos">
+                <img src="${esc(photos[0] || 'assets/logo.svg')}" alt="${esc(e.title)}" loading="lazy">
+                ${count}
               </button>
               <div class="archive-body">
                 <span class="society-tag">${esc(e.category || 'Event')}</span>
                 <h3>${esc(e.title)}</h3>
                 <p>${esc(e.description || '')}</p>
                 <div class="archive-facts">
-                  <span>📅 ${esc(when)}</span>
+                  <span>📅 ${when}</span>
                   ${e.venue ? `<span>📍 ${esc(e.venue)}</span>` : ''}
-                  ${count ? `<span>👥 ${count} registered</span>` : ''}
+                  ${people ? `<span>👥 ${people} attendees</span>` : ''}
                 </div>
               </div>
             </article>`;
-        }).join(''));
+        }).join('');
+        emptyMsg.textContent = events.length ? 'No past events in this category yet.' : 'No past events yet.';
         applyFilter();
       } catch (err) {
-        // Server unreachable: only the events written in this file are shown
+        // Server unreachable: the cards written in this file stay
       }
     })();
   </script>

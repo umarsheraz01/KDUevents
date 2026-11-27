@@ -2,6 +2,7 @@
 // routes/events.js — EVENT LISTING AND THE EVENT REGISTRATION FORM
 // -----------------------------------------------------------------------------
 // GET    /api/events                  list every event with "registeredCount" (public)
+// GET    /api/events/past?limit=3     events that are over, newest first (public; the archive)
 // POST   /api/events/:id/register     submit the registration form (signed-in students)
 // DELETE /api/events/:id/register     cancel a registration (signed-in students)
 // =============================================================================
@@ -9,7 +10,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
 
-const { dbOnline, STARTER_EVENTS } = require('../lib/db');
+const { dbOnline, STARTER_EVENTS, PAST_EVENTS } = require('../lib/db');
 const { requireAuth, publicUser } = require('../lib/auth');
 const { PHONE_RE, cleanText, logActivity, registrationCounts, eventsWithCounts } = require('../lib/helpers');
 const Event = require('../models/event');
@@ -27,6 +28,26 @@ router.get('/', async (req, res) => {
   res.json(STARTER_EVENTS.map((e, i) => ({ ...e, _id: String(i + 1), registeredCount: 0 })));
 });
 
+// ---- 1b. Past events (the archive) --------------------------------------------
+// Homepage "Previously on campus" asks for ?limit=3; past-events.html asks for all.
+router.get('/past', async (req, res) => {
+  const limit = Math.min(Math.max(Math.floor(Number(req.query.limit)) || 0, 0), 500);
+  const now = new Date();
+  try {
+    if (dbOnline()) {
+      const past = (await eventsWithCounts())
+        .filter(e => e.startsAt && new Date(e.startsAt) < now)
+        .sort((a, b) => new Date(b.startsAt) - new Date(a.startsAt));
+      return res.json(limit ? past.slice(0, limit) : past);
+    }
+  } catch (e) {
+    console.error('Past events error:', e.message);
+  }
+  // Database unreachable: show the built-in past events
+  const fallback = PAST_EVENTS.map((e, i) => ({ ...e, _id: 'past-' + (i + 1), registeredCount: 0 }));
+  res.json(limit ? fallback.slice(0, limit) : fallback);
+});
+
 // ---- 2. Registration form (submit) --------------------------------------------
 router.post('/:id/register', requireAuth, async (req, res) => {
   if (req.user.role === 'admin') return res.status(403).json({ message: 'The admin account cannot register for events.' });
@@ -36,6 +57,7 @@ router.post('/:id/register', requireAuth, async (req, res) => {
     if (!mongoose.isValidObjectId(id)) return res.status(404).json({ message: 'Event not found.' });
     const evt = await Event.findById(id).lean();
     if (!evt) return res.status(404).json({ message: 'Event not found.' });
+    if (evt.startsAt && new Date(evt.startsAt) < new Date()) return res.status(400).json({ message: 'This event has already taken place.' });
 
     // Read and check the form fields
     const name = cleanText(req.body.name, 100) || user.name;

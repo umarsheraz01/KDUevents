@@ -8,6 +8,7 @@
 // 5. "Coming soon" links         (menu links for pages that don't exist yet)
 // 6. Mobile menu button          (☰ / ✕ on phones)
 // 7. Featured event pop-up       (arrow on the featured banner → details + Register)
+// 8. Previously on campus        (the 3 newest past events from the database)
 //
 // Needs js/config.js first (it sets window.KDU_API_BASE = the server address).
 // =============================================================================
@@ -88,28 +89,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // =============================================================================
 // 2. EVENT CATEGORY FILTER (the tabs above "Upcoming events")
+// The grid's data-limit="3" (homepage) shows only the first 3 matching cards;
+// the "See all events" button appears when there are more and opens events.html.
+// events.html uses the same grid without a limit, so it shows every card.
 // =============================================================================
+function filterEventCards() {
+  const grid = document.getElementById('homeEventsGrid');
+  if (!grid) return;
+  const active = document.querySelector('.filter-tab.active');
+  const filterValue = active ? active.getAttribute('data-filter') : 'all';
+  const limit = Number(grid.dataset.limit) || Infinity;
+
+  // Look up the cards every time: some are loaded from the server after the page opens
+  let matched = 0;
+  grid.querySelectorAll('.event-card').forEach(card => {
+    const matches = filterValue === 'all' || card.getAttribute('data-category') === filterValue;
+    if (matches) matched++;
+    card.classList.toggle('hidden', !matches || matched > limit);
+  });
+
+  const seeAll = document.getElementById('seeAllEvents');
+  if (seeAll) seeAll.hidden = matched <= limit;
+  const empty = document.getElementById('eventsEmpty');
+  if (empty) empty.hidden = matched > 0 || !grid.dataset.loaded; // wait until the cards have loaded
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const filterTabs = document.querySelectorAll('.filter-tab');
-
   filterTabs.forEach(tab => {
     tab.addEventListener('click', function () {
       filterTabs.forEach(t => t.classList.remove('active'));
       this.classList.add('active');
-
-      const filterValue = this.getAttribute('data-filter');
-
-      // Look up the cards on every click: they are loaded from the server after the page opens
-      document.querySelectorAll('#homeEventsGrid .event-card').forEach(card => {
-        const cardCategory = card.getAttribute('data-category');
-        if (filterValue === 'all' || cardCategory === filterValue) {
-          card.classList.remove('hidden');
-        } else {
-          card.classList.add('hidden');
-        }
-      });
+      filterEventCards();
     });
   });
+  filterEventCards();
 });
 
 
@@ -130,17 +144,29 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Category name -> filter tab key (data-filter="…")
   const categoryKey = (c) => ({ 'Technology': 'technology', 'Arts & Culture': 'arts', 'Entrepreneurship': 'entrepreneurship' }[c] || String(c || 'other').toLowerCase().replace(/[^a-z]+/g, '-'));
 
+  // events.html: copy the hand-written cards from index.html first,
+  // so they only need to be edited in one place
+  if (grid.dataset.importFrom) {
+    try {
+      const html = await (await fetch(grid.dataset.importFrom)).text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      doc.querySelectorAll('#homeEventsGrid .event-card').forEach(card => grid.appendChild(document.importNode(card, true)));
+    } catch (err) { /* homepage could not be read */ }
+    grid.dataset.loaded = '1';
+    filterEventCards();
+  }
+
   try {
     const res = await fetch(`${window.KDU_API_BASE}/events`);
     if (!res.ok) return;
     let events = await res.json();
     if (!Array.isArray(events) || !events.length) return;
 
-    // Upcoming first (soonest at the top), at most 6 cards
+    // Only events that haven't happened yet (past ones are in the archive), soonest first.
+    // The homepage shows 3 of them; "See all events" opens events.html with the rest.
     const now = Date.now();
     const time = (e) => new Date(e.startsAt || e.date).getTime();
-    const upcoming = events.filter(e => !(time(e) < now));
-    events = (upcoming.length ? upcoming : events).sort((a, b) => (time(a) || 0) - (time(b) || 0)).slice(0, 6);
+    events = events.filter(e => !(time(e) < now)).sort((a, b) => (time(a) || 0) - (time(b) || 0));
 
     // The cards written by hand in index.html always stay (edit them there).
     // Events from the database are added AFTER them, skipping any whose title
@@ -181,9 +207,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>`;
     }).join(''));
 
-    // Re-apply the selected filter tab to the new cards
-    const active = document.querySelector('.filter-tab.active');
-    if (active) active.click();
+    // Re-apply the selected filter tab (and the 3-card limit) to the new cards
+    filterEventCards();
   } catch (err) {
     // Server unreachable: only the hand-written cards are shown
   }
@@ -398,5 +423,43 @@ document.addEventListener('click', (e) => {
   if (mainNav && mainNav.classList.contains('active') && link.closest('#mainNav')) {
     mainNav.classList.remove('active');
     if (icon) { icon.classList.remove('fa-xmark'); icon.classList.add('fa-bars'); }
+  }
+});
+
+
+// =============================================================================
+// 8. PREVIOUSLY ON CAMPUS
+// Shows the 3 newest past events from the database (GET /api/events/past?limit=3).
+// "View archive" opens past-events.html, which shows all of them.
+// If the server can't be reached, the cards written in index.html stay.
+// =============================================================================
+document.addEventListener('DOMContentLoaded', async () => {
+  const grid = document.getElementById('homeArchiveGrid');
+  if (!grid || !window.KDU_API_BASE) return;
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const origin = window.KDU_API_BASE.replace(/\/api\/?$/, '');
+  const imageUrl = (src) => !src ? 'assets/logo.svg' : (String(src).startsWith('/api/images/') ? origin + src : src);
+
+  try {
+    const res = await fetch(`${window.KDU_API_BASE}/events/past?limit=3`);
+    if (!res.ok) return;
+    const events = await res.json();
+    if (!Array.isArray(events) || !events.length) return;
+
+    grid.innerHTML = events.map(e => {
+      const d = new Date(e.startsAt || e.date);
+      const when = isNaN(d.getTime()) ? esc(e.date) : d.toLocaleDateString('en-US', { month: 'long', day: '2-digit' });
+      const people = Number(e.attendees) || Number(e.registeredCount) || 0;
+      return `
+            <a class="archive-card" href="past-events.html" style="text-decoration:none">
+                <div class="archive-img">
+                    <img src="${esc(imageUrl(e.image))}" alt="${esc(e.title)}" loading="lazy">
+                </div>
+                <h3 class="archive-title">${esc(e.title)}</h3>
+                <p class="archive-meta">${when}${people ? ` &bull; ${people} attendees` : ''}</p>
+            </a>`;
+    }).join('');
+  } catch (err) {
+    // Server unreachable: the hand-written cards stay
   }
 });

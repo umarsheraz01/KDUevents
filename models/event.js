@@ -12,7 +12,9 @@ const eventSchema = new mongoose.Schema({
   dept: String,         // organizing department
   seats: Number,        // total seats; registrations stop when full
   description: String,
-  image: String         // web link, or "/api/images/<id>" for an uploaded banner
+  image: String,        // web link, or "/api/images/<id>" for an uploaded banner
+  photos: [String],     // extra photos shown in the archive gallery once the event is over
+  attendees: Number     // how many people actually came (shown in the archive)
 }, { timestamps: true });
 
 module.exports = mongoose.model('Event', eventSchema);

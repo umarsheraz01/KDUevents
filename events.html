@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<!--
+
+  events.html — ALL UPCOMING EVENTS (opened by "See all events" on the homepage)
+
+  Shows every upcoming event: the hand-written cards from index.html (copied in
+  automatically, so edit them only in index.html) followed by the events the
+  admin adds in the portal. Past events are on past-events.html.
+  Styles:  css/style.css
+  Scripts: js/config.js (server address) → js/home.js (same card + filter logic as the homepage)
+
+-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Upcoming Events - KDU Events</title>
+    <meta name="description" content="Every upcoming event at Kyungdong University. Browse by category and register.">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+   <!-- Header Navigation -->
+<header>
+    <a href="index.html" class="logo-container" aria-label="KDU Events home">
+        <div class="logo-badge"><img src="assets/logo.svg" alt="kdu"></div>
+        <div class="logo-text">KDU <span>EVENTS</span></div>
+    </a>
+
+    <!-- Hamburger Toggle Button -->
+    <button type="button" class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle Navigation">
+        <i class="fa-solid fa-bars" id="hamburgerIcon"></i>
+    </button>
+
+    <!-- Main Mobile & Desktop Navigation -->
+    <nav id="mainNav">
+      <ul>
+        <li><a href="index.html">Discover</a></li>
+        <li><a href="events.html" class="active">Upcoming</a></li>
+        <li><a href="past-events.html">Past Event</a></li>
+        <li><a href="index.html#about">About us</a></li>
+        
+        <li class="nav-dropdown">
+          <a href="#" class="dropdown-trigger">Services <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; margin-left: 4px;"></i></a>
+          <ul class="dropdown-menu">
+            <li><a href="host-event.html" target="_blank" rel="noopener noreferrer">Host an Event</a></li>
+            <li><a href="venue.html" target="_blank" rel="noopener noreferrer">Book a Venue</a></li>
+            <li><a href="campus-societies.html" target="_blank" rel="noopener noreferrer">Campus Societies</a></li>
+            <li><a href="event-guidelines.html" target="_blank" rel="noopener noreferrer">Event Guidelines</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Navbar Auth Buttons -->
+    <div class="auth-buttons">
+      <a href="login.html" target="_blank" rel="noopener noreferrer" class="btn-login">Login</a>
+      <a href="signup.html" target="_blank" rel="noopener noreferrer" class="register-btn">Register now <i class="fa-solid fa-arrow-right" style="margin-left: 4px;"></i></a>
+    </div> 
+</header>
+
+    <section class="upcoming-section all-events-page">
+    <div class="section-header-flex">
+        <div>
+            <div class="hero-tag" style="margin-bottom: 8px;">Don't miss out</div>
+            <h2 class="section-title">All upcoming events</h2>
+        </div>
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">All events</button>
+            <button class="filter-tab" data-filter="technology">Technology</button>
+            <button class="filter-tab" data-filter="arts">Arts & Culture</button>
+            <button class="filter-tab" data-filter="entrepreneurship">Entrepreneurship</button>
+        </div>
+    </div>
+
+    <!-- Filled by js/home.js: cards copied from index.html, then events from the database -->
+    <div class="events-grid" id="homeEventsGrid" data-import-from="index.html"></div>
+    <p class="events-empty" id="eventsEmpty" hidden>No upcoming events in this category yet.</p>
+
+    <div class="see-all-wrap">
+        <a href="past-events.html" class="see-all-btn">Browse past events <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+</section>
+
+    <footer class="site-footer">
+      <div class="footer-container">
+        <!-- Column 1: Brand Info -->
+        <div class="footer-col brand-col">
+          <a href="index.html" class="footer-logo" aria-label="KDU Events home">
+            <img src="assets/logo.svg" alt="KDU Logo" class="footer-logo-img">
+            <span class="footer-logo-text">KDU <span>EVENTS</span></span>
+          </a>
+          <p class="footer-desc">
+            Your central hub for campus life, workshops, socials, and showcases at KDU.
+          </p>
+          <div class="social-links">
+            <a href="https://www.facebook.com/share/152xauW9gPp/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://instagram.com/kduglobal?xtok=MXdocmMwY2RnMDhtZA%3D%3D" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="https://youtube.com/@kduglobal9167?si=wUzcfqMv2EWZEq8n" target="_blank" rel="noopener noreferrer" aria-label="Youtube"><i class="fab fa-youtube"></i></a>
+            <a href="https://www.linkedin.com/company/kyungdong-university-global/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          </div>
+        </div>
+
+        <!-- Column 2: Quick Links -->
+        <div class="footer-col">
+          <h4>Navigation</h4>
+          <ul>
+            <li><a href="index.html">Discover</a></li>
+            <li><a href="index.html#upcoming">Upcoming Events</a></li>
+            <li><a href="past-events.html">Past Events</a></li>
+            <li><a href="index.html#about">About Us</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 3: Campus Services -->
+        <div class="footer-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="host-event.html" target="_blank" rel="noopener noreferrer">Host an Event</a></li>
+            <li><a href="venue.html" target="_blank" rel="noopener noreferrer">Book a Venue</a></li>
+            <li><a href="campus-societies.html" target="_blank" rel="noopener noreferrer">Campus Societies</a></li>
+            <li><a href="event-guidelines.html" target="_blank" rel="noopener noreferrer">Event Guidelines</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 4: Contact & Info -->
+        <div class="footer-col">
+          <h4>Contact Us</h4>
+          <ul class="contact-info">
+            <li><i class="fas fa-location-dot"></i> <a href="https://maps.app.goo.gl/5GgkygHVxvmTicVH9" target="_blank" rel="noopener noreferrer">International Office, Main Campus</a></li>
+            <li><i class="fas fa-envelope"></i> <a href="mailto:admin@kduevents.co.kr">admin@kduevents.co.kr</a></li>
+            <li><i class="fas fa-phone"></i> <a href="tel:+82336312000">+82 (033) 631-2000</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="footer-bottom">
+        <p>&copy; 2026 KDU Events. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/home.js?v=4"></script>
+</body>
+</html>
