@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KDU Events Portal - Admin</title>
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-  <link rel="stylesheet" href="css/portal.css?v=4">
+  <link rel="stylesheet" href="css/portal.css?v=5">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body data-page="admin">
@@ -120,14 +120,14 @@
           <div class="section-title">
             <span class="sub-eyebrow">Event Management</span>
             <h2>Manage events</h2>
-            <p>Publish new events for students and remove ones that are no longer running.</p>
+            <p>Publish new events for students, edit their details, and remove ones that are no longer running.</p>
           </div>
 
-          <div class="panel-card">
+          <div class="panel-card" id="adminEventPanel">
             <div class="section-head">
-              <h3>Create a new event</h3>
+              <h3 id="adminEventFormTitle">Create a new event</h3>
             </div>
-            <form id="adminEventForm" class="admin-form" onsubmit="handleCreateEvent(event)">
+            <form id="adminEventForm" class="admin-form" onsubmit="handleSaveEvent(event)">
               <p class="form-legend span-2">Fields marked <span class="required-mark">*</span> are required.</p>
               <div class="form-group span-2">
                 <label for="evTitle">Event title <span class="required-mark" aria-hidden="true">*</span></label>
@@ -183,7 +183,7 @@
                       <span id="bannerFileInfo"></span>
                       <div class="banner-preview-actions">
                         <button type="button" class="btn-gray flex-center" onclick="document.getElementById('evBannerFile').click()"><i data-lucide="refresh-cw"></i> Change</button>
-                        <button type="button" class="btn-danger flex-center" onclick="clearBanner()"><i data-lucide="trash-2"></i> Remove</button>
+                        <button type="button" id="bannerRemoveBtn" class="btn-danger flex-center" onclick="clearBanner()"><i data-lucide="trash-2"></i> Remove</button>
                       </div>
                     </div>
                   </div>
@@ -195,6 +195,7 @@
               </div>
               <p id="adminEventError" class="auth-error hidden span-2" role="alert"></p>
               <div class="span-2 form-actions">
+                <button type="button" id="adminEventCancel" class="btn-gray hidden" onclick="cancelEditEvent()">Cancel</button>
                 <button type="submit" id="adminEventSubmit" class="btn-primary flex-center"><i data-lucide="plus"></i> <span>Publish event</span></button>
               </div>
             </form>
@@ -339,7 +340,7 @@
   <script src="js/config.js?v=2"></script>
   <script src="js/portal/core.js?v=2"></script>        <!-- settings, shared state, helpers -->
   <script src="js/portal/auth.js?v=4"></script>        <!-- sign in / sign up / session -->
-  <script src="js/portal/navigation.js?v=3"></script>  <!-- sidebar, tabs, card buttons -->
-  <script src="js/portal/admin.js?v=5"></script>       <!-- admin portal + participant list -->
+  <script src="js/portal/navigation.js?v=4"></script>  <!-- sidebar, tabs, card buttons -->
+  <script src="js/portal/admin.js?v=6"></script>       <!-- admin portal + participant list -->
 </body>
 </html>

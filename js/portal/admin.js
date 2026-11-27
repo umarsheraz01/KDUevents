@@ -125,7 +125,8 @@ function renderAdminEvents() {
         <div class="progress"><div class="progress-bar ${pct >= 90 ? 'full' : ''}" style="width:${pct}%"></div></div>
         <div class="admin-card-actions">
           <button type="button" class="btn-gray flex-center" data-action="attendees" data-id="${id}"><i data-lucide="users"></i> Attendees</button>
-          <button type="button" class="btn-gray flex-center" data-action="change-poster" data-id="${id}"><i data-lucide="image"></i> Change poster</button>
+          <button type="button" class="btn-gray flex-center" data-action="edit-event" data-id="${id}"><i data-lucide="pencil"></i> Edit</button>
+          <button type="button" class="btn-gray flex-center" data-action="change-poster" data-id="${id}"><i data-lucide="image"></i> Poster</button>
           <button type="button" class="btn-danger flex-center" data-action="delete-event" data-id="${id}"><i data-lucide="trash-2"></i> Delete</button>
         </div>
       </div>`;
@@ -191,10 +192,79 @@ function renderAdminUpdates() {
 }
 
 // =============================================================================
-// 3. CREATING AND DELETING EVENTS (the "Create a new event" form)
+// 3. CREATING, EDITING AND DELETING EVENTS (the "Create a new event" form)
+// -----------------------------------------------------------------------------
+// The same form is used to edit: "Edit" on a card fills it in and switches the
+// button to "Save changes".
 // =============================================================================
 
-async function handleCreateEvent(e) {
+let editingEvent = null; // the event being edited, or null when creating
+
+// "2026-12-12T10:00" / "16:00" in the admin's local time, for the date inputs
+function toLocalInput(d) {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function startEditEvent(id) {
+  const evt = findEvent(id);
+  if (!evt) return;
+  editingEvent = evt;
+  const form = document.getElementById("adminEventForm");
+  form.reset();
+  pendingBanner = null;
+  document.getElementById("adminEventError").classList.add("hidden");
+
+  document.getElementById("evTitle").value = evt.title || '';
+  const cats = String(evt.category || '').split(',').map(c => c.trim());
+  document.querySelectorAll('input[name="evCategory"]').forEach(c => { c.checked = cats.includes(c.value); });
+  const start = evt.startsAt ? new Date(evt.startsAt) : null;
+  if (start && !isNaN(start.getTime())) document.getElementById("evDate").value = toLocalInput(start);
+  const end = evt.endsAt ? new Date(evt.endsAt) : null;
+  if (end && !isNaN(end.getTime())) document.getElementById("evEndTime").value = toLocalInput(end).slice(11);
+  document.getElementById("evVenue").value = evt.venue || '';
+  document.getElementById("evDept").value = evt.dept || '';
+  document.getElementById("evSeats").value = evt.seats || '';
+  document.getElementById("evDescription").value = evt.description || '';
+  showCurrentPoster();
+
+  document.getElementById("adminEventFormTitle").textContent = `Edit event: ${evt.title}`;
+  setEventSubmitLabel();
+  document.getElementById("adminEventCancel").classList.remove("hidden");
+  const panel = document.getElementById("adminEventPanel");
+  panel.classList.add("admin-event-panel-editing");
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById("evTitle").focus({ preventScroll: true });
+}
+
+function cancelEditEvent() {
+  editingEvent = null;
+  document.getElementById("adminEventForm").reset();
+  clearBanner();
+  document.getElementById("adminEventError").classList.add("hidden");
+  document.getElementById("adminEventFormTitle").textContent = "Create a new event";
+  setEventSubmitLabel();
+  document.getElementById("adminEventCancel").classList.add("hidden");
+  document.getElementById("adminEventPanel").classList.remove("admin-event-panel-editing");
+}
+
+function setEventSubmitLabel(text) {
+  const label = document.getElementById("adminEventSubmit").querySelector("span");
+  if (label) label.textContent = text || (editingEvent ? "Save changes" : "Publish event");
+}
+
+// While editing, the banner area shows the event's current poster
+function showCurrentPoster() {
+  if (!editingEvent || !editingEvent.image) return false;
+  document.getElementById("bannerPreviewImg").src = imageUrl(editingEvent.image);
+  document.getElementById("bannerFileInfo").textContent = "Current poster (choose an image or paste a link to replace it)";
+  document.getElementById("bannerEmpty").classList.add("hidden");
+  document.getElementById("bannerPreview").classList.remove("hidden");
+  document.getElementById("bannerRemoveBtn").classList.add("hidden");
+  return true;
+}
+
+async function handleSaveEvent(e) {
   e.preventDefault();
   const errEl = document.getElementById("adminEventError");
   errEl.classList.add("hidden");
@@ -240,12 +310,11 @@ async function handleCreateEvent(e) {
   };
 
   const btn = document.getElementById("adminEventSubmit");
-  const btnLabel = btn.querySelector("span");
   btn.disabled = true;
   try {
-    // 1) Upload the banner (if one was chosen), 2) create the event with it
+    // 1) Upload the banner (if one was chosen), 2) create / save the event with it
     if (pendingBanner) {
-      if (btnLabel) btnLabel.textContent = "Uploading banner…";
+      setEventSubmitLabel("Uploading banner…");
       const up = await apiFetch('/admin/images', { method: 'POST', body: JSON.stringify({ image: pendingBanner.dataUrl }) });
       if (!up.ok) {
         errEl.textContent = up.data.message || "Couldn't upload the banner image.";
@@ -254,23 +323,25 @@ async function handleCreateEvent(e) {
       }
       body.image = up.data.url;
     }
-    if (btnLabel) btnLabel.textContent = "Publishing…";
-    const { ok, data } = await apiFetch('/admin/events', { method: 'POST', body: JSON.stringify(body) });
+    const editing = editingEvent;
+    setEventSubmitLabel(editing ? "Saving…" : "Publishing…");
+    const { ok, data } = editing
+      ? await apiFetch(`/admin/events/${encodeURIComponent(eventId(editing))}`, { method: 'PUT', body: JSON.stringify(body) })
+      : await apiFetch('/admin/events', { method: 'POST', body: JSON.stringify(body) });
     if (!ok) {
-      errEl.textContent = data.message || "Couldn't create the event.";
+      errEl.textContent = data.message || (editing ? "Couldn't save the changes." : "Couldn't create the event.");
       errEl.classList.remove("hidden");
       return;
     }
-    document.getElementById("adminEventForm").reset();
-    clearBanner();
-    showToast(`"${data.title}" is now live for students.`);
+    cancelEditEvent(); // back to an empty "Create a new event" form
+    showToast(editing ? `Changes to "${data.title}" are saved.` : `"${data.title}" is now live for students.`);
     await loadAdminData();
   } catch (err) {
     errEl.textContent = "Couldn't reach the server. Please try again.";
     errEl.classList.remove("hidden");
   } finally {
     btn.disabled = false;
-    if (btnLabel) btnLabel.textContent = "Publish event";
+    setEventSubmitLabel();
   }
 }
 
@@ -342,6 +413,7 @@ async function handleBannerFile(file) {
     document.getElementById("bannerFileInfo").textContent = `${file.name} • ${prepared.width}×${prepared.height} • ${formatBytes(prepared.bytes)}`;
     document.getElementById("bannerEmpty").classList.add("hidden");
     document.getElementById("bannerPreview").classList.remove("hidden");
+    document.getElementById("bannerRemoveBtn").classList.remove("hidden");
     document.getElementById("evImage").value = ''; // the upload replaces any pasted link
     refreshIcons();
   } catch (e) {
@@ -353,6 +425,7 @@ async function handleBannerFile(file) {
 
 function clearBanner() {
   pendingBanner = null;
+  if (showCurrentPoster()) return; // editing: go back to the current poster
   const img = document.getElementById("bannerPreviewImg");
   if (img) img.src = '';
   document.getElementById("bannerPreview")?.classList.add("hidden");
@@ -361,7 +434,15 @@ function clearBanner() {
 
 // Pasting a link removes a chosen upload (only one banner per event)
 function handleImageLinkInput() {
-  if (pendingBanner && document.getElementById("evImage").value.trim()) clearBanner();
+  const link = document.getElementById("evImage").value.trim();
+  if (pendingBanner && link) clearBanner();
+  // Editing: preview the pasted link in place of the current poster
+  if (editingEvent) {
+    if (/^https?:\/\//i.test(link)) {
+      document.getElementById("bannerPreviewImg").src = link;
+      document.getElementById("bannerFileInfo").textContent = "New poster from the pasted link";
+    } else if (!link) showCurrentPoster();
+  }
 }
 
 // Drag & drop onto the banner area
@@ -392,6 +473,7 @@ async function handleDeleteEvent(id) {
   try {
     const { ok, data } = await apiFetch(`/admin/events/${encodeURIComponent(id)}`, { method: 'DELETE' });
     if (!ok) return showToast(data.message || "Couldn't delete the event.", true);
+    if (editingEvent && eventId(editingEvent) === id) cancelEditEvent();
     showToast(`"${evt.title}" was deleted.`);
     await loadAdminData();
   } catch (e) {

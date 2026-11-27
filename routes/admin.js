@@ -9,6 +9,7 @@
 // GET    /api/admin/activity                activity log
 // POST   /api/admin/events                  create an event
 // DELETE /api/admin/events/:id              delete an event (+ its registrations and banner)
+// PUT    /api/admin/events/:id              edit an event (date, details, poster…)
 // PATCH  /api/admin/events/:id/image        change an event's poster
 // GET    /api/admin/events/:id/attendees    PARTICIPANT LIST for one event
 // POST   /api/admin/images                  upload an event banner
@@ -81,42 +82,86 @@ router.get('/activity', async (req, res) => {
 });
 
 // =============================================================================
-// EVENTS: CREATE, DELETE, PARTICIPANT LIST
+// EVENTS: CREATE, EDIT, DELETE, PARTICIPANT LIST
 // =============================================================================
+// Reads and checks the event form. Returns { error } or { fields }.
+// When editing, an empty image means "keep the current poster".
+function readEventFields(body, editing) {
+  const title = cleanText(body.title, 150);
+  // One or more categories separated by commas, e.g. "Technology, Academic"
+  const category = cleanText(body.category, 200).split(',').map(c => c.trim()).filter(Boolean).join(', ');
+  const venue = cleanText(body.venue, 120);
+  const dept = cleanText(body.dept, 120);
+  const description = cleanText(body.description, 2000);
+  const seats = Math.floor(Number(body.seats));
+  const startsAt = new Date(body.startsAt);
+  // End time is optional; when given it must be after the start
+  const endsAt = body.endsAt ? new Date(body.endsAt) : null;
+  let image = cleanText(body.image, 1000);
+
+  if (!title) return { error: 'Please enter an event title.' };
+  if (!category) return { error: 'Please choose a category.' };
+  if (isNaN(startsAt.getTime())) return { error: 'Please choose a valid date and time.' };
+  if (endsAt && (isNaN(endsAt.getTime()) || endsAt <= startsAt)) return { error: 'The end time must be later than the start time.' };
+  if (!venue) return { error: 'Please enter a venue.' };
+  if (!dept) return { error: 'Please enter the department or organizer.' };
+  if (!Number.isFinite(seats) || seats < 1 || seats > 100000) return { error: 'Seats must be a number between 1 and 100000.' };
+  if (!description) return { error: 'Please enter a description.' };
+  // Banner: an uploaded image ("/api/images/<id>") or a web link
+  const uploaded = /^\/api\/images\/[a-f0-9]{24}$/.test(image);
+  if (image && !uploaded && !/^https?:\/\//i.test(image)) return { error: 'Image must be an uploaded picture or a web address starting with http:// or https://' };
+  if (!image && !editing) image = DEFAULT_IMAGE;
+
+  const date = cleanText(body.date, 60) || startsAt.toUTCString();
+  const fields = { title, category, date, startsAt, endsAt, venue, dept, seats, description };
+  if (image) fields.image = image;
+  return { fields };
+}
+
+// Removes an uploaded banner from the database (web links are left alone)
+async function deleteUploadedImage(src) {
+  const match = /^\/api\/images\/([a-f0-9]{24})$/.exec(src || '');
+  if (match) await Image.findByIdAndDelete(match[1]).catch(() => {});
+}
+
 router.post('/events', async (req, res) => {
   try {
-    const title = cleanText(req.body.title, 150);
-    // One or more categories separated by commas, e.g. "Technology, Academic"
-    const category = cleanText(req.body.category, 200).split(',').map(c => c.trim()).filter(Boolean).join(', ');
-    const venue = cleanText(req.body.venue, 120);
-    const dept = cleanText(req.body.dept, 120);
-    const description = cleanText(req.body.description, 2000);
-    const seats = Math.floor(Number(req.body.seats));
-    const startsAt = new Date(req.body.startsAt);
-    // End time is optional; when given it must be after the start
-    const endsAt = req.body.endsAt ? new Date(req.body.endsAt) : null;
-    let image = cleanText(req.body.image, 1000);
-
-    if (!title) return res.status(400).json({ message: 'Please enter an event title.' });
-    if (!category) return res.status(400).json({ message: 'Please choose a category.' });
-    if (isNaN(startsAt.getTime())) return res.status(400).json({ message: 'Please choose a valid date and time.' });
-    if (endsAt && (isNaN(endsAt.getTime()) || endsAt <= startsAt)) return res.status(400).json({ message: 'The end time must be later than the start time.' });
-    if (!venue) return res.status(400).json({ message: 'Please enter a venue.' });
-    if (!dept) return res.status(400).json({ message: 'Please enter the department or organizer.' });
-    if (!Number.isFinite(seats) || seats < 1 || seats > 100000) return res.status(400).json({ message: 'Seats must be a number between 1 and 100000.' });
-    // Banner: an uploaded image ("/api/images/<id>") or a web link
-    const uploaded = /^\/api\/images\/[a-f0-9]{24}$/.test(image);
-    if (!description) return res.status(400).json({ message: 'Please enter a description.' });
-    if (image && !uploaded && !/^https?:\/\//i.test(image)) return res.status(400).json({ message: 'Image must be an uploaded picture or a web address starting with http:// or https://' });
-    if (!image) image = DEFAULT_IMAGE;
-
-    const date = cleanText(req.body.date, 60) || startsAt.toUTCString();
-    const evt = await Event.create({ title, category, date, startsAt, endsAt: endsAt || undefined, venue, dept, seats, description, image });
-    logActivity('event_created', req.user, `Admin created the event "${title}"`, evt._id);
+    const { error, fields } = readEventFields(req.body, false);
+    if (error) return res.status(400).json({ message: error });
+    const evt = await Event.create({ ...fields, endsAt: fields.endsAt || undefined });
+    logActivity('event_created', req.user, `Admin created the event "${fields.title}"`, evt._id);
     res.status(201).json({ ...evt.toObject(), _id: String(evt._id), registeredCount: 0 });
   } catch (err) {
     console.error('Create event error:', err.message);
     res.status(500).json({ message: 'Could not create the event.' });
+  }
+});
+
+// EDIT AN EVENT: same fields as creating one
+router.put('/events/:id', async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ message: 'Event not found.' });
+    const { error, fields } = readEventFields(req.body, true);
+    if (error) return res.status(400).json({ message: error });
+
+    const evt = await Event.findById(req.params.id);
+    if (!evt) return res.status(404).json({ message: 'Event not found.' });
+    // Seats can't go below the number of students already registered
+    const registered = await User.countDocuments({ registered: String(evt._id) });
+    if (fields.seats < registered) return res.status(400).json({ message: `${registered} students are already registered, so seats can't be lower than ${registered}.` });
+
+    const oldImage = evt.image;
+    const { endsAt, ...rest } = fields;
+    evt.set(rest);
+    evt.endsAt = endsAt || undefined;
+    await evt.save();
+    if (fields.image && fields.image !== oldImage) await deleteUploadedImage(oldImage);
+
+    logActivity('event_updated', req.user, `Admin edited the event "${evt.title}"`, evt._id);
+    res.json({ ...evt.toObject(), _id: String(evt._id), registeredCount: registered });
+  } catch (err) {
+    console.error('Edit event error:', err.message);
+    res.status(500).json({ message: 'Could not save the event.' });
   }
 });
 
@@ -129,8 +174,7 @@ router.delete('/events/:id', async (req, res) => {
     // Clean up everything that pointed to this event
     await User.updateMany({}, { $pull: { registered: id, saved: id } });
     await Registration.deleteMany({ eventId: id });
-    const imageMatch = /^\/api\/images\/([a-f0-9]{24})$/.exec(evt.image || '');
-    if (imageMatch) await Image.findByIdAndDelete(imageMatch[1]).catch(() => {});
+    await deleteUploadedImage(evt.image);
     logActivity('event_deleted', req.user, `Admin deleted the event "${evt.title}"`, id);
     res.json({ message: 'Event deleted' });
   } catch (err) {
@@ -155,8 +199,7 @@ router.patch('/events/:id/image', async (req, res) => {
     evt.image = image;
     await evt.save();
 
-    const oldMatch = /^\/api\/images\/([a-f0-9]{24})$/.exec(oldImage);
-    if (oldMatch && oldImage !== image) await Image.findByIdAndDelete(oldMatch[1]).catch(() => {});
+    if (oldImage !== image) await deleteUploadedImage(oldImage);
     logActivity('event_updated', req.user, `Admin changed the poster of "${evt.title}"`, evt._id);
     res.json({ _id: String(evt._id), image: evt.image });
   } catch (err) {
