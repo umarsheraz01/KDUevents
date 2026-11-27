@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Uploaded banners are stored on the server as "/api/images/<id>"
   const imageUrl = (src) => !src ? 'assets/WhatsApp Image 2026-10-12 at 11.01.35.jpeg' : (String(src).startsWith('/api/images/') ? origin + src : src);
   // Category name -> filter tab key (data-filter="…")
-  const categoryKey = (c) => ({ 'Technology': 'technology', 'Arts & Culture': 'arts', 'Entrepreneurship': 'entrepreneurship' }[c] || String(c || 'other').toLowerCase().replace(/[^a-z]+/g, '-'));
+  const categoryKey = (c) => ({ 'Technology': 'technology', 'Arts & Culture': 'arts', 'Entrepreneurship': 'entrepreneurship', 'Academic': 'academic' }[c] || String(c || 'other').toLowerCase().replace(/[^a-z]+/g, '-'));
 
   // events.html: copy the hand-written cards from index.html first,
   // so they only need to be edited in one place
