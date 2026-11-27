@@ -124,9 +124,8 @@ function renderAdminEvents() {
         <div class="capacity-top"><span>Registered</span><span>${taken}/${total}</span></div>
         <div class="progress"><div class="progress-bar ${pct >= 90 ? 'full' : ''}" style="width:${pct}%"></div></div>
         <div class="admin-card-actions">
-          <button type="button" class="btn-gray flex-center" data-action="attendees" data-id="${id}"><i data-lucide="users"></i> Attendees</button>
           <button type="button" class="btn-gray flex-center" data-action="edit-event" data-id="${id}"><i data-lucide="pencil"></i> Edit</button>
-          <button type="button" class="btn-gray flex-center" data-action="change-poster" data-id="${id}"><i data-lucide="image"></i> Poster</button>
+          <button type="button" class="btn-gray flex-center" data-action="attendees" data-id="${id}"><i data-lucide="users"></i> Attendees</button>
           <button type="button" class="btn-danger flex-center" data-action="delete-event" data-id="${id}"><i data-lucide="trash-2"></i> Delete</button>
         </div>
       </div>`;
@@ -481,98 +480,6 @@ async function handleDeleteEvent(id) {
   }
 }
 
-// ---- Change an event's poster (the "Change poster" button on each card) ----
-let posterEdit = { id: null, pending: null }; // pending = prepared upload { dataUrl, ... }
-
-function openPosterModal(id) {
-  const evt = findEvent(id);
-  if (!evt) return;
-  posterEdit = { id, pending: null };
-  document.getElementById("posterTitle").textContent = evt.title;
-  document.getElementById("posterPreviewImg").src = imageUrl(evt.image);
-  document.getElementById("posterFileInfo").textContent = "Current poster";
-  document.getElementById("posterLink").value = '';
-  document.getElementById("posterError").classList.add("hidden");
-  document.getElementById("posterSaveBtn").disabled = true;
-  document.getElementById("posterModal").classList.remove("hidden");
-  refreshIcons();
-}
-
-function closePosterModal() {
-  document.getElementById("posterModal")?.classList.add("hidden");
-  posterEdit = { id: null, pending: null };
-}
-
-function showPosterError(msg) {
-  const el = document.getElementById("posterError");
-  el.textContent = msg;
-  el.classList.remove("hidden");
-}
-
-async function handlePosterFile(file) {
-  document.getElementById("posterError").classList.add("hidden");
-  if (!file) return;
-  try {
-    if (!BANNER_TYPES.includes(file.type)) return showPosterError("Please choose a JPG, PNG, WebP or GIF image.");
-    if (file.size > MAX_BANNER_SOURCE_BYTES) return showPosterError("That image is larger than 10 MB. Please choose a smaller one.");
-    const prepared = await prepareBanner(file);
-    if (prepared.bytes > 2.5 * 1024 * 1024) return showPosterError("That image is still too large after resizing. Please choose a smaller one.");
-    posterEdit.pending = prepared;
-    document.getElementById("posterPreviewImg").src = prepared.dataUrl;
-    document.getElementById("posterFileInfo").textContent = `New: ${file.name} • ${prepared.width}×${prepared.height} • ${formatBytes(prepared.bytes)}`;
-    document.getElementById("posterLink").value = ''; // the upload replaces any pasted link
-    document.getElementById("posterSaveBtn").disabled = false;
-  } catch (e) {
-    showPosterError(e.message || "Couldn't read that image.");
-  } finally {
-    document.getElementById("posterFile").value = ''; // allow choosing the same file again
-  }
-}
-
-// Pasting a link replaces a chosen upload and previews the link
-function handlePosterLinkInput() {
-  const link = document.getElementById("posterLink").value.trim();
-  document.getElementById("posterError").classList.add("hidden");
-  if (link) {
-    posterEdit.pending = null;
-    if (/^https?:\/\//i.test(link)) document.getElementById("posterPreviewImg").src = link;
-    document.getElementById("posterFileInfo").textContent = "New: image link";
-  }
-  document.getElementById("posterSaveBtn").disabled = !link && !posterEdit.pending;
-}
-
-async function savePoster() {
-  const { id, pending } = posterEdit;
-  const evt = findEvent(id);
-  if (!evt) return;
-  let image = document.getElementById("posterLink").value.trim();
-  if (!pending && !image) return showPosterError("Choose an image or paste a link first.");
-  if (!pending && !/^https?:\/\//i.test(image)) return showPosterError("The link must start with http:// or https://");
-
-  const btn = document.getElementById("posterSaveBtn");
-  const label = btn.querySelector("span");
-  btn.disabled = true;
-  try {
-    if (pending) {
-      if (label) label.textContent = "Uploading…";
-      const up = await apiFetch('/admin/images', { method: 'POST', body: JSON.stringify({ image: pending.dataUrl }) });
-      if (!up.ok) return showPosterError(up.data.message || "Couldn't upload the poster.");
-      image = up.data.url;
-    }
-    if (label) label.textContent = "Saving…";
-    const { ok, data } = await apiFetch(`/admin/events/${encodeURIComponent(id)}/image`, { method: 'PATCH', body: JSON.stringify({ image }) });
-    if (!ok) return showPosterError(data.message || "Couldn't change the poster.");
-    closePosterModal();
-    showToast(`Poster updated for "${evt.title}".`);
-    await loadAdminData();
-  } catch (e) {
-    showPosterError("Couldn't reach the server. Please try again.");
-  } finally {
-    btn.disabled = false;
-    if (label) label.textContent = "Save poster";
-  }
-}
-
 // =============================================================================
 // 5. PARTICIPANT LIST + CSV DOWNLOAD (the "Attendees" button)
 // =============================================================================
@@ -687,7 +594,7 @@ async function handleDeleteUpdate(id) {
   }
 }
 
-// Close the participant list / poster window with the Escape key
+// Close the participant list with the Escape key
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { closeAttendeesModal(); closePosterModal(); }
+  if (e.key === 'Escape') closeAttendeesModal();
 });

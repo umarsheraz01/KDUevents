@@ -1721,10 +1721,5 @@ a.sidebar-brand:hover .brand-title { opacity: 0.85; }
 .pass-toggle:focus-visible { outline: 2px solid #0056b3; outline-offset: 1px; }
 .pass-toggle svg { width: 18px; height: 18px; }
 
-/* Admin: "Change poster" window */
-.poster-edit { margin-top: 12px; border-style: solid; }
-.poster-link-group { margin-top: 14px; }
-.poster-edit + .poster-link-group + .auth-error,
-#posterModal .form-actions { margin-top: 14px; }
-#posterModal .form-actions { display: flex; justify-content: flex-end; gap: 8px; }
 .admin-event-panel-editing { box-shadow: 0 0 0 2px #0056b3; }
+.admin-card-actions [data-action="delete-event"] { grid-column: 1 / -1; }
