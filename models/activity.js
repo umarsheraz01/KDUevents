@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 
 const activitySchema = new mongoose.Schema({
   // signup, login, admin_login, register, cancel, save,
-  // event_created, event_deleted, update_posted, update_deleted
+  // event_created, event_updated, event_deleted, update_posted, update_deleted
   type: String,
   actorName: String,
   actorEmail: String,

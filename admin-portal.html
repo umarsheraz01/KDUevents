@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KDU Events Portal - Admin</title>
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-  <link rel="stylesheet" href="css/portal.css?v=3">
+  <link rel="stylesheet" href="css/portal.css?v=4">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body data-page="admin">
@@ -302,6 +302,36 @@
     </div>
   </div>
 
+  <!-- ADMIN: CHANGE AN EVENT'S POSTER -->
+  <div id="posterModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <button type="button" onclick="closePosterModal()" class="close-btn" aria-label="Close"><i data-lucide="x"></i></button>
+      <span class="eyebrow-red">Change poster</span>
+      <h3 id="posterTitle">Event</h3>
+      <div class="banner-upload poster-edit">
+        <input type="file" id="posterFile" accept="image/jpeg,image/png,image/webp,image/gif" class="visually-hidden" onchange="handlePosterFile(this.files[0])">
+        <div class="banner-preview">
+          <img id="posterPreviewImg" src="" alt="Poster preview">
+          <div class="banner-preview-bar">
+            <span id="posterFileInfo">Current poster</span>
+            <div class="banner-preview-actions">
+              <button type="button" class="btn-gray flex-center" onclick="document.getElementById('posterFile').click()"><i data-lucide="upload"></i> Choose image</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group poster-link-group">
+        <label for="posterLink">Or paste an image link</label>
+        <input type="url" id="posterLink" maxlength="1000" placeholder="https://…" oninput="handlePosterLinkInput()">
+      </div>
+      <p id="posterError" class="auth-error hidden" role="alert"></p>
+      <div class="form-actions">
+        <button type="button" class="btn-gray" onclick="closePosterModal()">Cancel</button>
+        <button type="button" id="posterSaveBtn" class="btn-primary flex-center" onclick="savePoster()" disabled><i data-lucide="check"></i> <span>Save poster</span></button>
+      </div>
+    </div>
+  </div>
+
   <!-- Small confirmation message -->
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
@@ -309,7 +339,7 @@
   <script src="js/config.js?v=2"></script>
   <script src="js/portal/core.js?v=2"></script>        <!-- settings, shared state, helpers -->
   <script src="js/portal/auth.js?v=4"></script>        <!-- sign in / sign up / session -->
-  <script src="js/portal/navigation.js?v=2"></script>  <!-- sidebar, tabs, card buttons -->
-  <script src="js/portal/admin.js?v=4"></script>       <!-- admin portal + participant list -->
+  <script src="js/portal/navigation.js?v=3"></script>  <!-- sidebar, tabs, card buttons -->
+  <script src="js/portal/admin.js?v=5"></script>       <!-- admin portal + participant list -->
 </body>
 </html>

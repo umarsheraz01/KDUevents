@@ -9,6 +9,7 @@
 // GET    /api/admin/activity                activity log
 // POST   /api/admin/events                  create an event
 // DELETE /api/admin/events/:id              delete an event (+ its registrations and banner)
+// PATCH  /api/admin/events/:id/image        change an event's poster
 // GET    /api/admin/events/:id/attendees    PARTICIPANT LIST for one event
 // POST   /api/admin/images                  upload an event banner
 // POST   /api/admin/announcements           send an update to all students
@@ -135,6 +136,32 @@ router.delete('/events/:id', async (req, res) => {
   } catch (err) {
     console.error('Delete event error:', err.message);
     res.status(500).json({ message: 'Could not delete the event.' });
+  }
+});
+
+// CHANGE POSTER   Body: { image: "/api/images/<id>" or "https://..." }
+// The old uploaded poster (if any) is removed so it doesn't take up space.
+router.patch('/events/:id/image', async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ message: 'Event not found.' });
+    const image = cleanText(req.body.image, 1000);
+    const uploaded = /^\/api\/images\/[a-f0-9]{24}$/.test(image);
+    if (!image) return res.status(400).json({ message: 'Please choose a poster image.' });
+    if (!uploaded && !/^https?:\/\//i.test(image)) return res.status(400).json({ message: 'Image must be an uploaded picture or a web address starting with http:// or https://' });
+
+    const evt = await Event.findById(req.params.id);
+    if (!evt) return res.status(404).json({ message: 'Event not found.' });
+    const oldImage = evt.image || '';
+    evt.image = image;
+    await evt.save();
+
+    const oldMatch = /^\/api\/images\/([a-f0-9]{24})$/.exec(oldImage);
+    if (oldMatch && oldImage !== image) await Image.findByIdAndDelete(oldMatch[1]).catch(() => {});
+    logActivity('event_updated', req.user, `Admin changed the poster of "${evt.title}"`, evt._id);
+    res.json({ _id: String(evt._id), image: evt.image });
+  } catch (err) {
+    console.error('Change poster error:', err.message);
+    res.status(500).json({ message: 'Could not change the poster.' });
   }
 });
 

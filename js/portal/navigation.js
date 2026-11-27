@@ -65,6 +65,7 @@ document.addEventListener('click', (e) => {
   if (!btn) return;
   if (btn.dataset.action === 'delete-event') return handleDeleteEvent(btn.dataset.id);
   if (btn.dataset.action === 'attendees') return openAttendeesModal(btn.dataset.id);
+  if (btn.dataset.action === 'change-poster') return openPosterModal(btn.dataset.id);
   if (btn.dataset.action === 'delete-update') return handleDeleteUpdate(btn.dataset.id);
   const evt = findEvent(btn.dataset.id);
   if (!evt) return;
