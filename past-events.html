@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<!--
+  =============================================================================
+  past-events.html — "EVENT ARCHIVE" PAGE (opened by "View archive" on the homepage)
+  Every event that has already happened, with its photos.
+  To add a past event: copy one <article class="archive-item"> block below and
+  change the date, title, text, category (data-type) and photos (data-photos).
+  Events from the database whose date has passed are added automatically.
+  Styles: css/host-event.css + css/info-pages.css
+  =============================================================================
+-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Archive - KDU Events</title>
+  <meta name="description" content="Look back at past events at Kyungdong University: sports days, cultural days, community clean-ups and more.">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+  <link rel="stylesheet" href="css/host-event.css">
+  <link rel="stylesheet" href="css/info-pages.css">
+  <link rel="stylesheet" href="css/light-theme.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="navbar-header">
+    <div class="nav-container">
+      <a href="index.html" class="brand-logo">
+        <img src="assets/logo.svg" alt="KDU Logo" class="logo-img">
+        <span class="logo-text">KDU <span class="logo-highlight">EVENTS</span></span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html">Discover</a>
+        <a href="index.html#upcoming">Upcoming</a>
+        <a href="past-events.html">Past events</a>
+        <a href="index.html#about">About us</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="host-event.html" class="btn-register-header">Host Event &rarr;</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="host-hero">
+    <span class="badge-tag">Event Archive</span>
+    <h1 class="hero-title">The Moments <span class="text-red">We Made</span></h1>
+    <p class="hero-subtitle">Every event that has already happened at KDU, with photos from the day.</p>
+  </section>
+
+  <main class="info-container">
+    <div class="info-card">
+
+      <div class="form-header">
+        <h2>Previously on Campus</h2>
+        <p>Browse past events by type. Click a photo to see the whole gallery.</p>
+      </div>
+
+      <!-- Filter buttons -->
+      <div class="filter-bar" role="group" aria-label="Filter past events">
+        <button type="button" class="filter-btn active" data-filter="all">All</button>
+        <button type="button" class="filter-btn" data-filter="sports">Sports</button>
+        <button type="button" class="filter-btn" data-filter="culture">Arts &amp; Culture</button>
+        <button type="button" class="filter-btn" data-filter="community">Community</button>
+        <button type="button" class="filter-btn" data-filter="academic">Academic</button>
+      </div>
+
+      <!-- Past event cards (newest first) -->
+      <div class="archive-list" id="archiveList">
+
+        <article class="archive-item" data-type="culture"
+                 data-photos="assets/matric 2.jpeg|assets/matri 1.jpeg|assets/matri 3.jpeg">
+          <button type="button" class="archive-thumb" aria-label="Open Cultural Day photos">
+            <img src="assets/matric 2.jpeg" alt="Cultural Day" loading="lazy">
+            <span class="photo-count">3 photos</span>
+          </button>
+          <div class="archive-body">
+            <span class="society-tag">Arts &amp; Culture</span>
+            <h3>Cultural Day</h3>
+            <p>Students from around the world shared their food, music, and traditional dress on the main campus.</p>
+            <div class="archive-facts">
+              <span>📅 September 10, 2026</span>
+              <span>👥 312 attendees</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="archive-item" data-type="community"
+                 data-photos="assets/envirn 2.jpeg|assets/environ 1.jpeg|assets/environ 3.jpeg">
+          <button type="button" class="archive-thumb" aria-label="Open Environment Cleaning Day photos">
+            <img src="assets/envirn 2.jpeg" alt="Environment Cleaning Day" loading="lazy">
+            <span class="photo-count">3 photos</span>
+          </button>
+          <div class="archive-body">
+            <span class="society-tag">Community</span>
+            <h3>Environment Cleaning Day</h3>
+            <p>Volunteers cleaned up the campus and the surrounding neighbourhood to keep KDU green.</p>
+            <div class="archive-facts">
+              <span>📅 June 08, 2026</span>
+              <span>👥 240 attendees</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="archive-item" data-type="sports"
+                 data-photos="assets/sports.jpeg">
+          <button type="button" class="archive-thumb" aria-label="Open Sports Day 2026 photos">
+            <img src="assets/sports.jpeg" alt="Sports Day 2026" loading="lazy">
+            <span class="photo-count">1 photo</span>
+          </button>
+          <div class="archive-body">
+            <span class="society-tag">Sports</span>
+            <h3>Sports Day 2026</h3>
+            <p>A full day of football, relay races, and team games between departments.</p>
+            <div class="archive-facts">
+              <span>📅 May 08, 2026</span>
+              <span>👥 150 attendees</span>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <p class="archive-empty" id="archiveEmpty" hidden>No past events in this category yet.</p>
+
+      <!-- Call to action -->
+      <div class="cta-strip">
+        <p>Want your event in the archive next?</p>
+        <div class="cta-buttons">
+          <a href="index.html#upcoming" class="btn-outline">See Upcoming Events</a>
+          <a href="host-event.html" class="btn-register-header">Host an Event &rarr;</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Photo gallery pop-up -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Event photos" hidden>
+    <button type="button" class="lightbox-close" id="lbClose" aria-label="Close">&times;</button>
+    <button type="button" class="lightbox-nav prev" id="lbPrev" aria-label="Previous photo">&#8249;</button>
+    <figure>
+      <img id="lbImg" src="" alt="">
+      <figcaption id="lbCaption"></figcaption>
+    </figure>
+    <button type="button" class="lightbox-nav next" id="lbNext" aria-label="Next photo">&#8250;</button>
+  </div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <a href="index.html" class="brand-logo" aria-label="KDU Events home">
+          <img src="assets/logo.svg" alt="KDU Logo" class="logo-img">
+          <span class="logo-text">KDU <span class="logo-highlight">EVENTS</span></span>
+        </a>
+        <p class="footer-desc">Your central hub for campus life, workshops, socials, and showcases at KDU.</p>
+      </div>
+
+      <div class="footer-column">
+        <h3>Navigation</h3>
+        <ul>
+          <li><a href="index.html">Discover</a></li>
+          <li><a href="index.html#upcoming">Upcoming Events</a></li>
+          <li><a href="past-events.html">Past Events</a></li>
+          <li><a href="index.html#about">About Us</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h3>Services</h3>
+        <ul>
+          <li><a href="host-event.html">Host an Event</a></li>
+          <li><a href="venue.html">Book a Venue</a></li>
+          <li><a href="campus-societies.html">Campus Societies</a></li>
+          <li><a href="event-guidelines.html">Event Guidelines</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h3>Contact Us</h3>
+        <ul>
+          <li>📍 <a href="https://maps.app.goo.gl/5GgkygHVxvmTicVH9" target="_blank" rel="noopener noreferrer">International Office, Main Campus</a></li>
+          <li>✉️ <a href="mailto:admin@kduevents.co.kr">admin@kduevents.co.kr</a></li>
+          <li>📞 <a href="tel:+82336312000">+82 (033) 631-2000</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 KDU Events. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script>
+    const list = document.getElementById('archiveList');
+    const emptyMsg = document.getElementById('archiveEmpty');
+    let currentFilter = 'all';
+
+    // ---- Filter buttons ----
+    function applyFilter() {
+      let shown = 0;
+      list.querySelectorAll('.archive-item').forEach(item => {
+        item.hidden = currentFilter !== 'all' && item.dataset.type !== currentFilter;
+        if (!item.hidden) shown++;
+      });
+      emptyMsg.hidden = shown > 0;
+    }
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        applyFilter();
+      });
+    });
+
+    // ---- Photo gallery pop-up ----
+    const lb = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lbImg');
+    const lbCaption = document.getElementById('lbCaption');
+    let photos = [], index = 0, title = '';
+
+    function showPhoto() {
+      lbImg.src = photos[index];
+      lbImg.alt = title;
+      lbCaption.textContent = photos.length > 1 ? `${title} — ${index + 1} / ${photos.length}` : title;
+      lb.classList.toggle('single', photos.length < 2);
+    }
+    function openGallery(item) {
+      photos = (item.dataset.photos || '').split('|').filter(Boolean);
+      if (!photos.length) return;
+      title = item.querySelector('h3').textContent;
+      index = 0;
+      showPhoto();
+      lb.hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+    function closeGallery() {
+      lb.hidden = true;
+      document.body.style.overflow = '';
+    }
+    const step = (d) => { index = (index + d + photos.length) % photos.length; showPhoto(); };
+
+    list.addEventListener('click', (e) => {
+      const thumb = e.target.closest('.archive-thumb');
+      if (thumb) openGallery(thumb.closest('.archive-item'));
+    });
+    document.getElementById('lbClose').addEventListener('click', closeGallery);
+    document.getElementById('lbPrev').addEventListener('click', () => step(-1));
+    document.getElementById('lbNext').addEventListener('click', () => step(1));
+    lb.addEventListener('click', (e) => { if (e.target === lb) closeGallery(); });
+    document.addEventListener('keydown', (e) => {
+      if (lb.hidden) return;
+      if (e.key === 'Escape') closeGallery();
+      if (e.key === 'ArrowLeft') step(-1);
+      if (e.key === 'ArrowRight') step(1);
+    });
+
+    // ---- Past events from the database (events whose date has passed) ----
+    (async () => {
+      if (!window.KDU_API_BASE) return;
+      const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const origin = window.KDU_API_BASE.replace(/\/api\/?$/, '');
+      const imageUrl = (src) => !src ? 'assets/logo.svg' : (String(src).startsWith('/api/images/') ? origin + src : src);
+      const typeKey = (c) => {
+        const s = String(c || '').toLowerCase();
+        if (s.includes('sport')) return 'sports';
+        if (s.includes('art') || s.includes('cultur')) return 'culture';
+        if (s.includes('communit') || s.includes('volunt')) return 'community';
+        return 'academic';
+      };
+      try {
+        const res = await fetch(`${window.KDU_API_BASE}/events`);
+        if (!res.ok) return;
+        const events = await res.json();
+        if (!Array.isArray(events)) return;
+        const now = Date.now();
+        const time = (e) => new Date(e.startsAt || e.date).getTime();
+        const known = new Set([...list.querySelectorAll('h3')].map(h => h.textContent.trim().toLowerCase()));
+        const past = events
+          .filter(e => time(e) < now && !known.has(String(e.title || '').trim().toLowerCase()))
+          .sort((a, b) => time(b) - time(a));
+        if (!past.length) return;
+
+        list.insertAdjacentHTML('afterbegin', past.map(e => {
+          const d = new Date(time(e));
+          const when = d.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
+          const img = esc(imageUrl(e.image));
+          const count = Number(e.registeredCount) || 0;
+          return `
+            <article class="archive-item" data-type="${typeKey(e.category)}" data-photos="${img}">
+              <button type="button" class="archive-thumb" aria-label="Open ${esc(e.title)} photo">
+                <img src="${img}" alt="${esc(e.title)}" loading="lazy">
+              </button>
+              <div class="archive-body">
+                <span class="society-tag">${esc(e.category || 'Event')}</span>
+                <h3>${esc(e.title)}</h3>
+                <p>${esc(e.description || '')}</p>
+                <div class="archive-facts">
+                  <span>📅 ${esc(when)}</span>
+                  ${e.venue ? `<span>📍 ${esc(e.venue)}</span>` : ''}
+                  ${count ? `<span>👥 ${count} registered</span>` : ''}
+                </div>
+              </div>
+            </article>`;
+        }).join(''));
+        applyFilter();
+      } catch (err) {
+        // Server unreachable: only the events written in this file are shown
+      }
+    })();
+  </script>
+</body>
+</html>

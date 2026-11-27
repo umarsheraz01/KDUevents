@@ -1,6 +1,6 @@
 /* =============================================================================
    css/info-pages.css — EXTRA STYLES FOR THE INFORMATION PAGES
-   Used by: campus-societies.html · event-guidelines.html
+   Used by: campus-societies.html · event-guidelines.html · past-events.html
    Loaded AFTER css/host-event.css (which gives the header, hero, card & footer)
    Sections: filter buttons · society cards · guideline rules · call-to-action
    ============================================================================= */
@@ -189,6 +189,111 @@
 
 .btn-outline:hover { border-color: #ffffff; }
 
+/* ---------- Event archive (Past Events) ---------- */
+.archive-list { display: flex; flex-direction: column; gap: 20px; }
+
+.archive-item {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.archive-item:hover { border-color: rgba(255, 59, 48, 0.5); transform: translateY(-3px); }
+.archive-item[hidden] { display: none; }
+
+.archive-thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 200px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+  overflow: hidden;
+}
+.archive-thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+.archive-item:hover .archive-thumb img { transform: scale(1.04); }
+
+.photo-count {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.archive-body {
+  padding: 22px 24px 22px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.archive-body h3 { font-size: 1.25rem; font-weight: 700; }
+.archive-body p { color: var(--text-muted); font-size: 0.92rem; flex-grow: 1; }
+
+.archive-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 12px;
+}
+
+.archive-empty { color: var(--text-muted); text-align: center; padding: 30px 0; }
+
+/* Photo gallery pop-up */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 80px;
+}
+.lightbox[hidden] { display: none; }
+.lightbox figure { margin: 0; text-align: center; }
+.lightbox img { max-width: 100%; max-height: 80vh; border-radius: 12px; }
+.lightbox figcaption { color: #ffffff; margin-top: 12px; font-size: 0.95rem; }
+
+.lightbox-close,
+.lightbox-nav {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border: 0;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.lightbox-close:hover, .lightbox-nav:hover { background: var(--primary-red); }
+.lightbox-close { top: 20px; right: 20px; }
+.lightbox-nav.prev { left: 20px; }
+.lightbox-nav.next { right: 20px; }
+.lightbox.single .lightbox-nav { display: none; }
+
 /* ---------- Phones & tablets ---------- */
 @media (max-width: 960px) {
   .society-grid { grid-template-columns: repeat(2, 1fr); }
@@ -199,4 +304,9 @@
   .info-card { padding: 24px; }
   .hero-title { font-size: 2rem; }
   .nav-links { display: none; }
+  .archive-item { grid-template-columns: 1fr; gap: 0; }
+  .archive-thumb { min-height: 220px; }
+  .archive-body { padding: 20px; }
+  .lightbox { padding: 20px; }
+  .lightbox-nav { top: auto; bottom: 20px; }
 }
