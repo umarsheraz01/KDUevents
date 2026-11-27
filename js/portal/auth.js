@@ -1,7 +1,8 @@
 // =============================================================================
 // js/portal/auth.js — SIGNING IN, SIGNING UP AND THE LOGIN SESSION
 // -----------------------------------------------------------------------------
-//   • login token kept in the browser
+//   • login token kept in THIS TAB only (sessionStorage): closing the tab or the
+//     browser signs you out, and opening login.html always asks to sign in again
 //   • moving between the pages: login.html / signup.html → student-portal.html
 //     or admin-portal.html, and back to login.html after signing out
 //   • the student's saved/registered events (loaded when the portal opens)
@@ -14,12 +15,27 @@
 // SESSION TOKEN (issued by the server after a successful sign-in)
 const TOKEN_KEY = 'kdu-portal-token';
 
+// sessionStorage is forgotten when the tab is closed, so every visit needs a fresh sign-in
 function getToken() {
-  try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; }
+  try { return sessionStorage.getItem(TOKEN_KEY); } catch (e) { return null; }
 }
 function setToken(token) {
-  try { token ? localStorage.setItem(TOKEN_KEY, token) : localStorage.removeItem(TOKEN_KEY); } catch (e) {}
+  try { token ? sessionStorage.setItem(TOKEN_KEY, token) : sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
 }
+
+// Ask the server to cancel a token (fire and forget)
+function revokeTokenOnServer(token) {
+  if (!token) return;
+  fetch(`${API_BASE}/auth/logout`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, keepalive: true }).catch(() => {});
+}
+
+// Older versions kept the login in localStorage (it survived closing the browser): cancel it
+(function forgetOldSavedLogin() {
+  try {
+    const old = localStorage.getItem(TOKEN_KEY);
+    if (old) { localStorage.removeItem(TOKEN_KEY); revokeTokenOnServer(old); }
+  } catch (e) {}
+})();
 
 // Go to another portal page (replace = the Back button won't bounce between them)
 function goTo(url) {
@@ -64,14 +80,14 @@ async function restoreSession() {
   openMainPortal(data.state);
 }
 
-// SIGN-IN / SIGN-UP PAGES: already signed in? Go straight to the portal.
+// SIGN-IN / SIGN-UP PAGES: never sign in automatically. Opening this page ends
+// any login in this tab, so you can switch accounts (e.g. student → admin).
 async function initAuthPage() {
   clearLoginFields();
   const token = getToken();
   if (!token) return;
-  const data = await checkToken(token);
-  if (data && data.user) return goTo(portalUrlFor(data.user.role));
-  if (data && data.invalid) setToken(null);
+  setToken(null);
+  revokeTokenOnServer(token);
 }
 
 // Keep the "Create an account" / "Sign in" link pointing at the same event (if any)
@@ -241,7 +257,7 @@ async function handleSignOut() {
   if (signingOut) return;
   signingOut = true;
   const oldToken = getToken();
-  setToken(null);   // other open portal tabs notice this and sign out too
+  setToken(null);
   activeUser = null;
   if (oldToken) {
     // Wait (max 3 seconds) for the server to cancel the token before leaving the page
@@ -268,11 +284,6 @@ function clearLoginFields() {
   wipe();
   setTimeout(wipe, 300);
 }
-
-// Signed out in ANOTHER tab → leave the portal in this tab too
-window.addEventListener("storage", (e) => {
-  if (e.key === TOKEN_KEY && !e.newValue && IS_PORTAL_PAGE) goTo(PAGES.login);
-});
 
 // Page brought back with the browser's Back/Forward buttons: re-check the login
 window.addEventListener("pageshow", (e) => {
