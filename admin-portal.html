@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KDU Events Portal - Admin</title>
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-  <link rel="stylesheet" href="css/portal.css">
+  <link rel="stylesheet" href="css/portal.css?v=2">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body data-page="admin">
@@ -132,16 +132,15 @@
                 <label for="evTitle">Event title</label>
                 <input type="text" id="evTitle" maxlength="150" required placeholder="e.g. Spring Coding Bootcamp">
               </div>
-              <div class="form-group">
-                <label for="evCategory">Category</label>
-                <select id="evCategory" required>
-                  <option value="Technology">Technology</option>
-                  <option value="Arts & Culture">Arts & Culture</option>
-                  <option value="Entrepreneurship">Entrepreneurship</option>
-                  <option value="Sports">Sports</option>
-                  <option value="Academic">Academic</option>
-                </select>
-              </div>
+              <!-- Tick one or more: the event shows under every ticked category -->
+              <fieldset class="form-group span-2 category-picker" id="evCategory">
+                <legend>Category <span class="field-hint">(choose one or more)</span></legend>
+                <label class="category-chip"><input type="checkbox" name="evCategory" value="Technology"> Technology</label>
+                <label class="category-chip"><input type="checkbox" name="evCategory" value="Arts & Culture"> Arts &amp; Culture</label>
+                <label class="category-chip"><input type="checkbox" name="evCategory" value="Entrepreneurship"> Entrepreneurship</label>
+                <label class="category-chip"><input type="checkbox" name="evCategory" value="Sports"> Sports</label>
+                <label class="category-chip"><input type="checkbox" name="evCategory" value="Academic"> Academic</label>
+              </fieldset>
               <div class="form-group">
                 <label for="evDate">Date &amp; time</label>
                 <input type="datetime-local" id="evDate" required>
@@ -305,6 +304,6 @@
   <script src="js/portal/core.js?v=2"></script>        <!-- settings, shared state, helpers -->
   <script src="js/portal/auth.js?v=3"></script>        <!-- sign in / sign up / session -->
   <script src="js/portal/navigation.js?v=2"></script>  <!-- sidebar, tabs, card buttons -->
-  <script src="js/portal/admin.js?v=2"></script>       <!-- admin portal + participant list -->
+  <script src="js/portal/admin.js?v=3"></script>       <!-- admin portal + participant list -->
 </body>
 </html>

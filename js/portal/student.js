@@ -53,7 +53,8 @@ function applyDiscoverFilters() {
 
   const filtered = eventsData.filter(evt => {
     const matchesQuery = (evt.title || '').toLowerCase().includes(query) || (evt.venue || '').toLowerCase().includes(query);
-    const matchesCat = cat === 'all' || evt.category === cat;
+    // An event can have several categories separated by commas ("Technology, Academic")
+    const matchesCat = cat === 'all' || String(evt.category || '').split(',').map(c => c.trim()).includes(cat);
     const matchesStatus = status === 'all' || seatsLeft(evt) > 0;
     return matchesQuery && matchesCat && matchesStatus;
   });

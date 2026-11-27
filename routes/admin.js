@@ -85,7 +85,8 @@ router.get('/activity', async (req, res) => {
 router.post('/events', async (req, res) => {
   try {
     const title = cleanText(req.body.title, 150);
-    const category = cleanText(req.body.category, 60);
+    // One or more categories separated by commas, e.g. "Technology, Academic"
+    const category = cleanText(req.body.category, 200).split(',').map(c => c.trim()).filter(Boolean).join(', ');
     const venue = cleanText(req.body.venue, 120);
     const dept = cleanText(req.body.dept, 120);
     const description = cleanText(req.body.description, 2000);

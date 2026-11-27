@@ -274,6 +274,38 @@
       background: rgba(255, 255, 255, 0.08);
     }
 
+    /* Category checkboxes (choose one or more) */
+    .category-picker { border: 0; padding: 0; margin: 0; min-width: 0; }
+    .category-picker legend { font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; padding: 0; }
+    .category-picker .field-hint { font-weight: 400; color: var(--text-muted); }
+    .category-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+    .category-chip {
+      display: inline-flex !important;
+      align-items: center;
+      gap: 8px;
+      margin: 0 !important;
+      padding: 9px 16px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      background: var(--bg-input);
+      font-size: 0.88rem !important;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .category-chip input[type="checkbox"] {
+      width: auto !important;
+      padding: 0 !important;
+      margin: 0;
+      accent-color: var(--primary-red);
+      cursor: pointer;
+    }
+    .category-chip:has(input:checked) {
+      border-color: var(--primary-red);
+      background: rgba(255, 59, 48, 0.1);
+    }
+
     .toggle-card input[type="checkbox"] {
       accent-color: var(--primary-red);
       width: 18px;

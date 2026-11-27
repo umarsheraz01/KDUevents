@@ -5,6 +5,7 @@
 // posted as JSON to  KDU_API_BASE + /requests/<endpoint>  (routes/requests.js),
 // which emails the details to admin@kduevents.co.kr.
 // Checkboxes that share a name (e.g. "logistics") are sent as a list.
+// A <fieldset data-required-group="message"> needs at least one ticked box.
 // =============================================================================
 (function () {
   function formToJson(form) {
@@ -36,6 +37,8 @@
       e.preventDefault();
       // Use the browser's own "please fill in this field" messages
       if (!form.checkValidity()) { form.reportValidity(); return; }
+      const emptyGroup = [...form.querySelectorAll('[data-required-group]')].find(g => !g.querySelector('input:checked'));
+      if (emptyGroup) { setStatus(form, emptyGroup.dataset.requiredGroup, 'error'); emptyGroup.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
 
       if (button) { button.disabled = true; button.textContent = 'Sending…'; }
       setStatus(form, 'Sending your request…', 'pending');

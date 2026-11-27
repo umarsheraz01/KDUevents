@@ -198,11 +198,19 @@ async function handleCreateEvent(e) {
   const errEl = document.getElementById("adminEventError");
   errEl.classList.add("hidden");
 
+  // Categories: every ticked box, saved as "Technology, Academic"
+  const categories = [...document.querySelectorAll('input[name="evCategory"]:checked')].map(c => c.value);
+  if (!categories.length) {
+    errEl.textContent = "Please choose at least one category.";
+    errEl.classList.remove("hidden");
+    return;
+  }
+
   const dateValue = document.getElementById("evDate").value;
   const startsAt = new Date(dateValue);
   const body = {
     title: document.getElementById("evTitle").value.trim(),
-    category: document.getElementById("evCategory").value,
+    category: categories.join(', '),
     startsAt: isNaN(startsAt.getTime()) ? '' : startsAt.toISOString(),
     date: isNaN(startsAt.getTime()) ? '' : formatDateTime(startsAt),
     venue: document.getElementById("evVenue").value.trim(),

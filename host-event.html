@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Host an Event - KDU Events</title>
    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-    <link rel="stylesheet" href="css/host-event.css">
+    <link rel="stylesheet" href="css/host-event.css?v=2">
     <link rel="stylesheet" href="css/light-theme.css">
 </head>
 <body>
@@ -85,16 +85,18 @@
             <input type="text" id="eventTitle" name="title" placeholder="e.g. Future Forward: Tech & Innovation Summit" required>
           </div>
 
-          <div class="form-group">
-            <label for="eventCategory">Category *</label>
-            <select id="eventCategory" name="category" required>
-              <option value="" disabled selected>Select Category</option>
-              <option value="Technology &amp; AI">Technology & AI</option>
-              <option value="Arts &amp; Culture">Arts & Culture</option>
-              <option value="Entrepreneurship">Entrepreneurship</option>
-              <option value="Social &amp; Student Life">Social & Student Life</option>
-            </select>
-          </div>
+          <!-- Tick one or more (js/requests.js checks that at least one is ticked) -->
+          <fieldset class="form-group full-width category-picker" data-required-group="Please choose at least one category.">
+            <legend>Category * <span class="field-hint">(choose one or more)</span></legend>
+            <div class="category-chips">
+              <label class="category-chip"><input type="checkbox" name="category" value="Technology"> Technology</label>
+              <label class="category-chip"><input type="checkbox" name="category" value="Arts &amp; Culture"> Arts &amp; Culture</label>
+              <label class="category-chip"><input type="checkbox" name="category" value="Entrepreneurship"> Entrepreneurship</label>
+              <label class="category-chip"><input type="checkbox" name="category" value="Sports"> Sports</label>
+              <label class="category-chip"><input type="checkbox" name="category" value="Academic"> Academic</label>
+              <label class="category-chip"><input type="checkbox" name="category" value="Social &amp; Student Life"> Social &amp; Student Life</label>
+            </div>
+          </fieldset>
 
           <div class="form-group">
             <label for="targetAudience">Target Audience</label>
@@ -239,6 +241,6 @@
   </footer>
 
   <script src="js/config.js"></script>
-  <script src="js/requests.js"></script>
+  <script src="js/requests.js?v=2"></script>
 </body>
 </html>

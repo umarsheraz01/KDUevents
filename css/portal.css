@@ -1275,6 +1275,51 @@ a.sidebar-brand:hover .brand-title { opacity: 0.85; }
   gap: 0 16px;
 }
 .admin-form .span-2 { grid-column: 1 / -1; }
+
+/* Category checkboxes on "Create a new event" (pick one or more) */
+.category-picker {
+  border: 0;
+  padding: 0;
+  margin: 0 0 16px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.category-picker legend {
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+  padding: 0;
+}
+.category-picker .field-hint { font-weight: 500; color: #94a3b8; }
+.category-chip {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  margin: 0 !important;
+  padding: 9px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #ffffff;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #334155;
+  cursor: pointer;
+  user-select: none;
+}
+.category-chip input[type="checkbox"] {
+  width: auto !important;
+  padding: 0 !important;
+  margin: 0;
+  accent-color: #0056b3;
+  cursor: pointer;
+}
+.category-chip:has(input:checked) {
+  border-color: #0056b3;
+  background: rgba(0, 86, 179, 0.08);
+  color: #0056b3;
+}
 .admin-form textarea {
   width: 100%;
   padding: 12px 16px;

@@ -104,7 +104,8 @@ router.post('/host-event', async (req, res) => {
     const contact = readContact(b);
     const d = {
       title: cleanText(b.title, 150),
-      category: cleanText(b.category, 60),
+      // One or more ticked categories (a list), or a single value from an older page
+      category: (Array.isArray(b.category) ? b.category : [b.category]).map(v => cleanText(v, 60)).filter(Boolean).slice(0, 10).join(', '),
       audience: cleanText(b.audience, 60),
       description: cleanText(b.description, 3000),
       date: cleanText(b.date, 20),

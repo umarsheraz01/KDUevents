@@ -103,7 +103,8 @@ function filterEventCards() {
   // Look up the cards every time: some are loaded from the server after the page opens
   let matched = 0;
   grid.querySelectorAll('.event-card').forEach(card => {
-    const matches = filterValue === 'all' || card.getAttribute('data-category') === filterValue;
+    // data-category can hold several keys separated by spaces ("technology academic")
+    const matches = filterValue === 'all' || (card.getAttribute('data-category') || '').split(/\s+/).includes(filterValue);
     if (matches) matched++;
     card.classList.toggle('hidden', !matches || matched > limit);
   });
@@ -141,8 +142,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const origin = window.KDU_API_BASE.replace(/\/api\/?$/, '');
   // Uploaded banners are stored on the server as "/api/images/<id>"
   const imageUrl = (src) => !src ? 'assets/WhatsApp Image 2026-10-12 at 11.01.35.jpeg' : (String(src).startsWith('/api/images/') ? origin + src : src);
-  // Category name -> filter tab key (data-filter="…")
-  const categoryKey = (c) => ({ 'Technology': 'technology', 'Arts & Culture': 'arts', 'Entrepreneurship': 'entrepreneurship', 'Academic': 'academic' }[c] || String(c || 'other').toLowerCase().replace(/[^a-z]+/g, '-'));
+  // Category name -> filter tab key (data-filter="…").
+  // An event can have several categories separated by commas, e.g. "Technology, Academic":
+  // it then gets several keys ("technology academic") and shows under each tab.
+  const oneKey = (c) => ({ 'Technology': 'technology', 'Arts & Culture': 'arts', 'Entrepreneurship': 'entrepreneurship', 'Academic': 'academic' }[c] || String(c || 'other').toLowerCase().replace(/[^a-z]+/g, '-'));
+  const categoryList = (c) => String(c || '').split(',').map(x => x.trim()).filter(Boolean);
+  const categoryKey = (c) => (categoryList(c).length ? categoryList(c) : ['other']).map(oneKey).join(' ');
 
   // events.html: copy the hand-written cards from index.html first,
   // so they only need to be edited in one place
@@ -192,7 +197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="date-badge"><span class="day">${day}</span><span class="month">${esc(month)}</span></div>
             </div>
             <div class="event-card-body">
-                <span class="card-category">${esc(e.category)}</span>
+                <span class="card-category">${esc(categoryList(e.category).join(' · '))}</span>
                 <h3 class="card-title">${esc(e.title)}</h3>
                 <div class="card-divider"></div>
                 <div class="card-info-list">
