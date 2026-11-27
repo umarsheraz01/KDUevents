@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema({
   saved: { type: [String], default: [] },               // ids of events the student saved (favorites)
   phone: { type: String, trim: true },                  // remembered from the last registration form
   lastLoginAt: Date,
+  loginCount: Number,                                   // 1 = still on the first visit ("Welcome"), 2+ = "Welcome back"
   // "Forgot password": only a hash of the emailed reset code is stored, never the code itself
   resetTokenHash: String,
   resetTokenExpires: Date,

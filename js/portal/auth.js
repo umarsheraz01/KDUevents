@@ -293,7 +293,7 @@ function updateUserUI() {
   document.getElementById("sidebarRoleTag").innerText = adminAccount ? 'Admin Portal' : 'Student Portal';
   if (adminAccount) return;
   document.getElementById("overviewDeptTag").innerText = activeUser.dept || "Smart Computing";
-  document.getElementById("overviewWelcomeHeading").innerText = `Welcome back, ${nameStr.split(' ')[0]}.`;
+  document.getElementById("overviewWelcomeHeading").innerText = `${activeUser.firstVisit ? 'Welcome' : 'Welcome back'}, ${nameStr.split(' ')[0]}.`;
   renderUserLists();
 }
 

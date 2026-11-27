@@ -40,7 +40,7 @@ router.post('/register', async (req, res) => {
       return res.status(409).json({ message: 'An account with this email already exists. Please sign in.' });
     }
 
-    const user = await User.create({ name, email, password: hashPassword(password), role: 'student', studentId, dept, lastLoginAt: new Date() });
+    const user = await User.create({ name, email, password: hashPassword(password), role: 'student', studentId, dept, lastLoginAt: new Date(), loginCount: 1 });
     logActivity('signup', user, `${user.name} created a student account`);
     res.status(201).json({
       message: 'Account created',
@@ -93,6 +93,8 @@ router.post('/login', async (req, res) => {
     }
     clearFails(ip);
     user.lastLoginAt = new Date();
+    // Accounts from before this counter existed have signed in before, so they start at 2
+    user.loginCount = (user.loginCount || 1) + 1;
     await user.save();
     logActivity('login', user, `${user.name || user.email} signed in`);
     res.json({
