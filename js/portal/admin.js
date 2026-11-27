@@ -208,11 +208,29 @@ async function handleCreateEvent(e) {
 
   const dateValue = document.getElementById("evDate").value;
   const startsAt = new Date(dateValue);
+
+  // Optional end time: same day as the start (e.g. 10:00 AM – 4:00 PM)
+  const endTime = document.getElementById("evEndTime").value;
+  let endsAt = null;
+  if (endTime && !isNaN(startsAt.getTime())) {
+    const [h, m] = endTime.split(':').map(Number);
+    endsAt = new Date(startsAt);
+    endsAt.setHours(h, m, 0, 0);
+    if (endsAt <= startsAt) {
+      errEl.textContent = "The end time must be later than the start time.";
+      errEl.classList.remove("hidden");
+      return;
+    }
+  }
+  const endLabel = endsAt ? ' – ' + endsAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+
   const body = {
     title: document.getElementById("evTitle").value.trim(),
     category: categories.join(', '),
     startsAt: isNaN(startsAt.getTime()) ? '' : startsAt.toISOString(),
-    date: isNaN(startsAt.getTime()) ? '' : formatDateTime(startsAt),
+    endsAt: endsAt ? endsAt.toISOString() : '',
+    // Readable date shown everywhere, e.g. "Dec 12, 2026, 10:00 AM – 4:00 PM"
+    date: isNaN(startsAt.getTime()) ? '' : formatDateTime(startsAt) + endLabel,
     venue: document.getElementById("evVenue").value.trim(),
     dept: document.getElementById("evDept").value.trim(),
     seats: document.getElementById("evSeats").value,

@@ -92,20 +92,25 @@ router.post('/events', async (req, res) => {
     const description = cleanText(req.body.description, 2000);
     const seats = Math.floor(Number(req.body.seats));
     const startsAt = new Date(req.body.startsAt);
+    // End time is optional; when given it must be after the start
+    const endsAt = req.body.endsAt ? new Date(req.body.endsAt) : null;
     let image = cleanText(req.body.image, 1000);
 
     if (!title) return res.status(400).json({ message: 'Please enter an event title.' });
     if (!category) return res.status(400).json({ message: 'Please choose a category.' });
     if (isNaN(startsAt.getTime())) return res.status(400).json({ message: 'Please choose a valid date and time.' });
+    if (endsAt && (isNaN(endsAt.getTime()) || endsAt <= startsAt)) return res.status(400).json({ message: 'The end time must be later than the start time.' });
     if (!venue) return res.status(400).json({ message: 'Please enter a venue.' });
+    if (!dept) return res.status(400).json({ message: 'Please enter the department or organizer.' });
     if (!Number.isFinite(seats) || seats < 1 || seats > 100000) return res.status(400).json({ message: 'Seats must be a number between 1 and 100000.' });
     // Banner: an uploaded image ("/api/images/<id>") or a web link
     const uploaded = /^\/api\/images\/[a-f0-9]{24}$/.test(image);
+    if (!description) return res.status(400).json({ message: 'Please enter a description.' });
     if (image && !uploaded && !/^https?:\/\//i.test(image)) return res.status(400).json({ message: 'Image must be an uploaded picture or a web address starting with http:// or https://' });
     if (!image) image = DEFAULT_IMAGE;
 
     const date = cleanText(req.body.date, 60) || startsAt.toUTCString();
-    const evt = await Event.create({ title, category, date, startsAt, venue, dept, seats, description, image });
+    const evt = await Event.create({ title, category, date, startsAt, endsAt: endsAt || undefined, venue, dept, seats, description, image });
     logActivity('event_created', req.user, `Admin created the event "${title}"`, evt._id);
     res.status(201).json({ ...evt.toObject(), _id: String(evt._id), registeredCount: 0 });
   } catch (err) {

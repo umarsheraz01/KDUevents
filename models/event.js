@@ -8,6 +8,7 @@ const eventSchema = new mongoose.Schema({
   category: String,     // Technology, Arts & Culture, Entrepreneurship, Sports, Academic
   date: String,         // readable date shown on the site, e.g. "Dec 12, 2026, 10:00 AM"
   startsAt: Date,       // real date, used for sorting
+  endsAt: Date,         // optional end time (same day), e.g. 4:00 PM
   venue: String,
   dept: String,         // organizing department
   seats: Number,        // total seats; registrations stop when full

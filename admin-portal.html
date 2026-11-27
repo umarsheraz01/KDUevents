@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KDU Events Portal - Admin</title>
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-  <link rel="stylesheet" href="css/portal.css?v=2">
+  <link rel="stylesheet" href="css/portal.css?v=3">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body data-page="admin">
@@ -128,33 +128,39 @@
               <h3>Create a new event</h3>
             </div>
             <form id="adminEventForm" class="admin-form" onsubmit="handleCreateEvent(event)">
+              <p class="form-legend span-2">Fields marked <span class="required-mark">*</span> are required.</p>
               <div class="form-group span-2">
-                <label for="evTitle">Event title</label>
+                <label for="evTitle">Event title <span class="required-mark" aria-hidden="true">*</span></label>
                 <input type="text" id="evTitle" maxlength="150" required placeholder="e.g. Spring Coding Bootcamp">
               </div>
               <!-- Tick one or more: the event shows under every ticked category -->
               <fieldset class="form-group span-2 category-picker" id="evCategory">
-                <legend>Category <span class="field-hint">(choose one or more)</span></legend>
+                <legend>Category <span class="required-mark" aria-hidden="true">*</span> <span class="field-hint">(choose one or more)</span></legend>
                 <label class="category-chip"><input type="checkbox" name="evCategory" value="Technology"> Technology</label>
                 <label class="category-chip"><input type="checkbox" name="evCategory" value="Arts & Culture"> Arts &amp; Culture</label>
                 <label class="category-chip"><input type="checkbox" name="evCategory" value="Entrepreneurship"> Entrepreneurship</label>
                 <label class="category-chip"><input type="checkbox" name="evCategory" value="Sports"> Sports</label>
                 <label class="category-chip"><input type="checkbox" name="evCategory" value="Academic"> Academic</label>
+                <label class="category-chip"><input type="checkbox" name="evCategory" value="Other"> Other</label>
               </fieldset>
               <div class="form-group">
-                <label for="evDate">Date &amp; time</label>
+                <label for="evDate">Start date &amp; time <span class="required-mark" aria-hidden="true">*</span></label>
                 <input type="datetime-local" id="evDate" required>
               </div>
               <div class="form-group">
-                <label for="evVenue">Venue</label>
+                <label for="evEndTime">End time <span class="optional">(optional)</span></label>
+                <input type="time" id="evEndTime">
+              </div>
+              <div class="form-group">
+                <label for="evVenue">Venue <span class="required-mark" aria-hidden="true">*</span></label>
                 <input type="text" id="evVenue" maxlength="120" required placeholder="e.g. Innovation Hall">
               </div>
               <div class="form-group">
-                <label for="evDept">Department / organizer</label>
-                <input type="text" id="evDept" maxlength="120" placeholder="e.g. Faculty of Computing">
+                <label for="evDept">Department / organizer <span class="required-mark" aria-hidden="true">*</span></label>
+                <input type="text" id="evDept" maxlength="120" required placeholder="e.g. Faculty of Computing">
               </div>
               <div class="form-group">
-                <label for="evSeats">Seats available</label>
+                <label for="evSeats">Seats available <span class="required-mark" aria-hidden="true">*</span></label>
                 <input type="number" id="evSeats" min="1" max="100000" required placeholder="50">
               </div>
               <div class="form-group">
@@ -162,7 +168,7 @@
                 <input type="url" id="evImage" maxlength="1000" placeholder="https://…" oninput="handleImageLinkInput()">
               </div>
               <div class="form-group span-2">
-                <label>Event banner <span class="optional">(JPG, PNG, WebP or GIF — up to 10 MB)</span></label>
+                <label>Event banner <span class="optional">(optional · JPG, PNG, WebP or GIF — up to 10 MB)</span></label>
                 <div class="banner-upload" id="bannerDropZone">
                   <input type="file" id="evBannerFile" accept="image/jpeg,image/png,image/webp,image/gif" class="visually-hidden" onchange="handleBannerFile(this.files[0])">
                   <div class="banner-empty" id="bannerEmpty">
@@ -184,8 +190,8 @@
                 </div>
               </div>
               <div class="form-group span-2">
-                <label for="evDescription">Description</label>
-                <textarea id="evDescription" rows="3" maxlength="2000" placeholder="What will students do, learn or see?"></textarea>
+                <label for="evDescription">Description <span class="required-mark" aria-hidden="true">*</span></label>
+                <textarea id="evDescription" rows="3" maxlength="2000" required placeholder="What will students do, learn or see?"></textarea>
               </div>
               <p id="adminEventError" class="auth-error hidden span-2" role="alert"></p>
               <div class="span-2 form-actions">
@@ -304,6 +310,6 @@
   <script src="js/portal/core.js?v=2"></script>        <!-- settings, shared state, helpers -->
   <script src="js/portal/auth.js?v=3"></script>        <!-- sign in / sign up / session -->
   <script src="js/portal/navigation.js?v=2"></script>  <!-- sidebar, tabs, card buttons -->
-  <script src="js/portal/admin.js?v=3"></script>       <!-- admin portal + participant list -->
+  <script src="js/portal/admin.js?v=4"></script>       <!-- admin portal + participant list -->
 </body>
 </html>

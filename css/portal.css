@@ -1335,6 +1335,8 @@ a.sidebar-brand:hover .brand-title { opacity: 0.85; }
   box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.1);
 }
 .optional { color: #94a3b8; font-weight: 500; }
+.required-mark { color: #dc2626; font-weight: 700; }
+.form-legend { font-size: 12px; color: #64748b; margin: -4px 0 12px 0; }
 .form-actions { display: flex; justify-content: flex-end; }
 .form-actions .btn-primary { width: auto; padding: 14px 28px; margin-top: 0; }
 

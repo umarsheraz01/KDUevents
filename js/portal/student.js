@@ -54,7 +54,10 @@ function applyDiscoverFilters() {
   const filtered = eventsData.filter(evt => {
     const matchesQuery = (evt.title || '').toLowerCase().includes(query) || (evt.venue || '').toLowerCase().includes(query);
     // An event can have several categories separated by commas ("Technology, Academic")
-    const matchesCat = cat === 'all' || String(evt.category || '').split(',').map(c => c.trim()).includes(cat);
+    // "Other" also catches categories that aren't in the list
+    const cats = String(evt.category || '').split(',').map(c => c.trim()).filter(Boolean);
+    const listed = [...document.querySelectorAll('#categoryFilter option')].map(o => o.value).filter(v => v !== 'all' && v !== 'Other');
+    const matchesCat = cat === 'all' || cats.includes(cat) || (cat === 'Other' && !cats.some(c => listed.includes(c)));
     const matchesStatus = status === 'all' || seatsLeft(evt) > 0;
     return matchesQuery && matchesCat && matchesStatus;
   });

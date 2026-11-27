@@ -100,11 +100,17 @@ function filterEventCards() {
   const filterValue = active ? active.getAttribute('data-filter') : 'all';
   const limit = Number(grid.dataset.limit) || Infinity;
 
+  // Categories that have their own tab; "Other" also catches every category without one
+  const tabKeys = [...document.querySelectorAll('.filter-tab')].map(t => t.getAttribute('data-filter')).filter(k => k !== 'all' && k !== 'other');
+
   // Look up the cards every time: some are loaded from the server after the page opens
   let matched = 0;
   grid.querySelectorAll('.event-card').forEach(card => {
     // data-category can hold several keys separated by spaces ("technology academic")
-    const matches = filterValue === 'all' || (card.getAttribute('data-category') || '').split(/\s+/).includes(filterValue);
+    const keys = (card.getAttribute('data-category') || '').split(/\s+/).filter(Boolean);
+    const matches = filterValue === 'all'
+      || keys.includes(filterValue)
+      || (filterValue === 'other' && !keys.some(k => tabKeys.includes(k)));
     if (matches) matched++;
     card.classList.toggle('hidden', !matches || matched > limit);
   });
@@ -145,7 +151,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Category name -> filter tab key (data-filter="…").
   // An event can have several categories separated by commas, e.g. "Technology, Academic":
   // it then gets several keys ("technology academic") and shows under each tab.
-  const oneKey = (c) => ({ 'Technology': 'technology', 'Arts & Culture': 'arts', 'Entrepreneurship': 'entrepreneurship', 'Academic': 'academic' }[c] || String(c || 'other').toLowerCase().replace(/[^a-z]+/g, '-'));
+  const oneKey = (c) => ({ 'Technology': 'technology', 'Arts & Culture': 'arts', 'Entrepreneurship': 'entrepreneurship', 'Academic': 'academic', 'Other': 'other' }[c] || String(c || 'other').toLowerCase().replace(/[^a-z]+/g, '-'));
   const categoryList = (c) => String(c || '').split(',').map(x => x.trim()).filter(Boolean);
   const categoryKey = (c) => (categoryList(c).length ? categoryList(c) : ['other']).map(oneKey).join(' ');
 
@@ -188,7 +194,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       const valid = !isNaN(d.getTime());
       const day = valid ? String(d.getDate()).padStart(2, '0') : '--';
       const month = valid ? d.toLocaleString('en-US', { month: 'short' }) : '';
-      const clock = valid ? d.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit' }) : esc(e.date);
+      const hm = (x) => x.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit' });
+      const end = e.endsAt ? new Date(e.endsAt) : null;
+      // "10:00 AM — 4:00 PM" when the admin gave an end time, otherwise just the start
+      const clock = valid ? hm(d) + (end && !isNaN(end.getTime()) ? ' — ' + hm(end) : '') : esc(e.date);
       const left = Math.max(0, (Number(e.seats) || 0) - (Number(e.registeredCount) || 0));
       return `
         <div class="event-card" data-category="${esc(categoryKey(e.category))}">
